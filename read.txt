@@ -1,0 +1,10 @@
+Frontend folder will contain:
+- All html and css
+- Javascript directly related to website UI, meaning all the animations / form validation / JQuery / filtering etc
+
+
+Backend folder will contain:
+- Scraping logic using python
+- Database upload logic using python
+- Database retrieving logic using PhP
+- Automatic mailing using PhP
