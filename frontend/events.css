@@ -1,0 +1,475 @@
+:root {
+    /* Exact Tailwind Zinc Palette */
+    --colBg: #09090b;         /* zinc-950 */
+    --colCardBg: #111111;     /* Custom dark */
+    --colBorder: #27272a;     /* zinc-800 */
+    --colBorderLight: #3f3f46;/* zinc-700 */
+    
+    --colTextMain: #ffffff;
+    --colTextSec: #a1a1aa;    /* zinc-400 */
+    --colTextMuted: #71717a;  /* zinc-500 */
+    
+    --colInputBg: #1a1a1a;
+    --colAccent: #ffffff;
+    --colGlow: #4f46e5;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--colBg);
+    color: var(--colTextMain);
+    font-family: 'Inter', sans-serif;
+    padding-top: 80px; 
+    padding-bottom: 50px;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* --- Fixed Navbar (Exact Replica) --- */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    background-color: black;
+    border-bottom: 1px solid var(--colBorder);
+    z-index: 50;
+    display: flex;
+    justify-content: center;
+    margin-top: 1px;
+}
+
+.navContainer {
+    width: 100%;
+    max-width: 80rem;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+}
+
+/* Left: Logo Area */
+.brandLink {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.brandLogoBox {
+    width: 32px;
+    height: 32px;
+    background-color: white;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: -1px;
+}
+
+.brandLogoDot {
+    width: 12px;
+    height: 12px;
+    background-color: black;
+    border-radius: 9999px;
+}
+
+.brandName {
+    font-size: 18px;
+    font-weight: 700;
+    color: white;
+    letter-spacing: -0.025em;
+}
+
+/* Center: Links */
+.navLinks {
+    display: none;
+    align-items: center;
+    gap: 32px;
+}
+
+@media (min-width: 768px) {
+    .navLinks {
+        display: flex;
+    }
+}
+
+.navItem {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--colTextSec);
+    text-decoration: none;
+    transition: color 0.15s;
+}
+
+.navItem:hover {
+    color: white;
+}
+
+/* Right: Auth Buttons */
+.authGroup {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.btnLogin {
+    background: none;
+    border: none;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--colTextSec);
+    cursor: pointer;
+    transition: color 0.15s;
+    font-family: 'Inter', sans-serif;
+}
+
+.btnLogin:hover {
+    color: white;
+}
+
+.btnSignup {
+    background-color: var(--colBorder);
+    border: 1px solid var(--colBorderLight);
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.15s;
+    font-family: 'Inter', sans-serif;
+}
+
+.btnSignup:hover {
+    box-shadow: 0 0 0 2px var(--colGlow), 0 0 15px rgba(79, 70, 229, 0.3);
+}
+
+/* --- Main Layout --- */
+.mainContainer {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 0 20px;
+    width: 100%; 
+}
+
+/* Search Section */
+.searchSection {
+    margin-bottom: 30px;
+    margin-top: -25px;
+}
+
+.searchBarWrapper {
+    background-color: var(--colInputBg);
+    border: 1px solid #333;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    transition: box-shadow 0.3s, border-color 0.3s;
+}
+
+.searchBarWrapper:focus-within {
+    border-color: var(--colGlow);
+    box-shadow: 0 0 0 2px var(--colGlow), 0 0 15px rgba(79, 70, 229, 0.3);
+}
+
+.searchIcon {
+    width: 20px;
+    height: 20px;
+    color: var(--colTextMuted);
+    margin: 0 12px;
+}
+
+.searchInput {
+    background: transparent;
+    border: none;
+    color: var(--colTextMain);
+    width: 100%;
+    font-size: 15px;
+    outline: none;
+    padding: 10px 0;
+    font-family: 'Inter', sans-serif;
+}
+
+.searchInput::placeholder {
+    color: var(--colTextMuted);
+}
+
+.btnFind {
+    background-color: var(--colBorder);
+    border: 1px solid var(--colBorderLight);
+    color: var(--colTextSec);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+}
+
+.btnFind:hover {
+    box-shadow: 0 0 0 2px var(--colGlow), 0 0 15px rgba(79, 70, 229, 0.3);
+    color: var(--colTextMain);
+}
+
+/* Filter Bar */
+.filterBar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.sortGroup {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.sortLabel {
+    color: var(--colTextSec);
+    font-size: 17px;
+    margin-right: 5px;
+    font-weight: bold;
+}
+
+/* --- DROPDOWN STYLING --- */
+
+/* The Wrapper for Button + Menu */
+.sortDropdownWrapper {
+    position: relative; /* Essential for absolute positioning of menu */
+    width: 130px;      /* Fixed width so buttons and menus match */
+}
+
+/* The Trigger Button (formerly .sortPill) */
+.sortBtn {
+    background-color: #1a1a1a;
+    padding: 10px 16px;
+    width: 100%;       /* Fill wrapper */
+    border-radius: 5px;
+    font-size: 15px;
+    cursor: pointer;
+    color: var(--colTextSec);
+    border: 1px solid transparent;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Space between text and arrow */
+    user-select: none;
+}
+
+.sortBtn:hover, .sortDropdownWrapper.active .sortBtn {
+    color: var(--colTextMain);
+    border-color: #333;
+    box-shadow: 0 0 0 2px var(--colGlow), 0 0 15px rgba(79, 70, 229, 0.3);
+}
+
+/* Tiny arrow icon */
+.arrowIcon {
+    width: 14px;
+    height: 14px;
+    transition: transform 0.2s ease;
+    opacity: 0.6;
+}
+
+/* Rotate arrow when active */
+.sortDropdownWrapper.active .arrowIcon {
+    transform: rotate(180deg);
+}
+
+/* The Hidden Menu */
+.dropdownMenu {
+    position: absolute;
+    top: calc(100% + 8px); /* 8px gap below button */
+    left: 0;
+    width: 100%; /* Matches wrapper width */
+    background-color: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 5px;
+    overflow: hidden;
+    z-index: 40; /* Above cards, below navbar */
+    
+    /* Animation Initial State */
+    opacity: 0;
+    transform: translateY(-10px);
+    pointer-events: none;
+    visibility: hidden;
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+
+/* Animation Active State */
+.sortDropdownWrapper.active .dropdownMenu {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+    visibility: visible;
+}
+
+/* Menu Items */
+.dropdownItem {
+    padding: 10px 16px; /* Same padding as button */
+    font-size: 14px;
+    color: var(--colTextSec);
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s;
+    border-bottom: 1px solid #222;
+}
+
+.dropdownItem:last-child {
+    border-bottom: none;
+}
+
+.dropdownItem:hover {
+    background-color: #252525;
+    color: var(--colTextMain);
+}
+
+/* --- End Dropdown Styling --- */
+
+
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pageNum, .pageDots, .pageArrow {
+    color: var(--colTextSec);
+    font-size: 14px;
+    cursor: pointer;
+    padding: 4px 8px;
+}
+
+.pageNum.active {
+    color: var(--colTextMain);
+    font-weight: bold;
+}
+
+/* Card List */
+.cardList {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    background: var(--colBorder);
+    border: 1px solid var(--colBorder);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 0 0 2px var(--colGlow), 0 0 15px rgba(79, 70, 229, 0.3);
+}
+
+.card {
+    background-color: var(--colBg);
+    padding: 20px;
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    transition: background-color 0.2s;
+    box-shadow: 0 0 0 1px var(--colGlow), 0 0 15px rgba(79, 70, 229, 0.3);
+}
+
+.card:hover {
+    background-color: #0a0a0a;
+}
+
+.cardIcon svg {
+    width: 48px;
+    height: 48px;
+    background-color: #111;
+    border-radius: 10px;
+    padding: 10px;
+    color: #fff;
+    border: 1px solid #222;
+}
+
+.cardContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.cardHeader {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+}
+
+.cardTitle {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--colTextMain);
+    text-decoration: none;
+}
+
+.cardAuthor {
+    font-size: 13px;
+    color: var(--colTextSec);
+}
+
+.cardAuthor a {
+    color: var(--colTextSec);
+    text-decoration: none;
+}
+
+.cardDesc {
+    font-size: 14px;
+    color: #999;
+    line-height: 1.5;
+    margin-bottom: 6px;
+    max-width: 90%;
+}
+
+.cardTags {
+    display: flex;
+    gap: 8px;
+}
+
+.tag {
+    font-size: 11px;
+    background-color: #1a1a1a;
+    color: #aaa;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-weight: 500;
+    border: 1px solid #333;
+}
+
+/* Stats */
+.cardStats {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    min-width: 120px;
+    color: var(--colTextSec);
+    font-size: 13px;
+}
+
+.statRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.statIcon {
+    width: 14px;
+    height: 14px;
+    opacity: 0.7;
+}
+
+.updateInfo {
+    margin-top: auto;
+    font-size: 12px;
+    color: var(--colTextMuted);
+}
