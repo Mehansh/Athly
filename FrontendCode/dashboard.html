@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organizer Dashboard - NicheSport</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- CSS Variables & Reset --- */
+        :root {
+            --bg-body: #09090b;
+            --bg-card: #0c0c0e; /* zinc-950 equivalent */
+            --bg-hover: #1f1f22;
+            --border-color: #27272a; /* zinc-800 */
+            --text-main: #fafafa;
+            --text-muted: #a1a1aa; /* zinc-400 */
+            --text-dim: #52525b; /* zinc-600 */
+            --accent-green: #4ade80;
+            --bg-green-dim: rgba(74, 222, 128, 0.1);
+            --font-family: 'Inter', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            font-family: var(--font-family);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        a { text-decoration: none; color: inherit; }
+        button { background: none; border: none; cursor: pointer; font-family: inherit; }
+        input, textarea { font-family: inherit; }
+
+        /* --- Utility Classes --- */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .icon-placeholder {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #333;
+            color: #888;
+            font-size: 10px;
+            border-radius: 4px;
+            padding: 2px 4px;
+            font-style: normal;
+        }
+
+        .hidden { display: none !important; }
+
+        /* --- Navbar --- */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            background-color: #000;
+            border-bottom: 1px solid var(--border-color);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 1.125rem;
+        }
+
+        .logo-box {
+            width: 32px;
+            height: 32px;
+            background-color: white;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-dot { width: 12px; height: 12px; background-color: black; border-radius: 50%; }
+
+        .nav-links { display: none; gap: 32px; font-size: 0.875rem; font-weight: 500; color: var(--text-muted); }
+        .nav-links a:hover { color: white; }
+
+        .nav-actions { display: flex; align-items: center; gap: 24px; }
+        .btn-login { color: var(--text-muted); font-size: 0.875rem; font-weight: 500; }
+        .btn-login:hover { color: white; }
+        
+        .btn-signup {
+            background-color: var(--border-color);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border: 1px solid #3f3f46;
+            transition: background-color 0.2s;
+        }
+        .btn-signup:hover { background-color: #3f3f46; }
+
+        /* --- Main Content Layout --- */
+        .main-wrapper {
+            padding-top: 100px; /* Offset for fixed navbar */
+            padding-bottom: 80px;
+        }
+
+        /* --- Header Section --- */
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .page-title { font-size: 1.875rem; font-weight: 700; margin-bottom: 8px; color: white; }
+        .page-subtitle { color: var(--text-muted); }
+
+        .btn-create {
+            background-color: white;
+            color: black;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        .btn-create:hover { background-color: #e4e4e7; }
+
+        /* --- Modal / Create Form --- */
+        .create-form-container {
+            margin-bottom: 40px;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .form-card {
+            background-color: rgba(24, 24, 27, 0.3);
+            border: 1px solid #3f3f46;
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .form-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 24px; color: white; }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .form-group { display: flex; flex-direction: column; gap: 8px; }
+        .form-label { font-size: 0.875rem; color: var(--text-muted); }
+        
+        .form-input, .form-textarea {
+            width: 100%;
+            background-color: black;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .form-input:focus, .form-textarea:focus { border-color: var(--text-dim); }
+        .form-textarea { height: 96px; resize: none; }
+
+        .magic-fill-btn {
+            font-size: 0.75rem;
+            color: #60a5fa;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .magic-fill-btn:hover { color: #93c5fd; }
+        .magic-fill-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .form-actions { display: flex; justify-content: flex-end; gap: 12px; }
+        
+        .btn-cancel {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            color: white;
+            font-size: 0.875rem;
+        }
+        .btn-cancel:hover { background-color: var(--border-color); }
+
+        .btn-submit {
+            padding: 8px 16px;
+            border-radius: 8px;
+            background-color: white;
+            color: black;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        .btn-submit:hover { background-color: #e4e4e7; }
+
+
+        /* --- Stats Grid --- */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .stat-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+        
+        .icon-box {
+            padding: 8px;
+            background-color: #18181b;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .stat-badge {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--accent-green);
+            background-color: var(--bg-green-dim);
+            padding: 4px 8px;
+            border-radius: 9999px;
+        }
+
+        .stat-value { font-size: 1.5rem; font-weight: 700; color: white; margin-bottom: 4px; }
+        .stat-label { font-size: 0.875rem; color: var(--text-dim); }
+
+        /* --- Events List --- */
+        .section-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 24px; color: white; }
+        
+        .events-list { display: flex; flex-direction: column; gap: 16px; }
+
+        .event-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            background-color: rgba(24, 24, 27, 0.2);
+            border: 1px solid rgba(39, 39, 42, 0.5);
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .event-item:hover { border-color: #3f3f46; }
+
+        .event-info { display: flex; align-items: center; gap: 16px; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; }
+        .dot-red { background-color: #ef4444; }
+        .dot-green { background-color: #22c55e; }
+
+        .event-details h4 { color: white; font-weight: 500; margin-bottom: 4px; }
+        .event-details div { font-size: 0.75rem; color: var(--text-dim); }
+
+        .event-stats { display: flex; align-items: center; gap: 32px; }
+
+        .progress-wrapper { text-align: right; display: none; } /* Hidden on mobile by default */
+        .progress-text { font-size: 0.875rem; color: #d4d4d8; }
+        .progress-label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; }
+        
+        .progress-bar {
+            width: 96px;
+            height: 6px;
+            background-color: var(--border-color);
+            border-radius: 9999px;
+            overflow: hidden;
+            display: none;
+        }
+        .progress-fill { height: 100%; background-color: white; }
+
+        .btn-manage {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border: 1px solid var(--border-color);
+            color: white;
+            transition: background-color 0.2s;
+        }
+        .btn-manage:hover { background-color: var(--border-color); }
+
+        /* --- Media Queries --- */
+        @media (min-width: 768px) {
+            .nav-links { display: flex; }
+            .form-grid { grid-template-columns: 1fr 1fr; }
+            .full-width-col { grid-column: span 2; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .progress-wrapper, .progress-bar { display: block; }
+        }
+
+        @media (min-width: 1024px) {
+            .stats-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="container nav-content">
+            <a href="landing_page.html" class="logo">
+                <div class="logo-box">
+                    <div class="logo-dot"></div>
+                </div>
+                <span>NicheSport</span>
+            </a>
+
+            <div class="nav-links">
+                <a href="#">Discover</a>
+                <a href="community.html">Community</a>
+                <a href="dashboard.html">Organizers</a>
+            </div>
+
+            <div class="nav-actions">
+                <button class="btn-login">Log in</button>
+                <button class="btn-signup">Sign Up</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container main-wrapper">
+        
+        <div class="header-row">
+            <div>
+                <h1 class="page-title">Organizer Dashboard</h1>
+                <p class="page-subtitle">Manage your leagues, tournaments, and participants.</p>
+            </div>
+            <button onclick="toggleModal()" id="create-btn" class="btn-create">
+                Create New Event
+            </button>
+        </div>
+
+        <div id="create-modal" class="create-form-container hidden">
+            <div class="form-card">
+                <h2 class="form-title">Create New Tournament</h2>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Event Title</label>
+                        <input type="text" id="event-title" placeholder="e.g. Summer Slam 2024" 
+                            class="form-input" oninput="checkMagicFill()">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Sport</label>
+                        <input type="text" id="event-sport" placeholder="e.g. Drone Racing" 
+                            class="form-input" oninput="checkMagicFill()">
+                    </div>
+
+                    <div class="form-group full-width-col">
+                        <div style="display: flex; justify-content: space-between;">
+                            <label class="form-label">Description</label>
+                            <button id="magic-fill-btn" onclick="handleMagicFill()" disabled 
+                                class="magic-fill-btn">
+                                <span class="icon-placeholder" id="magic-icon">[Sparkles]</span>
+                                AI Magic Fill
+                            </button>
+                        </div>
+                        <textarea id="event-desc" placeholder="Describe your event..." class="form-textarea"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Date</label>
+                        <input type="date" class="form-input" style="color-scheme: dark;">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Location</label>
+                        <input type="text" class="form-input">
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button onclick="toggleModal()" class="btn-cancel">Cancel</button>
+                    <button class="btn-submit">Publish Event</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="icon-box">
+                        <img src="../icons/users.svg" alt="Users">
+                    </div>
+                    <span class="stat-badge">+12%</span>
+                </div>
+                <div class="stat-value">1,248</div>
+                <div class="stat-label">Total Participants</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="icon-box">
+                        <img src="../icons/calendar.svg" alt="Calendar">
+                    </div>
+                    <span class="stat-badge">+2</span>
+                </div>
+                <div class="stat-value">8</div>
+                <div class="stat-label">Active Events</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="icon-box">
+                        <img src="../icons/dollar-sign.svg" alt="Dollar">
+                    </div>
+                    <span class="stat-badge">+8.5%</span>
+                </div>
+                <div class="stat-value">$45.2k</div>
+                <div class="stat-label">Revenue (YTD)</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="icon-box">
+                        <img src="../icons/trending-up.svg" alt="Trend">
+                    </div>
+                    <span class="stat-badge">+24%</span>
+                </div>
+                <div class="stat-value">89.4k</div>
+                <div class="stat-label">Page Views</div>
+            </div>
+        </div>
+
+        <h2 class="section-title">Your Events</h2>
+        
+        <div class="events-list">
+            
+            <div class="event-item">
+                <div class="event-info">
+                    <div class="status-dot dot-red"></div>
+                    <div class="event-details">
+                        <h4>Regional Roundnet Championship</h4>
+                        <div>Oct 24, 2024</div>
+                    </div>
+                </div>
+                <div class="event-stats">
+                    <div class="progress-wrapper">
+                        <div class="progress-text">64/64</div>
+                        <div class="progress-label">Registrations</div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%"></div>
+                    </div>
+                    <button class="btn-manage">Manage</button>
+                </div>
+            </div>
+
+            <div class="event-item">
+                <div class="event-info">
+                    <div class="status-dot dot-green"></div>
+                    <div class="event-details">
+                        <h4>Underwater Rugby Open</h4>
+                        <div>Nov 02, 2024</div>
+                    </div>
+                </div>
+                <div class="event-stats">
+                    <div class="progress-wrapper">
+                        <div class="progress-text">42/100</div>
+                        <div class="progress-label">Registrations</div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 42%"></div>
+                    </div>
+                    <button class="btn-manage">Manage</button>
+                </div>
+            </div>
+
+            <div class="event-item">
+                <div class="event-info">
+                    <div class="status-dot dot-green"></div>
+                    <div class="event-details">
+                        <h4>Unicycle Polo Charity Match</h4>
+                        <div>Nov 15, 2024</div>
+                    </div>
+                </div>
+                <div class="event-stats">
+                    <div class="progress-wrapper">
+                        <div class="progress-text">12/20</div>
+                        <div class="progress-label">Registrations</div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 60%"></div>
+                    </div>
+                    <button class="btn-manage">Manage</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Toggle Modal Visibility
+        function toggleModal() {
+            const modal = document.getElementById('create-modal');
+            const btn = document.getElementById('create-btn');
+            
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+                btn.innerText = 'Cancel';
+            } else {
+                modal.classList.add('hidden');
+                btn.innerText = 'Create New Event';
+            }
+        }
+
+        // Check if Magic Fill should be enabled
+        function checkMagicFill() {
+            const title = document.getElementById('event-title').value;
+            const sport = document.getElementById('event-sport').value;
+            const btn = document.getElementById('magic-fill-btn');
+            
+            if(title && sport) {
+                btn.disabled = false;
+            } else {
+                btn.disabled = true;
+            }
+        }
+
+        // Simulate AI Generation
+        function handleMagicFill() {
+            const btn = document.getElementById('magic-fill-btn');
+            const icon = document.getElementById('magic-icon');
+            const textarea = document.getElementById('event-desc');
+            const title = document.getElementById('event-title').value;
+            const sport = document.getElementById('event-sport').value;
+
+            // Set Loading State
+            btn.disabled = true;
+            icon.innerText = '[Loading...]'; // Text placeholder update
+
+            // Simulate API Delay
+            setTimeout(() => {
+                // Mock Response
+                textarea.value = `Join us for the ultimate ${title}! Competitors from across the region will gather to showcase their skills in ${sport}. This event features a round-robin group stage followed by single-elimination playoffs. \n\nEntry fee includes a jersey and lunch. Spectators welcome!`;
+                
+                // Reset State
+                icon.innerText = '[Sparkles]';
+                btn.disabled = false;
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
