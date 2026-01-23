@@ -1,13 +1,12 @@
 :root {
-    /* Exact Tailwind Zinc Palette */
-    --colBg: #09090b;         /* zinc-950 */
-    --colCardBg: #111111;     /* Custom dark */
-    --colBorder: #27272a;     /* zinc-800 */
-    --colBorderLight: #3f3f46;/* zinc-700 */
+    --colBg: #09090b;
+    --colCardBg: #111111;
+    --colBorder: #27272a;
+    --colBorderLight: #3f3f46;
     
     --colTextMain: #ffffff;
-    --colTextSec: #a1a1aa;    /* zinc-400 */
-    --colTextMuted: #71717a;  /* zinc-500 */
+    --colTextSec: #a1a1aa;
+    --colTextMuted: #71717a;
     
     --colInputBg: #1a1a1a;
     --colAccent: #ffffff;
@@ -29,7 +28,6 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
-/* --- Fixed Navbar (Exact Replica) --- */
 .navbar {
     position: fixed;
     top: 0;
@@ -41,7 +39,7 @@ body {
     z-index: 50;
     display: flex;
     justify-content: center;
-    margin-top: 1px;
+        
 }
 
 .navContainer {
@@ -54,7 +52,6 @@ body {
     height: 100%;
 }
 
-/* Left: Logo Area */
 .brandLink {
     display: flex;
     align-items: center;
@@ -88,7 +85,6 @@ body {
     letter-spacing: -0.025em;
 }
 
-/* Center: Links */
 .navLinks {
     display: none;
     align-items: center;
@@ -113,7 +109,6 @@ body {
     color: white;
 }
 
-/* Right: Auth Buttons */
 .authGroup {
     display: flex;
     align-items: center;
@@ -137,14 +132,14 @@ body {
 
 .btnSignup {
     background-color: var(--colBorder);
-    border: 1px solid var(--colBorderLight);
+    border: 0px solid var(--colBorderLight);
     color: white;
     font-size: 14px;
     font-weight: 500;
     padding: 8px 16px;
-    border-radius: 6px;
+    border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.15s;
+    transition: background-color 0.15s, box-shadow 0.2s;
     font-family: 'Inter', sans-serif;
 }
 
@@ -152,33 +147,39 @@ body {
     box-shadow: 0 0 0 2px var(--colGlow), 0 0 15px rgba(79, 70, 229, 0.3);
 }
 
-/* --- Main Layout --- */
 .mainContainer {
     max-width: 1000px;
     margin: 40px auto;
     padding: 0 20px;
-    width: 100%; 
+    width: 100%;
+    margin-top: 0px;
 }
 
-/* Search Section */
 .searchSection {
     margin-bottom: 30px;
-    margin-top: -25px;
+    margin-top: -57px;
+    position: fixed;
+    width: 960px;
+    z-index: 100;
+    margin-top: -17px;
 }
 
 .searchBarWrapper {
     background-color: var(--colInputBg);
     border: 1px solid #333;
+    border-top: 0px;
     border-radius: 12px;
     display: flex;
     align-items: center;
     padding: 8px;
     transition: box-shadow 0.3s, border-color 0.3s;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
 }
 
 .searchBarWrapper:focus-within {
     border-color: var(--colGlow);
-    box-shadow: 0 0 0 2px var(--colGlow), 0 0 15px rgba(79, 70, 229, 0.3);
+    box-shadow: 0px 0px 10px -100px var(--colGlow);
 }
 
 .searchIcon {
@@ -209,11 +210,12 @@ body {
     color: var(--colTextSec);
     border: none;
     padding: 8px 16px;
-    border-radius: 8px;
+    border-radius: 5px;
     font-weight: 600;
     font-size: 13px;
     cursor: pointer;
     font-family: 'Inter', sans-serif;
+    transition: box-shadow 0.2s;
 }
 
 .btnFind:hover {
@@ -221,7 +223,6 @@ body {
     color: var(--colTextMain);
 }
 
-/* Filter Bar */
 .filterBar {
     display: flex;
     justify-content: space-between;
@@ -234,6 +235,7 @@ body {
     align-items: center;
     gap: 10px;
     flex-wrap: wrap;
+    margin-top: 60px;
 }
 
 .sortLabel {
@@ -243,19 +245,16 @@ body {
     font-weight: bold;
 }
 
-/* --- DROPDOWN STYLING --- */
 
-/* The Wrapper for Button + Menu */
 .sortDropdownWrapper {
-    position: relative; /* Essential for absolute positioning of menu */
-    width: 130px;      /* Fixed width so buttons and menus match */
+    position: relative;
+    width: 130px;
 }
 
-/* The Trigger Button (formerly .sortPill) */
 .sortBtn {
     background-color: #1a1a1a;
     padding: 10px 16px;
-    width: 100%;       /* Fill wrapper */
+    width: 100%;
     border-radius: 5px;
     font-size: 15px;
     cursor: pointer;
@@ -264,17 +263,16 @@ body {
     transition: all 0.2s;
     display: flex;
     align-items: center;
-    justify-content: space-between; /* Space between text and arrow */
+    justify-content: space-between;
     user-select: none;
+    transition: box-shadow 0.2s;
 }
 
 .sortBtn:hover, .sortDropdownWrapper.active .sortBtn {
     color: var(--colTextMain);
-    border-color: #333;
     box-shadow: 0 0 0 2px var(--colGlow), 0 0 15px rgba(79, 70, 229, 0.3);
 }
 
-/* Tiny arrow icon */
 .arrowIcon {
     width: 14px;
     height: 14px;
@@ -282,24 +280,20 @@ body {
     opacity: 0.6;
 }
 
-/* Rotate arrow when active */
 .sortDropdownWrapper.active .arrowIcon {
     transform: rotate(180deg);
 }
 
-/* The Hidden Menu */
 .dropdownMenu {
     position: absolute;
-    top: calc(100% + 8px); /* 8px gap below button */
+    top: calc(100% + 8px);
     left: 0;
-    width: 100%; /* Matches wrapper width */
+    width: 100%;
     background-color: #1a1a1a;
-    border: 1px solid #333;
     border-radius: 5px;
     overflow: hidden;
-    z-index: 40; /* Above cards, below navbar */
+    z-index: 40;
     
-    /* Animation Initial State */
     opacity: 0;
     transform: translateY(-10px);
     pointer-events: none;
@@ -308,7 +302,6 @@ body {
     box-shadow: 0 4px 20px rgba(0,0,0,0.5);
 }
 
-/* Animation Active State */
 .sortDropdownWrapper.active .dropdownMenu {
     opacity: 1;
     transform: translateY(0);
@@ -316,14 +309,12 @@ body {
     visibility: visible;
 }
 
-/* Menu Items */
 .dropdownItem {
-    padding: 10px 16px; /* Same padding as button */
+    padding: 10px 16px;
     font-size: 14px;
     color: var(--colTextSec);
     cursor: pointer;
     transition: background-color 0.15s, color 0.15s;
-    border-bottom: 1px solid #222;
 }
 
 .dropdownItem:last-child {
@@ -335,13 +326,11 @@ body {
     color: var(--colTextMain);
 }
 
-/* --- End Dropdown Styling --- */
-
-
 .pagination {
     display: flex;
     align-items: center;
     gap: 8px;
+    margin-top: 60px;
 }
 
 .pageNum, .pageDots, .pageArrow {
@@ -356,30 +345,47 @@ body {
     font-weight: bold;
 }
 
-/* Card List */
 .cardList {
     display: flex;
     flex-direction: column;
     gap: 1px;
-    background: var(--colBorder);
-    border: 1px solid var(--colBorder);
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 0 0 2px var(--colGlow), 0 0 15px rgba(79, 70, 229, 0.3);
+    margin-top: -20px;
+
 }
 
 .card {
-    background-color: var(--colBg);
-    padding: 20px;
-    display: flex;
-    gap: 20px;
-    align-items: flex-start;
-    transition: background-color 0.2s;
-    box-shadow: 0 0 0 1px var(--colGlow), 0 0 15px rgba(79, 70, 229, 0.3);
+  background-color: #1a1a1a;
+  position: relative;
+  z-index: 1; 
+  overflow: hidden;
+  padding: 20px;
+  padding-top: 25px;
+  padding-bottom: 25px;
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  border-radius: 5px;
+  margin-top: 10px;
 }
 
-.card:hover {
-    background-color: #0a0a0a;
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: linear-gradient(to left, var(--colBg), #1a1a1a);
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+.card:hover::before {
+  opacity: 1;
+}
+
+.card:hover .statRow{
+    color: var(--colTextMain);
 }
 
 .cardIcon svg {
@@ -445,7 +451,6 @@ body {
     border: 1px solid #333;
 }
 
-/* Stats */
 .cardStats {
     display: flex;
     flex-direction: column;
@@ -460,6 +465,7 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
+    transition: color 1s ease;
 }
 
 .statIcon {
