@@ -1,0 +1,18 @@
+# Firebase sensitive data
+serviceAccountKey.json
+.firebase/
+firebase-debug.log*
+
+# Python environment and cache
+__pycache__/
+.venv/
+env/
+venv/
+*.py[cod]
+
+# Dependencies
+node_modules/
+
+# OS junk
+Thumbs.db
+desktop.ini
