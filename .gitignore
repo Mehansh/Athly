@@ -16,3 +16,9 @@ node_modules/
 # OS junk
 Thumbs.db
 desktop.ini
+
+.firebaserc
+firebase.json
+scraper/serviceAccountKey.json
+.firebase/
+scraper/
