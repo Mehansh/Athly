@@ -1,24 +1,31 @@
-# Firebase sensitive data
+# --- SENSITIVE DATA (Must be ignored) ---
 serviceAccountKey.json
+scraper/serviceAccountKey.json
+.env
+*.json.local
+
+# --- FIREBASE ---
 .firebase/
 firebase-debug.log*
+.firebaserc
+firebase.json
 
-# Python environment and cache
+# --- PYTHON & SCRAPER ---
+scraper/
 __pycache__/
 .venv/
 env/
 venv/
 *.py[cod]
+*$py.class
+scraper/audax_code.html
 
-# Dependencies
+# --- DEPENDENCIES & BUILD ---
 node_modules/
+dist/
+build/
 
-# OS junk
+# --- SYSTEM JUNK ---
 Thumbs.db
 desktop.ini
-
-.firebaserc
-firebase.json
-scraper/serviceAccountKey.json
-.firebase/
-scraper/
+.DS_Store
