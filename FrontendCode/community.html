@@ -472,103 +472,141 @@
         </div>
     </div>
 
-    <script>
-        // Mock Data for Threads
-        const threadsData = [
-            {
-                id: 1,
-                title: "Best budget gear for Underwater Hockey?",
-                author: "DeepDiver88",
-                tags: ["Gear", "Budget"],
-                views: 1205,
-                replies: 45,
-                lastActive: "2h ago",
-                isHot: true
-            },
-            {
-                id: 2,
-                title: "Looking for a Spikeball partner in Seattle area",
-                author: "SpikeKing",
-                tags: ["LFG", "USA-WA"],
-                views: 89,
-                replies: 12,
-                lastActive: "5m ago",
-                isHot: false
-            },
-            {
-                id: 3,
-                title: "Official Rules Update 2024: Chess Boxing",
-                author: "Admin_Sarah",
-                tags: ["Official", "Rules"],
-                views: 3400,
-                replies: 156,
-                lastActive: "1d ago",
-                isHot: true
-            },
-            {
-                id: 4,
-                title: "How to start a local curling club without ice?",
-                author: "StoneThrower",
-                tags: ["Logistics", "Help"],
-                views: 210,
-                replies: 8,
-                lastActive: "4h ago",
-                isHot: false
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { 
+            getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp 
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { 
+            getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged 
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        // --- 1. Firebase Configuration (Replace with your actual config) ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyCo8N5TfHzWq5PXELyTXoHb_SrzikweBwo",
+            authDomain: "minor-project-a5077.firebaseapp.com",
+            projectId: "minor-project-a5077",
+            storageBucket: "minor-project-a5077.firebasestorage.app",
+            messagingSenderId: "525600101149",
+            appId: "1:525600101149:web:f98570a47b3e6e582047f4"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        // --- 2. Elements ---
+        const chatBody = document.querySelector('.chat-body');
+        const chatInput = document.querySelector('.chat-input');
+        const sendBtn = document.querySelector('.send-btn');
+        const loginBtn = document.querySelector('.btn-login');
+        const newThreadBtn = document.querySelector('.btn-new-discussion');
+        const threadsContainer = document.getElementById('threads-container');
+
+        let currentUser = null;
+
+        // --- 3. Auth Management ---
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                loginBtn.textContent = `Hi, ${user.displayName.split(' ')[0]}`;
+            } else {
+                currentUser = null;
+                loginBtn.textContent = "Log in";
             }
-        ];
+        });
 
-        // Function to render threads
-        function renderThreads() {
-            const container = document.getElementById('threads-container');
-            const loader = document.getElementById('loader');
+        loginBtn.addEventListener('click', () => signInWithPopup(auth, provider));
+
+        // --- 4. REAL-TIME THREADS LOGIC ---
+        // Listen for new threads in the 'threads' collection
+        const threadsQuery = query(collection(db, "threads"), orderBy("createdAt", "desc"));
+        
+        onSnapshot(threadsQuery, (snapshot) => {
+            threadsContainer.innerHTML = ''; // Clear container
+            snapshot.forEach((doc) => {
+                renderThreadCard(doc.data());
+            });
+        });
+
+        function renderThreadCard(data) {
+            const timeAgo = data.createdAt ? "Recently" : "Just now";
+            const tagsHtml = data.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
             
-            // Remove loader
-            if(loader) loader.remove();
-
-            threadsData.forEach(thread => {
-                const iconHtml = thread.isHot 
-                    ? `<div class="thread-icon-box hot"><img src="../icons/flame.svg" alt="Hot"></div>`
-                    : `<div class="thread-icon-box"><img src="../icons/message-square.svg" alt="Message"></div>`;
-
-                const tagsHtml = thread.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
-
-                const cardHtml = `
+            const cardHtml = `
                 <div class="thread-card">
                     <div class="thread-content">
-                        ${iconHtml}
+                        <div class="thread-icon-box ${data.isHot ? 'hot' : ''}">
+                            <span class="icon-placeholder">${data.isHot ? '🔥' : '💬'}</span>
+                        </div>
                         <div class="thread-details">
-                            <h3 class="thread-title">${thread.title}</h3>
+                            <h3 class="thread-title">${data.title}</h3>
                             <div class="tags-row">${tagsHtml}</div>
                             <div class="meta-row">
-                                <span class="meta-item">Posted by <span class="author-name">${thread.author}</span></span>
-                                <span class="meta-item"><span class="icon-placeholder">Clk</span> ${thread.lastActive}</span>
-                                <span class="meta-item push-right"><span class="icon-placeholder">Rep</span> ${thread.replies}</span>
-                                <span class="meta-item"><span class="icon-placeholder">Eye</span> ${thread.views}</span>
+                                <span class="meta-item">Posted by <span class="author-name">${data.author}</span></span>
+                                <span class="meta-item"><span class="icon-placeholder">Clk</span> ${timeAgo}</span>
+                                <span class="meta-item push-right"><span class="icon-placeholder">Rep</span> 0</span>
                             </div>
                         </div>
                     </div>
-                </div>
-                `;
-                container.insertAdjacentHTML('beforeend', cardHtml);
-            });
+                </div>`;
+            threadsContainer.insertAdjacentHTML('beforeend', cardHtml);
         }
 
-        // Simulate network delay
-        setTimeout(renderThreads, 800);
+        // Function to create a new thread (Prompt based for simplicity)
+        newThreadBtn.addEventListener('click', async () => {
+            if (!currentUser) return alert("Please log in to post a thread!");
+            
+            const title = prompt("Enter your sport discussion title:");
+            const sportTag = prompt("What sport is this for? (e.g., Pickleball, Quidditch)");
+            
+            if (title && sportTag) {
+                await addDoc(collection(db, "threads"), {
+                    title: title,
+                    author: currentUser.displayName,
+                    tags: [sportTag, "Community"],
+                    createdAt: serverTimestamp(),
+                    isHot: false
+                });
+            }
+        });
 
-        // Tab Switching Logic
-        function switchTab(tabId) {
-            const tabs = ['trending', 'new', 'myposts'];
-            tabs.forEach(t => {
-                const btn = document.getElementById(`tab-${t}`);
-                if (t === tabId) {
-                    btn.classList.add('active');
-                } else {
-                    btn.classList.remove('active');
-                }
+        // --- 5. REAL-TIME CHAT LOGIC ---
+        const chatQuery = query(collection(db, "messages"), orderBy("createdAt", "asc"));
+        
+        onSnapshot(chatQuery, (snapshot) => {
+            chatBody.innerHTML = ''; 
+            snapshot.forEach((doc) => {
+                const msg = doc.data();
+                const msgDiv = document.createElement('div');
+                msgDiv.className = 'chat-message';
+                msgDiv.innerHTML = `
+                    <div class="msg-header">
+                        <span class="msg-user u-purple">${msg.userName}</span>
+                        <span class="msg-time">Live</span>
+                    </div>
+                    <p class="msg-text">${msg.text}</p>`;
+                chatBody.appendChild(msgDiv);
             });
-            console.log("Switched to tab:", tabId);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        });
+
+        async function sendChatMessage() {
+            const text = chatInput.value.trim();
+            if (!text || !currentUser) return;
+            
+            await addDoc(collection(db, "messages"), {
+                text: text,
+                userName: currentUser.displayName,
+                createdAt: serverTimestamp()
+            });
+            chatInput.value = '';
         }
+
+        sendBtn.addEventListener('click', sendChatMessage);
+        chatInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendChatMessage(); });
+
     </script>
 </body>
 </html>
