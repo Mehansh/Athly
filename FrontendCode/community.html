@@ -473,13 +473,23 @@
     </div>
 
     <script type="module">
+        // Firebase Imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { 
-            getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp 
-        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        import { 
-            getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged 
+            getAuth, 
+            onAuthStateChanged,
+            GoogleAuthProvider,
+            signInWithPopup 
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { 
+            getFirestore, 
+            collection, 
+            query, 
+            orderBy, 
+            onSnapshot, 
+            addDoc, 
+            serverTimestamp 
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         // --- 1. Firebase Configuration (Replace with your actual config) ---
         const firebaseConfig = {
@@ -496,7 +506,7 @@
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
 
-        // --- 2. Elements ---
+        // 3. Elements Selection
         const chatBody = document.querySelector('.chat-body');
         const chatInput = document.querySelector('.chat-input');
         const sendBtn = document.querySelector('.send-btn');
@@ -506,33 +516,41 @@
 
         let currentUser = null;
 
-        // --- 3. Auth Management ---
+        // 4. Auth Management
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
-                loginBtn.textContent = `Hi, ${user.displayName.split(' ')[0]}`;
+                // Display first name or email fallback
+                const name = user.displayName ? user.displayName.split(' ')[0] : user.email.split('@')[0];
+                loginBtn.textContent = `Hi, ${name}`;
+                console.log("Authenticated as:", user.email);
             } else {
                 currentUser = null;
                 loginBtn.textContent = "Log in";
+                console.log("User logged out");
             }
         });
 
-        loginBtn.addEventListener('click', () => signInWithPopup(auth, provider));
+        // Login Functionality
+        loginBtn.addEventListener('click', () => {
+            signInWithPopup(auth, provider).catch(err => console.error("Login failed:", err));
+        });
 
-        // --- 4. REAL-TIME THREADS LOGIC ---
-        // Listen for new threads in the 'threads' collection
+        // 5. REAL-TIME THREADS LOGIC
         const threadsQuery = query(collection(db, "threads"), orderBy("createdAt", "desc"));
         
         onSnapshot(threadsQuery, (snapshot) => {
-            threadsContainer.innerHTML = ''; // Clear container
+            if (!threadsContainer) return;
+            threadsContainer.innerHTML = ''; 
             snapshot.forEach((doc) => {
                 renderThreadCard(doc.data());
             });
-        });
+        }, (error) => console.error("Threads listener error:", error));
 
         function renderThreadCard(data) {
             const timeAgo = data.createdAt ? "Recently" : "Just now";
-            const tagsHtml = data.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
+            // Check if tags exist to avoid .map error
+            const tagsHtml = data.tags ? data.tags.map(tag => `<span class="tag">${tag}</span>`).join('') : '';
             
             const cardHtml = `
                 <div class="thread-card">
@@ -544,7 +562,7 @@
                             <h3 class="thread-title">${data.title}</h3>
                             <div class="tags-row">${tagsHtml}</div>
                             <div class="meta-row">
-                                <span class="meta-item">Posted by <span class="author-name">${data.author}</span></span>
+                                <span class="meta-item">Posted by <span class="author-name">${data.author || 'Anonymous'}</span></span>
                                 <span class="meta-item"><span class="icon-placeholder">Clk</span> ${timeAgo}</span>
                                 <span class="meta-item push-right"><span class="icon-placeholder">Rep</span> 0</span>
                             </div>
@@ -554,28 +572,37 @@
             threadsContainer.insertAdjacentHTML('beforeend', cardHtml);
         }
 
-        // Function to create a new thread (Prompt based for simplicity)
-        newThreadBtn.addEventListener('click', async () => {
-            if (!currentUser) return alert("Please log in to post a thread!");
-            
-            const title = prompt("Enter your sport discussion title:");
-            const sportTag = prompt("What sport is this for? (e.g., Pickleball, Quidditch)");
-            
-            if (title && sportTag) {
-                await addDoc(collection(db, "threads"), {
-                    title: title,
-                    author: currentUser.displayName,
-                    tags: [sportTag, "Community"],
-                    createdAt: serverTimestamp(),
-                    isHot: false
-                });
-            }
-        });
+        // New Thread Button Function
+        if (newThreadBtn) {
+            newThreadBtn.addEventListener('click', async () => {
+                if (!currentUser) return alert("Please log in to post a thread!");
+                
+                const title = prompt("Enter your sport discussion title:");
+                const sportTag = prompt("What sport is this for? (e.g., Pickleball, Quidditch)");
+                
+                if (title && sportTag) {
+                    try {
+                        await addDoc(collection(db, "threads"), {
+                            title: title,
+                            author: currentUser.displayName || currentUser.email.split('@')[0],
+                            tags: [sportTag, "Community"],
+                            createdAt: serverTimestamp(),
+                            isHot: false
+                        });
+                        console.log("Thread created!");
+                    } catch (err) {
+                        console.error("Error creating thread:", err);
+                        alert("Check your Firestore rules for 'threads' collection.");
+                    }
+                }
+            });
+        }
 
-        // --- 5. REAL-TIME CHAT LOGIC ---
+        // 6. REAL-TIME CHAT LOGIC
         const chatQuery = query(collection(db, "messages"), orderBy("createdAt", "asc"));
         
         onSnapshot(chatQuery, (snapshot) => {
+            if (!chatBody) return;
             chatBody.innerHTML = ''; 
             snapshot.forEach((doc) => {
                 const msg = doc.data();
@@ -583,30 +610,39 @@
                 msgDiv.className = 'chat-message';
                 msgDiv.innerHTML = `
                     <div class="msg-header">
-                        <span class="msg-user u-purple">${msg.userName}</span>
+                        <span class="msg-user u-purple">${msg.userName || 'Guest'}</span>
                         <span class="msg-time">Live</span>
                     </div>
                     <p class="msg-text">${msg.text}</p>`;
                 chatBody.appendChild(msgDiv);
             });
             chatBody.scrollTop = chatBody.scrollHeight;
-        });
+        }, (error) => console.error("Chat listener error:", error));
 
         async function sendChatMessage() {
             const text = chatInput.value.trim();
-            if (!text || !currentUser) return;
+            if (!text) return;
+            if (!currentUser) return alert("Please log in to chat!");
             
-            await addDoc(collection(db, "messages"), {
-                text: text,
-                userName: currentUser.displayName,
-                createdAt: serverTimestamp()
-            });
-            chatInput.value = '';
+            try {
+                await addDoc(collection(db, "messages"), {
+                    text: text,
+                    userName: currentUser.displayName || currentUser.email.split('@')[0],
+                    createdAt: serverTimestamp()
+                });
+                chatInput.value = '';
+            } catch (err) {
+                console.error("Error sending message:", err);
+                alert("Check your Firestore rules for 'messages' collection.");
+            }
         }
 
-        sendBtn.addEventListener('click', sendChatMessage);
-        chatInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendChatMessage(); });
-
+        if (sendBtn) sendBtn.addEventListener('click', sendChatMessage);
+        if (chatInput) {
+            chatInput.addEventListener('keypress', (e) => { 
+                if(e.key === 'Enter') sendChatMessage(); 
+            });
+        }
     </script>
 </body>
 </html>

@@ -1,8 +1,21 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    
+    // 1. User Profiles: Only the owner can read/write their own data
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // 2. Discussion Threads: Anyone can read; only logged-in users can create
+    match /threads/{threadId} {
+      allow read: if true; 
+      allow create: if request.auth != null;
+    }
+
+    // 3. Real-time Chat: Only logged-in users can read and send messages
+    match /messages/{messageId} {
+      allow read, write: if request.auth != null;
     }
   }
 }
