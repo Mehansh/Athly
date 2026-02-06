@@ -19,6 +19,7 @@ venv/
 *.py[cod]
 *$py.class
 scraper/audax_code.html
+sample.html 
 
 # --- DEPENDENCIES & BUILD ---
 node_modules/
