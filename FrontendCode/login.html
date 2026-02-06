@@ -259,7 +259,7 @@
                 // Log In Logic
                 await signInWithEmailAndPassword(auth, email, password);
                 showMsg('success', 'Logged in successfully! Redirecting...');
-                setTimeout(() => window.location.href = "landing_page.html", 1500);
+                setTimeout(() => window.location.href = "index.html", 1500);
             } else {
                 // Sign Up Logic
                 if (!name) throw new Error("Name is required for Sign Up.");
@@ -274,7 +274,7 @@
                 });
 
                 showMsg('success', 'Account created! Welcome to NicheSport.');
-                setTimeout(() => window.location.href = "landing_page.html", 1500);
+                setTimeout(() => window.location.href = "index.html", 1500);
             }
         } catch (err) {
             showMsg('error', err.message);
