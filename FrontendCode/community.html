@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Community Hub - NicheSport</title>
-    
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
@@ -36,8 +37,17 @@
             min-height: 100vh;
         }
 
-        a { text-decoration: none; color: inherit; }
-        button { background: none; border: none; cursor: pointer; font-family: inherit; }
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+        }
 
         /* --- Utility Classes --- */
         .container {
@@ -96,15 +106,41 @@
             justify-content: center;
         }
 
-        .logo-dot { width: 12px; height: 12px; background-color: black; border-radius: 50%; }
+        .logo-dot {
+            width: 12px;
+            height: 12px;
+            background-color: black;
+            border-radius: 50%;
+        }
 
-        .nav-links { display: none; gap: 32px; font-size: 0.875rem; font-weight: 500; color: var(--text-muted); }
-        .nav-links a:hover { color: white; }
+        .nav-links {
+            display: none;
+            gap: 32px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
 
-        .nav-actions { display: flex; align-items: center; gap: 24px; }
-        .btn-login { color: var(--text-muted); font-size: 0.875rem; font-weight: 500; }
-        .btn-login:hover { color: white; }
-        
+        .nav-links a:hover {
+            color: white;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .btn-login {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .btn-login:hover {
+            color: white;
+        }
+
         .btn-signup {
             background-color: var(--border-color);
             color: white;
@@ -115,13 +151,18 @@
             border: 1px solid #3f3f46;
             transition: background-color 0.2s;
         }
-        .btn-signup:hover { background-color: #3f3f46; }
+
+        .btn-signup:hover {
+            background-color: #3f3f46;
+        }
 
         /* --- Main Layout --- */
         .main-wrapper {
-            max-width: 1024px; /* Narrower container for content */
+            max-width: 1024px;
+            /* Narrower container for content */
             margin: 0 auto;
-            padding: 100px 24px 80px 24px; /* Top padding accounts for fixed nav */
+            padding: 100px 24px 80px 24px;
+            /* Top padding accounts for fixed nav */
         }
 
         .header-section {
@@ -133,8 +174,15 @@
             gap: 16px;
         }
 
-        .page-title { font-size: 1.875rem; font-weight: 700; margin-bottom: 8px; }
-        .page-subtitle { color: var(--text-muted); }
+        .page-title {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            color: var(--text-muted);
+        }
 
         .btn-new-discussion {
             background-color: white;
@@ -148,7 +196,10 @@
             gap: 8px;
             transition: background-color 0.2s;
         }
-        .btn-new-discussion:hover { background-color: #e4e4e7; }
+
+        .btn-new-discussion:hover {
+            background-color: #e4e4e7;
+        }
 
         /* --- Tabs --- */
         .tabs-container {
@@ -168,7 +219,9 @@
             white-space: nowrap;
         }
 
-        .tab-btn:hover { color: #d4d4d8; }
+        .tab-btn:hover {
+            color: #d4d4d8;
+        }
 
         .tab-btn.active {
             color: white;
@@ -182,7 +235,7 @@
             right: 0;
             height: 2px;
             background-color: white;
-            box-shadow: 0 0 10px rgba(255,255,255,0.5);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
         }
 
         /* --- Content Grid --- */
@@ -193,15 +246,25 @@
         }
 
         /* --- Thread Cards --- */
-        .threads-column { display: flex; flex-direction: column; gap: 16px; }
+        .threads-column {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
 
-        .loader { display: flex; justify-content: center; padding: 48px 0; }
-        .spinner { 
-            width: 32px; height: 32px; 
-            border: 3px solid var(--border-color); 
-            border-top-color: white; 
-            border-radius: 50%; 
-            animation: spin 1s linear infinite; 
+        .loader {
+            display: flex;
+            justify-content: center;
+            padding: 48px 0;
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--border-color);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
         }
 
         .thread-card {
@@ -213,12 +276,19 @@
             transition: background-color 0.2s;
         }
 
-        .thread-card:hover { background-color: var(--bg-hover); }
+        .thread-card:hover {
+            background-color: var(--bg-hover);
+        }
 
-        .thread-content { display: flex; align-items: flex-start; gap: 16px; }
+        .thread-content {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+        }
 
         .thread-icon-box {
-            width: 32px; height: 32px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -227,12 +297,15 @@
             color: var(--text-muted);
             flex-shrink: 0;
         }
+
         .thread-icon-box.hot {
             background-color: rgba(249, 115, 22, 0.1);
             color: #f97316;
         }
 
-        .thread-details { flex: 1; }
+        .thread-details {
+            flex: 1;
+        }
 
         .thread-title {
             font-size: 1.125rem;
@@ -240,9 +313,18 @@
             margin-bottom: 4px;
             color: white;
         }
-        .thread-card:hover .thread-title { color: var(--accent-blue); }
 
-        .tags-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+        .thread-card:hover .thread-title {
+            color: var(--accent-blue);
+        }
+
+        .tags-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
         .tag {
             font-size: 10px;
             padding: 2px 8px;
@@ -260,9 +342,20 @@
             color: var(--text-dim);
             flex-wrap: wrap;
         }
-        .meta-item { display: flex; align-items: center; gap: 4px; }
-        .author-name { color: var(--text-muted); }
-        .push-right { margin-left: auto; }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .author-name {
+            color: var(--text-muted);
+        }
+
+        .push-right {
+            margin-left: auto;
+        }
 
         /* --- Chat Widget --- */
         .chat-widget {
@@ -277,7 +370,11 @@
         }
 
         .chat-gradient {
-            position: absolute; top: 0; left: 0; right: 0; height: 32px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 32px;
             background: linear-gradient(to bottom, var(--bg-card), transparent);
             z-index: 10;
         }
@@ -287,11 +384,25 @@
             border-bottom: 1px solid var(--border-color);
             background-color: rgba(24, 24, 27, 0.3);
         }
+
         .online-indicator {
-            display: flex; align-items: center; gap: 8px; margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 4px;
         }
-        .dot-green { width: 8px; height: 8px; background-color: var(--accent-green); border-radius: 50%; }
-        .online-text { font-size: 0.75rem; color: var(--text-dim); }
+
+        .dot-green {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-green);
+            border-radius: 50%;
+        }
+
+        .online-text {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
 
         .chat-body {
             flex: 1;
@@ -302,25 +413,62 @@
             gap: 16px;
             font-size: 0.875rem;
         }
-        
+
         /* Hide scrollbar standard */
-        .chat-body::-webkit-scrollbar { display: none; }
-        .chat-body { -ms-overflow-style: none; scrollbar-width: none; }
+        .chat-body::-webkit-scrollbar {
+            display: none;
+        }
 
-        .chat-message { display: flex; flex-direction: column; }
-        .msg-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px; }
-        .msg-user { font-weight: 700; font-size: 0.75rem; }
-        .msg-time { font-size: 10px; color: var(--text-dim); }
-        .msg-text { color: #d4d4d8; font-size: 0.75rem; line-height: 1.5; }
+        .chat-body {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
 
-        .date-divider { text-align: center; font-size: 0.75rem; color: var(--text-dim); margin: 16px 0; }
-        
+        .chat-message {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .msg-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 2px;
+        }
+
+        .msg-user {
+            font-weight: 700;
+            font-size: 0.75rem;
+        }
+
+        .msg-time {
+            font-size: 10px;
+            color: var(--text-dim);
+        }
+
+        .msg-text {
+            color: #d4d4d8;
+            font-size: 0.75rem;
+            line-height: 1.5;
+        }
+
+        .date-divider {
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin: 16px 0;
+        }
+
         .chat-footer {
             padding: 12px;
             border-top: 1px solid var(--border-color);
             background-color: rgba(24, 24, 27, 0.5);
         }
-        .input-wrapper { position: relative; }
+
+        .input-wrapper {
+            position: relative;
+        }
+
         .chat-input {
             width: 100%;
             background-color: black;
@@ -331,27 +479,47 @@
             color: white;
             outline: none;
         }
-        .chat-input:focus { border-color: var(--text-dim); }
-        
+
+        .chat-input:focus {
+            border-color: var(--text-dim);
+        }
+
         .send-btn {
             position: absolute;
-            right: 4px; top: 4px;
-            width: 28px; height: 28px;
+            right: 4px;
+            top: 4px;
+            width: 28px;
+            height: 28px;
             background-color: var(--border-color);
             border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: var(--text-muted);
         }
-        .send-btn:hover { color: white; }
+
+        .send-btn:hover {
+            color: white;
+        }
 
         /* --- Colors for chat usernames --- */
-        .u-blue { color: #60a5fa; }
-        .u-purple { color: #c084fc; }
-        .u-green { color: #4ade80; }
+        .u-blue {
+            color: #60a5fa;
+        }
+
+        .u-purple {
+            color: #c084fc;
+        }
+
+        .u-green {
+            color: #4ade80;
+        }
 
         /* --- Media Queries --- */
         @media (min-width: 768px) {
-            .nav-links { display: flex; }
+            .nav-links {
+                display: flex;
+            }
         }
 
         @media (min-width: 1024px) {
@@ -360,14 +528,19 @@
             }
         }
 
-        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
     </style>
 </head>
+
 <body>
 
     <nav class="navbar">
         <div class="container nav-content">
-            <a href="landing_page.html" class="logo">
+            <a href="index.html" class="logo">
                 <div class="logo-box">
                     <div class="logo-dot"></div>
                 </div>
@@ -375,20 +548,20 @@
             </a>
 
             <div class="nav-links">
-                <a href="#">Discover</a>
+                <a href="events.html    ">Discover</a>
                 <a href="community.html">Community</a>
                 <a href="dashboard.html">Organizers</a>
             </div>
 
             <div class="nav-actions">
-                <button class="btn-login">Log in</button>
-                <button class="btn-signup">Sign Up</button>
+                <button class="btn-login" onclick="window.location.href='login.html'">Log in</button>
+                <button class="btn-signup" id="auth-btn" onclick="window.location.href='login.html?mode=signup'">Sign Up</button>
             </div>
         </div>
     </nav>
 
     <div class="main-wrapper">
-        
+
         <div class="header-section">
             <div>
                 <h1 class="page-title">Community Hub</h1>
@@ -407,7 +580,7 @@
         </div>
 
         <div class="content-grid">
-            
+
             <div class="threads-column" id="threads-container">
                 <div id="loader" class="loader">
                     <div class="spinner"></div>
@@ -416,9 +589,9 @@
 
             <div class="chat-column">
                 <div class="chat-widget">
-                    
+
                     <div class="chat-gradient"></div>
-                    
+
                     <div class="chat-header">
                         <h3 style="font-weight: 600; color: white;">Global Live Chat</h3>
                         <div class="online-indicator">
@@ -426,7 +599,7 @@
                             <span class="online-text">128 online</span>
                         </div>
                     </div>
-                    
+
                     <div class="chat-body">
                         <div class="chat-message">
                             <div class="msg-header">
@@ -435,7 +608,7 @@
                             </div>
                             <p class="msg-text">Has anyone tried the new disc golf course in Downtown?</p>
                         </div>
-                        
+
                         <div class="chat-message">
                             <div class="msg-header">
                                 <span class="msg-user u-purple">QuidditchPro</span>
@@ -472,103 +645,196 @@
         </div>
     </div>
 
-    <script>
-        // Mock Data for Threads
-        const threadsData = [
-            {
-                id: 1,
-                title: "Best budget gear for Underwater Hockey?",
-                author: "DeepDiver88",
-                tags: ["Gear", "Budget"],
-                views: 1205,
-                replies: 45,
-                lastActive: "2h ago",
-                isHot: true
-            },
-            {
-                id: 2,
-                title: "Looking for a Spikeball partner in Seattle area",
-                author: "SpikeKing",
-                tags: ["LFG", "USA-WA"],
-                views: 89,
-                replies: 12,
-                lastActive: "5m ago",
-                isHot: false
-            },
-            {
-                id: 3,
-                title: "Official Rules Update 2024: Chess Boxing",
-                author: "Admin_Sarah",
-                tags: ["Official", "Rules"],
-                views: 3400,
-                replies: 156,
-                lastActive: "1d ago",
-                isHot: true
-            },
-            {
-                id: 4,
-                title: "How to start a local curling club without ice?",
-                author: "StoneThrower",
-                tags: ["Logistics", "Help"],
-                views: 210,
-                replies: 8,
-                lastActive: "4h ago",
-                isHot: false
+    <script type="module">
+        // Firebase Imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import {
+            getAuth,
+            onAuthStateChanged,
+            GoogleAuthProvider,
+            signInWithPopup
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import {
+            getFirestore,
+            collection,
+            query,
+            orderBy,
+            onSnapshot,
+            addDoc,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // --- 1. Firebase Configuration (Replace with your actual config) ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyCo8N5TfHzWq5PXELyTXoHb_SrzikweBwo",
+            authDomain: "minor-project-a5077.firebaseapp.com",
+            projectId: "minor-project-a5077",
+            storageBucket: "minor-project-a5077.firebasestorage.app",
+            messagingSenderId: "525600101149",
+            appId: "1:525600101149:web:f98570a47b3e6e582047f4"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        // 3. Elements Selection
+        const chatBody = document.querySelector('.chat-body');
+        const chatInput = document.querySelector('.chat-input');
+        const sendBtn = document.querySelector('.send-btn');
+        const loginBtn = document.querySelector('.btn-login');
+        const newThreadBtn = document.querySelector('.btn-new-discussion');
+        const threadsContainer = document.getElementById('threads-container');
+
+        let currentUser = null;
+
+        // 4. Auth Management
+        const authBtn = document.getElementById('auth-btn'); // Get the button
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                const name = user.displayName ? user.displayName.split(' ')[0] : user.email.split('@')[0];
+                loginBtn.textContent = `Hi, ${name}`;
+
+                // Change Sign Up to Sign Out
+                authBtn.textContent = "Sign Out";
+            } else {
+                currentUser = null;
+                loginBtn.textContent = "Log in";
+
+                // Change back to Sign Up
+                authBtn.textContent = "Sign Up";
             }
-        ];
+        });
 
-        // Function to render threads
-        function renderThreads() {
-            const container = document.getElementById('threads-container');
-            const loader = document.getElementById('loader');
-            
-            // Remove loader
-            if(loader) loader.remove();
+        // Login Functionality
+        loginBtn.addEventListener('click', () => {
+            signInWithPopup(auth, provider).catch(err => console.error("Login failed:", err));
+        });
 
-            threadsData.forEach(thread => {
-                const iconHtml = thread.isHot 
-                    ? `<div class="thread-icon-box hot"><img src="../icons/flame.svg" alt="Hot"></div>`
-                    : `<div class="thread-icon-box"><img src="../icons/message-square.svg" alt="Message"></div>`;
+        // Sign Out / Sign Up Toggle Functionality
+        authBtn.addEventListener('click', () => {
+            if (currentUser) {
+                // If user is logged in, sign them out
+                auth.signOut().then(() => {
+                    alert("Signed out successfully!");
+                }).catch(err => console.error("Sign out failed:", err));
+            } else {
+                // If no user, redirect to your existing signup page or logic
+                window.location.href = "login.html";
+            }
+        });
 
-                const tagsHtml = thread.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
+        // 5. REAL-TIME THREADS LOGIC
+        const threadsQuery = query(collection(db, "threads"), orderBy("createdAt", "desc"));
 
-                const cardHtml = `
+        onSnapshot(threadsQuery, (snapshot) => {
+            if (!threadsContainer) return;
+            threadsContainer.innerHTML = '';
+            snapshot.forEach((doc) => {
+                renderThreadCard(doc.data());
+            });
+        }, (error) => console.error("Threads listener error:", error));
+
+        function renderThreadCard(data) {
+            const timeAgo = data.createdAt ? "Recently" : "Just now";
+            // Check if tags exist to avoid .map error
+            const tagsHtml = data.tags ? data.tags.map(tag => `<span class="tag">${tag}</span>`).join('') : '';
+
+            const cardHtml = `
                 <div class="thread-card">
                     <div class="thread-content">
-                        ${iconHtml}
+                        <div class="thread-icon-box ${data.isHot ? 'hot' : ''}">
+                            <span class="icon-placeholder">${data.isHot ? '🔥' : '💬'}</span>
+                        </div>
                         <div class="thread-details">
-                            <h3 class="thread-title">${thread.title}</h3>
+                            <h3 class="thread-title">${data.title}</h3>
                             <div class="tags-row">${tagsHtml}</div>
                             <div class="meta-row">
-                                <span class="meta-item">Posted by <span class="author-name">${thread.author}</span></span>
-                                <span class="meta-item"><span class="icon-placeholder">Clk</span> ${thread.lastActive}</span>
-                                <span class="meta-item push-right"><span class="icon-placeholder">Rep</span> ${thread.replies}</span>
-                                <span class="meta-item"><span class="icon-placeholder">Eye</span> ${thread.views}</span>
+                                <span class="meta-item">Posted by <span class="author-name">${data.author || 'Anonymous'}</span></span>
+                                <span class="meta-item"><span class="icon-placeholder">Clk</span> ${timeAgo}</span>
+                                <span class="meta-item push-right"><span class="icon-placeholder">Rep</span> 0</span>
                             </div>
                         </div>
                     </div>
-                </div>
-                `;
-                container.insertAdjacentHTML('beforeend', cardHtml);
+                </div>`;
+            threadsContainer.insertAdjacentHTML('beforeend', cardHtml);
+        }
+
+        // New Thread Button Function
+        if (newThreadBtn) {
+            newThreadBtn.addEventListener('click', async () => {
+                if (!currentUser) return alert("Please log in to post a thread!");
+
+                const title = prompt("Enter your sport discussion title:");
+                const sportTag = prompt("What sport is this for? (e.g., Pickleball, Quidditch)");
+
+                if (title && sportTag) {
+                    try {
+                        await addDoc(collection(db, "threads"), {
+                            title: title,
+                            author: currentUser.displayName || currentUser.email.split('@')[0],
+                            tags: [sportTag, "Community"],
+                            createdAt: serverTimestamp(),
+                            isHot: false
+                        });
+                        console.log("Thread created!");
+                    } catch (err) {
+                        console.error("Error creating thread:", err);
+                        alert("Check your Firestore rules for 'threads' collection.");
+                    }
+                }
             });
         }
 
-        // Simulate network delay
-        setTimeout(renderThreads, 800);
+        // 6. REAL-TIME CHAT LOGIC
+        const chatQuery = query(collection(db, "messages"), orderBy("createdAt", "asc"));
 
-        // Tab Switching Logic
-        function switchTab(tabId) {
-            const tabs = ['trending', 'new', 'myposts'];
-            tabs.forEach(t => {
-                const btn = document.getElementById(`tab-${t}`);
-                if (t === tabId) {
-                    btn.classList.add('active');
-                } else {
-                    btn.classList.remove('active');
-                }
+        onSnapshot(chatQuery, (snapshot) => {
+            if (!chatBody) return;
+            chatBody.innerHTML = '';
+            snapshot.forEach((doc) => {
+                const msg = doc.data();
+                const msgDiv = document.createElement('div');
+                msgDiv.className = 'chat-message';
+                msgDiv.innerHTML = `
+                    <div class="msg-header">
+                        <span class="msg-user u-purple">${msg.userName || 'Guest'}</span>
+                        <span class="msg-time">Live</span>
+                    </div>
+                    <p class="msg-text">${msg.text}</p>`;
+                chatBody.appendChild(msgDiv);
             });
-            console.log("Switched to tab:", tabId);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }, (error) => console.error("Chat listener error:", error));
+
+        async function sendChatMessage() {
+            const text = chatInput.value.trim();
+            if (!text) return;
+            if (!currentUser) return alert("Please log in to chat!");
+
+            try {
+                await addDoc(collection(db, "messages"), {
+                    text: text,
+                    userName: currentUser.displayName || currentUser.email.split('@')[0],
+                    createdAt: serverTimestamp()
+                });
+                chatInput.value = '';
+            } catch (err) {
+                console.error("Error sending message:", err);
+                alert("Check your Firestore rules for 'messages' collection.");
+            }
+        }
+
+        if (sendBtn) sendBtn.addEventListener('click', sendChatMessage);
+        if (chatInput) {
+            chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') sendChatMessage();
+            });
         }
     </script>
 </body>
+
 </html>

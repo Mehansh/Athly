@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NicheSport | Access Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-black: #000000;
+            --card-bg: #0a0a0a;
+            --accent-purple: #a855f7;
+            --accent-glow: rgba(168, 85, 247, 0.1);
+            --text-main: #ffffff;
+            --text-dim: #9ca3af;
+            --border-gray: #1f2937;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-black);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 400px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-gray);
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 0 50px rgba(168, 85, 247, 0.05);
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 32px;
+            font-weight: 800;
+            font-size: 1.6rem;
+            letter-spacing: -0.02em;
+        }
+
+        .logo-square {
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-dot {
+            width: 8px;
+            height: 8px;
+            background: black;
+            border-radius: 50%;
+        }
+
+        .tabs {
+            display: flex;
+            background: #000;
+            padding: 4px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border-gray);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 8px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            border-radius: 6px;
+            transition: 0.2s;
+        }
+
+        .tab.active {
+            background: var(--border-gray);
+            color: white;
+        }
+
+        .role-selector {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .role-btn {
+            padding: 8px;
+            text-align: center;
+            border: 1px solid var(--border-gray);
+            border-radius: 6px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .role-btn.selected {
+            border-color: var(--accent-purple);
+            color: var(--accent-purple);
+            background: var(--accent-glow);
+        }
+
+        .input-group { margin-bottom: 16px; }
+        label { display: block; font-size: 0.7rem; color: var(--text-dim); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+        
+        input {
+            width: 100%;
+            background: #000;
+            border: 1px solid var(--border-gray);
+            padding: 12px;
+            border-radius: 6px;
+            color: white;
+            outline: none;
+            box-sizing: border-box;
+            transition: 0.3s;
+        }
+
+        input:focus { border-color: var(--accent-purple); box-shadow: 0 0 10px var(--accent-glow); }
+
+        .btn-main {
+            width: 100%;
+            padding: 14px;
+            background: white;
+            color: black;
+            border: none;
+            border-radius: 8px;
+            font-weight: 800;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.2s;
+        }
+
+        .btn-main:hover { opacity: 0.9; transform: translateY(-1px); }
+        .hidden { display: none; }
+        
+        #status {
+            margin-top: 16px;
+            text-align: center;
+            font-size: 0.8rem;
+            padding: 10px;
+            border-radius: 6px;
+        }
+        .error { color: #ff4444; background: rgba(255, 68, 68, 0.1); border: 1px solid rgba(255, 68, 68, 0.2); }
+        .success { color: #a855f7; background: var(--accent-glow); border: 1px solid var(--accent-purple); }
+    </style>
+</head>
+<body>
+
+<div class="auth-card">
+    <div class="logo-area">
+        <div class="logo-square"><div class="logo-dot"></div></div>
+        NicheSport
+    </div>
+
+    <div class="tabs">
+        <div class="tab active" id="loginTab" onclick="switchMode('login')">Log In</div>
+        <div class="tab" id="signupTab" onclick="switchMode('signup')">Sign Up</div>
+    </div>
+
+    <div id="roleGrid" class="role-selector hidden">
+        <div class="role-btn selected" id="roleAthlete" onclick="setRole('athlete')">Athlete</div>
+        <div class="role-btn" id="roleOrganizer" onclick="setRole('organizer')">Organizer</div>
+        <div class="role-btn" id="roleSponsor" onclick="setRole('sponsor')">Sponsor</div>
+    </div>
+
+    <form id="authForm">
+        <div class="input-group hidden" id="nameField">
+            <label>Full Name</label>
+            <input type="text" id="userName" placeholder="e.g. Alex Smith">
+        </div>
+
+        <div class="input-group">
+            <label>Email Address</label>
+            <input type="email" id="userEmail" placeholder="name@domain.com" required>
+        </div>
+
+        <div class="input-group">
+            <label>Password</label>
+            <input type="password" id="userPass" placeholder="••••••••" required>
+        </div>
+
+        <button type="submit" class="btn-main" id="submitBtn">LOG IN</button>
+    </form>
+
+    <div id="status" class="hidden"></div>
+</div>
+
+<script type="module">
+    // Firebase Modular SDK via CDN
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    // Use your verified NicheSport/ShopLink credentials
+        const firebaseConfig = {
+            apiKey: "AIzaSyCo8N5TfHzWq5PXELyTXoHb_SrzikweBwo",
+            authDomain: "minor-project-a5077.firebaseapp.com",
+            projectId: "minor-project-a5077",
+            storageBucket: "minor-project-a5077.firebasestorage.app",
+            messagingSenderId: "525600101149",
+            appId: "1:525600101149:web:f98570a47b3e6e582047f4"
+            };
+
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let isLogin = true;
+    let currentRole = 'athlete';
+
+    // Switch between Login and Sign Up UI
+    window.switchMode = (mode) => {
+        isLogin = (mode === 'login');
+        document.getElementById('loginTab').classList.toggle('active', isLogin);
+        document.getElementById('signupTab').classList.toggle('active', !isLogin);
+        
+        document.getElementById('roleGrid').classList.toggle('hidden', isLogin);
+        document.getElementById('nameField').classList.toggle('hidden', isLogin);
+        document.getElementById('submitBtn').textContent = isLogin ? "LOG IN" : "CREATE ACCOUNT";
+        document.getElementById('status').classList.add('hidden');
+    };
+
+    // Role selection logic
+    window.setRole = (role) => {
+        currentRole = role;
+        ['Athlete', 'Organizer', 'Sponsor'].forEach(r => {
+            document.getElementById('role' + r).classList.toggle('selected', r.toLowerCase() === role);
+        });
+    };
+
+    // Handle Auth Submission
+    document.getElementById('authForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const status = document.getElementById('status');
+        const email = document.getElementById('userEmail').value;
+        const password = document.getElementById('userPass').value;
+        const name = document.getElementById('userName').value;
+
+        status.className = 'hidden';
+
+        try {
+            if (isLogin) {
+                // Log In Logic
+                await signInWithEmailAndPassword(auth, email, password);
+                showMsg('success', 'Logged in successfully! Redirecting...');
+                setTimeout(() => window.location.href = "index.html", 1500);
+            } else {
+                // Sign Up Logic
+                if (!name) throw new Error("Name is required for Sign Up.");
+                const cred = await createUserWithEmailAndPassword(auth, email, password);
+                
+                // Store Profile in Firestore
+                await setDoc(doc(db, "users", cred.user.uid), {
+                    displayName: name,
+                    email: email,
+                    role: currentRole,
+                    createdAt: new Date().toISOString()
+                });
+
+                showMsg('success', 'Account created! Welcome to NicheSport.');
+                setTimeout(() => window.location.href = "index.html", 1500);
+            }
+        } catch (err) {
+            showMsg('error', err.message);
+        }
+    });
+
+    function showMsg(type, text) {
+        const el = document.getElementById('status');
+        el.textContent = text;
+        el.className = type;
+    }
+</script>
+
+</body>
+</html>

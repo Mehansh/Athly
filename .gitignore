@@ -1,0 +1,32 @@
+# --- SENSITIVE DATA (Must be ignored) ---
+serviceAccountKey.json
+scraper/serviceAccountKey.json
+.env
+*.json.local
+
+# --- FIREBASE ---
+.firebase/
+firebase-debug.log*
+.firebaserc
+firebase.json
+
+# --- PYTHON & SCRAPER ---
+scraper/
+__pycache__/
+.venv/
+env/
+venv/
+*.py[cod]
+*$py.class
+scraper/audax_code.html
+sample.html 
+
+# --- DEPENDENCIES & BUILD ---
+node_modules/
+dist/
+build/
+
+# --- SYSTEM JUNK ---
+Thumbs.db
+desktop.ini
+.DS_Store
