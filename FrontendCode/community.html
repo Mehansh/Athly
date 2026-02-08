@@ -21,6 +21,19 @@
             --accent-blue: #60a5fa;
             --accent-green: #4ade80;
             --font-family: 'Inter', sans-serif;
+
+            --colBg: #09090b;
+            --colCardBg: #111111;
+            --colBorder: #27272a;
+            --colBorderLight: #3f3f46;
+            
+            --colTextMain: #ffffff;
+            --colTextSec: #a1a1aa;
+            --colTextMuted: #71717a;
+            
+            --colInputBg: #1a1a1a;
+            --colAccent: #ffffff;
+            --colGlow: #4f46e5;
         }
 
         * {
@@ -60,8 +73,8 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            background-color: #333;
-            color: #888;
+            background-color: var(--colBorderLight);
+            color: #ffffff;
             font-size: 10px;
             border-radius: 4px;
             padding: 2px 4px;
@@ -140,20 +153,22 @@
         .btn-login:hover {
             color: white;
         }
-
+        
         .btn-signup {
-            background-color: var(--border-color);
+            background-color: var(--colBorder);
+            border: 0px solid var(--colBorderLight);
             color: white;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 0.875rem;
+            font-size: 14px;
             font-weight: 500;
-            border: 1px solid #3f3f46;
-            transition: background-color 0.2s;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.15s, box-shadow 0.2s;
+            font-family: 'Inter', sans-serif;
         }
 
         .btn-signup:hover {
-            background-color: #3f3f46;
+            box-shadow: 0 0 0 2px var(--colGlow), 0 0 15px rgba(79, 70, 229, 0.3);
         }
 
         /* --- Main Layout --- */
@@ -185,20 +200,20 @@
         }
 
         .btn-new-discussion {
-            background-color: white;
-            color: black;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 0.875rem;
+            background-color: var(--colBorder);
+            border: 0px solid var(--colBorderLight);
+            color: white;
+            font-size: 14px;
             font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: background-color 0.2s;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.15s, box-shadow 0.2s;
+            font-family: 'Inter', sans-serif;
         }
 
         .btn-new-discussion:hover {
-            background-color: #e4e4e7;
+            box-shadow: 0 0 0 2px var(--colGlow), 0 0 15px rgba(79, 70, 229, 0.3);
         }
 
         /* --- Tabs --- */
