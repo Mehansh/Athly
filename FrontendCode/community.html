@@ -555,7 +555,8 @@
 
             <div class="nav-actions">
                 <button class="btn-login" onclick="window.location.href='login.html'">Log in</button>
-                <button class="btn-signup" id="auth-btn" onclick="window.location.href='login.html?mode=signup'">Sign Up</button>
+                <button class="btn-signup" id="auth-btn" onclick="window.location.href='login.html?mode=signup'">Sign
+                    Up</button>
             </div>
         </div>
     </nav>
@@ -567,10 +568,16 @@
                 <h1 class="page-title">Community Hub</h1>
                 <p class="page-subtitle">Connect, discuss, and recruit for your next niche event.</p>
             </div>
-            <button class="btn-new-discussion">
-                <span class="icon-placeholder">[+]</span>
-                New Discussion
-            </button>
+            <div style="display:flex; gap:10px;">
+                <button class="btn-new-discussion" onclick="loadChatForThread('global', 'Global Live Chat')">
+                    <span class="icon-placeholder">🌍</span>
+                    Global Chat
+                </button>
+                <button class="btn-new-discussion" id="new-thread-btn">
+                    <span class="icon-placeholder">[+]</span>
+                    New Discussion
+                </button>
+            </div>
         </div>
 
         <div class="tabs-container">
@@ -659,9 +666,17 @@
             collection,
             query,
             orderBy,
+            where,
             onSnapshot,
             addDoc,
-            serverTimestamp
+            updateDoc,
+            doc,
+            arrayUnion,
+            arrayRemove,
+            increment,
+            serverTimestamp,
+            getDoc,
+            runTransaction
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         // --- 1. Firebase Configuration (Replace with your actual config) ---
@@ -684,147 +699,361 @@
         const chatInput = document.querySelector('.chat-input');
         const sendBtn = document.querySelector('.send-btn');
         const loginBtn = document.querySelector('.btn-login');
-        const newThreadBtn = document.querySelector('.btn-new-discussion');
+        const newThreadBtn = document.getElementById('new-thread-btn');
         const threadsContainer = document.getElementById('threads-container');
+        const chatHeaderTitle = document.querySelector('.chat-header h3');
+        const chatHeaderOnline = document.querySelector('.online-text');
 
         let currentUser = null;
+        let activeThreadId = null; // 'global' or thread doc ID
+        let currentTab = 'new'; // 'trending', 'new', 'myposts'
+        let unsubscribeChat = null; // To stop listening to previous thread's chat
+        let unsubscribeThreads = null;
 
         // 4. Auth Management
-        const authBtn = document.getElementById('auth-btn'); // Get the button
+        const authBtn = document.getElementById('auth-btn');
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
                 const name = user.displayName ? user.displayName.split(' ')[0] : user.email.split('@')[0];
                 loginBtn.textContent = `Hi, ${name}`;
-
-                // Change Sign Up to Sign Out
                 authBtn.textContent = "Sign Out";
             } else {
                 currentUser = null;
                 loginBtn.textContent = "Log in";
-
-                // Change back to Sign Up
                 authBtn.textContent = "Sign Up";
             }
+            // Refresh threads in case "My Posts" was active or like buttons need update
+            loadThreads(currentTab);
         });
 
-        // Login Functionality
+        // Login Helper
+        function checkAuth() {
+            if (!currentUser) {
+                window.location.href = 'login.html';
+                return false;
+            }
+            return true;
+        }
+
         loginBtn.addEventListener('click', () => {
-            signInWithPopup(auth, provider).catch(err => console.error("Login failed:", err));
+            // If already logged in, maybe go to profile? For now, just login ensures sign in.
+            if (!currentUser) window.location.href = 'login.html';
         });
 
-        // Sign Out / Sign Up Toggle Functionality
         authBtn.addEventListener('click', () => {
             if (currentUser) {
-                // If user is logged in, sign them out
                 auth.signOut().then(() => {
-                    alert("Signed out successfully!");
-                }).catch(err => console.error("Sign out failed:", err));
+                    window.location.reload();
+                });
             } else {
-                // If no user, redirect to your existing signup page or logic
-                window.location.href = "login.html";
+                window.location.href = 'login.html?mode=signup';
             }
         });
 
-        // 5. REAL-TIME THREADS LOGIC
-        const threadsQuery = query(collection(db, "threads"), orderBy("createdAt", "desc"));
 
-        onSnapshot(threadsQuery, (snapshot) => {
-            if (!threadsContainer) return;
-            threadsContainer.innerHTML = '';
-            snapshot.forEach((doc) => {
-                renderThreadCard(doc.data());
-            });
-        }, (error) => console.error("Threads listener error:", error));
+        // 5. THREADS LOGIC
 
-        function renderThreadCard(data) {
-            const timeAgo = data.createdAt ? "Recently" : "Just now";
-            // Check if tags exist to avoid .map error
-            const tagsHtml = data.tags ? data.tags.map(tag => `<span class="tag">${tag}</span>`).join('') : '';
+        // Switch Tabs
+        window.switchTab = (tabName) => {
+            // UI Update
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`tab-${tabName}`).classList.add('active');
 
-            const cardHtml = `
-                <div class="thread-card">
-                    <div class="thread-content">
-                        <div class="thread-icon-box ${data.isHot ? 'hot' : ''}">
-                            <span class="icon-placeholder">${data.isHot ? '🔥' : '💬'}</span>
-                        </div>
-                        <div class="thread-details">
-                            <h3 class="thread-title">${data.title}</h3>
-                            <div class="tags-row">${tagsHtml}</div>
-                            <div class="meta-row">
-                                <span class="meta-item">Posted by <span class="author-name">${data.author || 'Anonymous'}</span></span>
-                                <span class="meta-item"><span class="icon-placeholder">Clk</span> ${timeAgo}</span>
-                                <span class="meta-item push-right"><span class="icon-placeholder">Rep</span> 0</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>`;
-            threadsContainer.insertAdjacentHTML('beforeend', cardHtml);
-        }
+            currentTab = tabName;
+            loadThreads(tabName);
+        };
 
-        // New Thread Button Function
-        if (newThreadBtn) {
-            newThreadBtn.addEventListener('click', async () => {
-                if (!currentUser) return alert("Please log in to post a thread!");
+        function loadThreads(filter) {
+            if (unsubscribeThreads) unsubscribeThreads();
 
-                const title = prompt("Enter your sport discussion title:");
-                const sportTag = prompt("What sport is this for? (e.g., Pickleball, Quidditch)");
+            let q;
+            const threadsRef = collection(db, "threads");
 
-                if (title && sportTag) {
-                    try {
-                        await addDoc(collection(db, "threads"), {
-                            title: title,
-                            author: currentUser.displayName || currentUser.email.split('@')[0],
-                            tags: [sportTag, "Community"],
-                            createdAt: serverTimestamp(),
-                            isHot: false
-                        });
-                        console.log("Thread created!");
-                    } catch (err) {
-                        console.error("Error creating thread:", err);
-                        alert("Check your Firestore rules for 'threads' collection.");
+            if (filter === 'trending') {
+                q = query(threadsRef, orderBy("likeCount", "desc"), orderBy("createdAt", "desc"));
+            } else {
+                // For both 'new' and 'myposts', we fetch by newest.
+                // We will filter 'myposts' client-side to strictly avoid index issues for this user.
+                q = query(threadsRef, orderBy("createdAt", "desc"));
+            }
+
+            unsubscribeThreads = onSnapshot(q, (snapshot) => {
+                threadsContainer.innerHTML = '';
+
+                let visibleCount = 0;
+
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+
+                    // Client-side Filter for My Posts
+                    if (filter === 'myposts') {
+                        if (!currentUser || data.authorUid !== currentUser.uid) {
+                            return; // Skip this doc
+                        }
                     }
+
+                    renderThreadCard(doc.id, data, visibleCount);
+                    visibleCount++;
+                });
+
+                if (visibleCount === 0) {
+                    const msg = filter === 'myposts' ? "You haven't posted any threads yet." : "No discussions found.";
+                    threadsContainer.innerHTML = `<div style="color:var(--text-muted); text-align:center; padding:20px;">${msg}</div>`;
+                }
+
+            }, (error) => {
+            }, (error) => {
+                console.error("Error loading threads:", error);
+                if (error.code === 'failed-precondition') {
+                    threadsContainer.innerHTML = `
+                        <div style="color: #f87171; background: rgba(248, 113, 113, 0.1); padding: 16px; border-radius: 8px; text-align: center;">
+                            <strong>Configuration Required</strong><br>
+                            This view ("${filter}") requires a Firestore Index.<br>
+                            <a href="${error.message.match(/https:\/\/console\.firebase\.google\.com[^\s]*/)?.[0]}" target="_blank" style="text-decoration: underline; color: #f87171;">Click here to create it automatically</a>
+                        </div>`;
+                } else {
+                    threadsContainer.innerHTML = `<div style="color:red; text-align:center;">Error: ${error.message}</div>`;
                 }
             });
         }
 
-        // 6. REAL-TIME CHAT LOGIC
-        const chatQuery = query(collection(db, "messages"), orderBy("createdAt", "asc"));
+        function renderThreadCard(id, data, index) {
+            // Debug Log
+            if (currentUser && data.authorUid === currentUser.uid) {
+                console.log("Rendering my post:", id, data.title);
+            }
 
-        onSnapshot(chatQuery, (snapshot) => {
-            if (!chatBody) return;
-            chatBody.innerHTML = '';
-            snapshot.forEach((doc) => {
-                const msg = doc.data();
-                const msgDiv = document.createElement('div');
-                msgDiv.className = 'chat-message';
-                msgDiv.innerHTML = `
-                    <div class="msg-header">
-                        <span class="msg-user u-purple">${msg.userName || 'Guest'}</span>
-                        <span class="msg-time">Live</span>
+            const timeAgo = data.createdAt ? new Date(data.createdAt.seconds * 1000).toLocaleDateString() : "Just now";
+            const tagsHtml = data.tags ? data.tags.map(tag => `<span class="tag">${tag}</span>`).join('') : '';
+
+            // Check if current user liked this
+            const isLiked = currentUser && data.likedBy && data.likedBy.includes(currentUser.uid);
+            const likeIcon = isLiked ? '❤️' : '🤍';
+            const likeClass = isLiked ? 'liked' : '';
+
+            // Determine Icon (Alternate based on index)
+            // Even index: Message, Odd index: Flame
+            const isFlame = index % 2 !== 0;
+            const iconPath = isFlame ? 'icons/flame.svg' : 'icons/message-square.svg';
+            // Both icons keep original colors now
+            const filterStyle = '';
+            const iconClass = isFlame ? 'hot' : '';
+
+            const isActive = id === activeThreadId ? 'border-left: 3px solid var(--accent-blue); background-color: var(--bg-hover);' : '';
+
+            // Prevent XSS
+            const safeTitle = data.title.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            const safeAuthor = (data.author || 'Anonymous').replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+            const div = document.createElement('div');
+            // We insert HTML but attach events separately to avoid onclick string mess
+            div.innerHTML = `
+                <div class="thread-card" style="${isActive}" id="thread-${id}">
+                    <div class="thread-content">
+                        <div class="thread-icon-box ${iconClass}">
+                            <img src="${iconPath}" alt="icon" style="width:16px; height:16px; ${filterStyle}">
+                        </div>
+                        <div class="thread-details">
+                            <h3 class="thread-title">${safeTitle}</h3>
+                            <div class="tags-row">${tagsHtml}</div>
+                            <div class="meta-row">
+                                <span class="meta-item">By <span class="author-name">${safeAuthor}</span></span>
+                                <span class="meta-item">${timeAgo}</span>
+                                <span class="meta-item push-right like-btn-wrapper" style="cursor:pointer; padding: 4px 8px; border-radius:4px; background:rgba(255,255,255,0.05);">
+                                    <span>${likeIcon}</span> <span style="margin-left:4px;">${data.likeCount || 0}</span>
+                                </span>
+                            </div>
+                        </div>
                     </div>
-                    <p class="msg-text">${msg.text}</p>`;
-                chatBody.appendChild(msgDiv);
+                </div>`;
+
+            // Click on card -> Open Chat
+            const card = div.firstElementChild;
+            card.addEventListener('click', (e) => {
+                // If clicked on like button, don't switch chat
+                if (e.target.closest('.like-btn-wrapper')) return;
+                loadChatForThread(id, data.title);
             });
-            chatBody.scrollTop = chatBody.scrollHeight;
-        }, (error) => console.error("Chat listener error:", error));
+
+            // Click on Like -> Toggle Like
+            const likeBtn = div.querySelector('.like-btn-wrapper');
+            likeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleLike(id);
+            });
+
+            threadsContainer.appendChild(div);
+        }
+
+        async function toggleLike(threadId) {
+            if (!checkAuth()) return;
+
+            const threadRef = doc(db, "threads", threadId);
+            try {
+                await runTransaction(db, async (transaction) => {
+                    const sfDoc = await transaction.get(threadRef);
+                    if (!sfDoc.exists()) {
+                        throw "Document does not exist!";
+                    }
+
+                    const data = sfDoc.data();
+                    const likedBy = data.likedBy || [];
+                    let likeCount = data.likeCount || 0;
+
+                    const userIndex = likedBy.indexOf(currentUser.uid);
+
+                    if (userIndex !== -1) {
+                        // User already liked -> Unlike
+                        likedBy.splice(userIndex, 1);
+                        likeCount = Math.max(0, likeCount - 1); // Prevent negative
+                    } else {
+                        // User hasn't liked -> Like
+                        likedBy.push(currentUser.uid);
+                        likeCount++;
+                    }
+
+                    transaction.update(threadRef, {
+                        likeCount: likeCount,
+                        likedBy: likedBy
+                    });
+                });
+                console.log("Like toggled successfully");
+            } catch (err) {
+                console.error("Like transaction failed:", err);
+                if (err.code === 'permission-denied') {
+                    alert("Permission Denied: Check your Firestore Security Rules allow 'update' on 'threads' collection.");
+                } else {
+                    alert(`Like failed: ${err.message}`);
+                }
+            }
+        }
+
+        // New Thread
+        if (newThreadBtn) {
+            newThreadBtn.addEventListener('click', async () => {
+                if (!checkAuth()) return;
+
+                // Simple Prompt for now
+                const title = prompt("Discussion Title:");
+                if (!title) return;
+                const sportTag = prompt("Sport/Topic (e.g. Cricket, General):");
+
+                try {
+                    await addDoc(collection(db, "threads"), {
+                        title: title,
+                        author: currentUser.displayName || currentUser.email.split('@')[0],
+                        authorUid: currentUser.uid,
+                        tags: sportTag ? [sportTag] : ['General'],
+                        createdAt: serverTimestamp(),
+                        likeCount: 0,
+                        likedBy: [],
+                        isHot: false
+                    });
+                    console.log("Thread created for UID:", currentUser.uid);
+                    // Switch tab to 'new' to see it
+                    if (currentTab !== 'new') switchTab('new');
+                } catch (err) {
+                    console.error("Error creating thread:", err);
+                    alert("Error creating thread. See console.");
+                }
+            });
+        }
+
+        // 6. CHAT LOGIC
+
+        function loadChatForThread(threadId, threadTitle) {
+            if (activeThreadId === threadId) return; // Already there
+
+            activeThreadId = threadId;
+            chatHeaderTitle.textContent = threadTitle || "Global Chat";
+            chatHeaderOnline.textContent = "Live Discussion";
+
+            // Visual feedback on list
+            document.querySelectorAll('.thread-card').forEach(el => {
+                el.style.borderLeft = '1px solid var(--border-color)';
+                el.style.backgroundColor = 'var(--bg-card)';
+            });
+
+            if (threadId !== 'global') {
+                const activeCard = document.getElementById(`thread-${threadId}`);
+                if (activeCard) {
+                    activeCard.style.borderLeft = '3px solid var(--accent-blue)';
+                    activeCard.style.backgroundColor = 'var(--bg-hover)';
+                }
+            }
+
+
+            // Unsubscribe previous info
+            if (unsubscribeChat) unsubscribeChat();
+
+            const msgsRef = collection(db, "messages");
+            // If threadId is 'global', maybe use a different query or null checked
+            // But we are storing threadId in messages now.
+
+            const q = query(msgsRef, where("threadId", "==", threadId), orderBy("createdAt", "asc"));
+
+            unsubscribeChat = onSnapshot(q, (snapshot) => {
+                chatBody.innerHTML = '';
+                if (snapshot.empty) {
+                    chatBody.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-dim); font-size:0.8rem;">No messages yet. Be the first!</div>';
+                }
+
+                snapshot.forEach((doc) => {
+                    renderMessage(doc.data());
+                });
+                chatBody.scrollTop = chatBody.scrollHeight;
+            }, (err) => {
+                console.error("Chat Error:", err);
+                if (err.code === 'failed-precondition') {
+                    chatBody.innerHTML = '<div style="color:red; padding:10px;">Missing Index for Chat Query.</div>';
+                }
+            });
+        }
+
+        function renderMessage(msg) {
+            const div = document.createElement('div');
+            div.className = 'chat-message';
+
+            // Simple color hash for username
+            const colors = ['u-blue', 'u-green', 'u-purple'];
+            const colorClass = colors[msg.userName ? msg.userName.length % 3 : 0];
+
+            // Timestamp
+            let timeStr = "";
+            if (msg.createdAt) {
+                const date = msg.createdAt.toDate();
+                timeStr = date.getHours() + ":" + String(date.getMinutes()).padStart(2, '0');
+            }
+
+            div.innerHTML = `
+                <div class="msg-header">
+                    <span class="msg-user ${colorClass}">${msg.userName || 'Guest'}</span>
+                    <span class="msg-time">${timeStr}</span>
+                </div>
+                <p class="msg-text">${msg.text}</p>`;
+            chatBody.appendChild(div);
+        }
 
         async function sendChatMessage() {
             const text = chatInput.value.trim();
             if (!text) return;
-            if (!currentUser) return alert("Please log in to chat!");
+
+            if (!checkAuth()) return;
+            if (!activeThreadId) return alert("Select a discussion thread first!");
 
             try {
                 await addDoc(collection(db, "messages"), {
                     text: text,
                     userName: currentUser.displayName || currentUser.email.split('@')[0],
+                    uid: currentUser.uid,
+                    threadId: activeThreadId,
                     createdAt: serverTimestamp()
                 });
                 chatInput.value = '';
             } catch (err) {
-                console.error("Error sending message:", err);
-                alert("Check your Firestore rules for 'messages' collection.");
+                console.error("Send Error:", err);
             }
         }
 
@@ -834,6 +1063,18 @@
                 if (e.key === 'Enter') sendChatMessage();
             });
         }
+
+        // Initialize with default view
+        // Ideally we pick the first thread or just show global if exists.
+        // For now, load threads.
+        loadThreads('new');
+
+        // Initial state for chat - Global Chat
+        loadChatForThread('global', 'Global Live Chat');
+
+        // Make Global Chat button accessible
+        window.loadChatForThread = loadChatForThread;
+
     </script>
 </body>
 
