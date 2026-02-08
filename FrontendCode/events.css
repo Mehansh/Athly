@@ -361,8 +361,8 @@ body {
   z-index: 1; 
   overflow: hidden;
   padding: 20px;
-  padding-top: 25px;
-  padding-bottom: 25px;
+  padding-top: 32px;
+  padding-bottom: 32px;
   display: flex;
   gap: 20px;
   align-items: flex-start;
@@ -479,3 +479,108 @@ body {
     font-size: 12px;
     color: var(--colTextMuted);
 }
+
+.cardContent, 
+.cardIcon, 
+.cardStats {
+    position: relative;
+    z-index: 10;
+}
+
+/* 1. Ensure the card container can hold absolute elements */
+.card {
+    position: relative;
+    overflow: hidden; /* This hides the image while it's "outside" the card */
+    z-index: 1;
+}
+
+/* 2. Position the slide-in image */
+.cardBgIcon {
+    position: absolute;
+    left: 350px;
+    bottom: -3px;
+    height: 100%; /* Makes the image large enough to fill the background */
+    width: auto;
+    z-index: 0; /* Keeps it behind your text */
+    opacity: 0; /* Invisible by default */
+    
+    /* The Animation Logic */
+    transform: translateX(-100%); /* Start completely off-screen to the left */
+    transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+    pointer-events: none; /* Prevents the image from blocking clicks on links */
+}
+
+/* 3. The Hover Trigger */
+.card:hover .cardBgIcon {
+    opacity: 0.25; /* Becomes a subtle "ghost" image on hover */
+    transform: translateX(-10%); /* Slides in slightly into view */
+}
+
+/* 4. Keep your text readable */
+.cardContent, .cardStats, .cardIcon {
+    position: relative;
+    z-index: 10; /* Ensures content stays above the sliding image */
+}
+
+.cardLeftCol {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    z-index: 10;
+    min-width: 68px; /* Fixed width prevents jittering */
+}
+
+/* NEW: This stays fixed size so the layout never moves */
+.meterWrapper {
+    position: relative;
+    width: 24px;  /* Match default meter width */
+    height: 6px;  /* Match default meter height */
+}
+
+.difficultyMeter {
+    /* Absolute positioning takes it out of the layout flow */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Centers it perfectly on the wrapper */
+    
+    height: 6px;
+    width: 24px;
+    border-radius: 4px;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    cursor: help;
+    z-index: 20; /* Ensures it expands ON TOP of everything */
+}
+
+.difficultyText {
+    font-size: 10px;
+    font-weight: 700;
+    color: #000;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Hover State */
+.difficultyMeter:hover {
+    width: 80px; /* Expands freely without pushing neighbors */
+    height: 18px;
+}
+
+.difficultyMeter:hover .difficultyText {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Colors */
+.diff-easy { background-color: #4ade80; box-shadow: 0 0 10px rgba(74, 222, 128, 0.2); }
+.diff-med  { background-color: #fbbf24; box-shadow: 0 0 10px rgba(251, 191, 36, 0.2); }
+.diff-hard { background-color: #ef4444; box-shadow: 0 0 10px rgba(239, 68, 68, 0.2); }
