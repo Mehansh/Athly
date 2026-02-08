@@ -20,6 +20,19 @@
             --accent-green: #4ade80;
             --bg-green-dim: rgba(74, 222, 128, 0.1);
             --font-family: 'Inter', sans-serif;
+
+            --colBg: #09090b;
+            --colCardBg: #111111;
+            --colBorder: #27272a;
+            --colBorderLight: #3f3f46;
+            
+            --colTextMain: #ffffff;
+            --colTextSec: #a1a1aa;
+            --colTextMuted: #71717a;
+            
+            --colInputBg: #1a1a1a;
+            --colAccent: #ffffff;
+            --colGlow: #4f46e5;
         }
 
         * {
@@ -108,21 +121,27 @@
         .nav-actions { display: flex; align-items: center; gap: 24px; }
         .btn-login { color: var(--text-muted); font-size: 0.875rem; font-weight: 500; }
         .btn-login:hover { color: white; }
-        
+
         .btn-signup {
-            background-color: var(--border-color);
+            background-color: var(--colBorder);
+            border: 0px solid var(--colBorderLight);
             color: white;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 0.875rem;
+            font-size: 14px;
             font-weight: 500;
-            border: 1px solid #3f3f46;
-            transition: background-color 0.2s;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.15s, box-shadow 0.2s;
+            font-family: 'Inter', sans-serif;
         }
-        .btn-signup:hover { background-color: #3f3f46; }
+
+        .btn-signup:hover {
+            box-shadow: 0 0 0 2px var(--colGlow), 0 0 15px rgba(79, 70, 229, 0.3);
+        }
 
         /* --- Main Content Layout --- */
         .main-wrapper {
+            max-width: 1024px;
             padding-top: 100px; /* Offset for fixed navbar */
             padding-bottom: 80px;
         }
@@ -139,15 +158,21 @@
         .page-subtitle { color: var(--text-muted); }
 
         .btn-create {
-            background-color: white;
-            color: black;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 0.875rem;
+            background-color: var(--colBorder);
+            border: 0px solid var(--colBorderLight);
+            color: white;
+            font-size: 14px;
             font-weight: 500;
-            transition: background-color 0.2s;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.15s, box-shadow 0.2s;
+            font-family: 'Inter', sans-serif;
+            margin-top: 40px;
         }
-        .btn-create:hover { background-color: #e4e4e7; }
+        .btn-create:hover { 
+            box-shadow: 0 0 0 2px var(--colGlow), 0 0 15px rgba(79, 70, 229, 0.3);
+        }
 
         /* --- Modal / Create Form --- */
         .create-form-container {
