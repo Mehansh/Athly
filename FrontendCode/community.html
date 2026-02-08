@@ -265,6 +265,7 @@
             display: flex;
             flex-direction: column;
             gap: 16px;
+            margin-top: -16px;
         }
 
         .loader {
@@ -283,34 +284,27 @@
         }
 
         .thread-card {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 24px;
+            background-color: #1a1a1a;
+            border: 0px solid var(--colBorderLight);
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 16px 16px;
+            border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: background-color 0.15s, box-shadow 0.2s;
+            font-family: 'Inter', sans-serif;
+            margin-top: -6px;
         }
 
         .thread-card:hover {
-            background-color: var(--bg-hover);
+            box-shadow: 0 0 0 2px var(--colGlow), 0 0 15px rgba(79, 70, 229, 0.3);
         }
 
         .thread-content {
             display: flex;
             align-items: flex-start;
             gap: 16px;
-        }
-
-        .thread-icon-box {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: var(--border-color);
-            color: var(--text-muted);
-            flex-shrink: 0;
         }
 
         .thread-icon-box.hot {
@@ -327,10 +321,6 @@
             font-weight: 500;
             margin-bottom: 4px;
             color: white;
-        }
-
-        .thread-card:hover .thread-title {
-            color: var(--accent-blue);
         }
 
         .tags-row {
