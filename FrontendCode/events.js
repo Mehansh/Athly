@@ -33,7 +33,7 @@ function addMessageBox(text, sender) {
 function handleSend() {
     const message = input.value.trim();
     if (!message) return;
-
+    
     addMessageBox(message, 'user');
     input.value = '';
 
