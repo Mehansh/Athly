@@ -89,6 +89,7 @@ body {
     display: none;
     align-items: center;
     gap: 32px;
+    margin-left: 55px;
 }
 
 @media (min-width: 768px) {
@@ -349,7 +350,6 @@ body {
     display: flex;
     flex-direction: column;
     gap: 1px;
-    border-radius: 12px;
     overflow: hidden;
     margin-top: -20px;
 
@@ -506,14 +506,14 @@ body {
     
     /* The Animation Logic */
     transform: translateX(-100%); /* Start completely off-screen to the left */
-    transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+    transition: transform 2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
     pointer-events: none; /* Prevents the image from blocking clicks on links */
 }
 
 /* 3. The Hover Trigger */
 .card:hover .cardBgIcon {
-    opacity: 0.25; /* Becomes a subtle "ghost" image on hover */
-    transform: translateX(-10%); /* Slides in slightly into view */
+    opacity: 0.35; /* Becomes a subtle "ghost" image on hover */
+    transform: translateX(70%); /* Slides in slightly into view */
 }
 
 /* 4. Keep your text readable */
@@ -545,7 +545,7 @@ body {
     left: 50%;
     transform: translate(-50%, -50%); /* Centers it perfectly on the wrapper */
     
-    height: 6px;
+    height: 24px;
     width: 24px;
     border-radius: 4px;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
