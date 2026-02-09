@@ -1,5 +1,5 @@
 # --- SENSITIVE DATA (Must be ignored) ---
-serviceAccountKey.json
+backend/serviceAccountKey.json
 scraper/serviceAccountKey.json
 .env
 *.json.local

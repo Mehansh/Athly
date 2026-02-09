@@ -1,2 +1,8 @@
 langchain
 langchain-ollama
+langchain-chroma
+requests
+pandas
+firebase-admin
+bs4
+hashlib
