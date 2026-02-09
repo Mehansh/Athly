@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NicheSport</title>
+    <title>Athly</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -18,7 +18,7 @@
                 <div class="brandLogoBox">
                     <div class="brandLogoDot"></div>
                 </div>
-                <span class="brandName">NicheSport</span>
+                <span class="brandName">Athly</span>
             </a>
 
             <div class="navLinks">
@@ -248,10 +248,27 @@
                     </div>
                 </div>
             </div>
+        </div>
 
+        <div id="ai-chat" class="collapsed">
+            <button class="chat-toggle">AI Chat</button>
+
+            <div class="chat-panel">
+                <div class="chat-header">
+                    <span>Athly Assistant</span>
+                    <button class="chat-close">Close</button>
+                </div>
+
+                <div id="chat-body" class="chat-content"></div>
+
+                <div class="chat-input-area">
+                    <textarea id="chat-input" placeholder="Type here...&#10;eg: List all events on 8th Feb"></textarea>
+                    <button id="chat-send">Send</button>
+                </div>
+            </div>
         </div>
     </div>
-
+    
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const dropdowns = document.querySelectorAll('.sortDropdownWrapper');
@@ -281,5 +298,6 @@
             });
         });
     </script>
+    <script src="events.js"></script>
 </body>
 </html>
