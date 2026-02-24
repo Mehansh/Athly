@@ -49,74 +49,70 @@
         </div>
 
         <div class="filterBar">
-            <div class="sortGroup">
-                <span class="sortLabel">Sort by:</span>
-                
-                <div class="sortDropdownWrapper">
-                    <div class="sortBtn">
-                        Relevance 
-                        <svg class="arrowIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                    </div>
-                    <div class="dropdownMenu">
-                        <div class="dropdownItem">Most Popular</div>
-                        <div class="dropdownItem">Newest</div>
-                        <div class="dropdownItem">Trending</div>
-                    </div>
-                </div>
-
-                <div class="sortDropdownWrapper">
-                    <div class="sortBtn">
-                        Organizer
-                        <svg class="arrowIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                    </div>
-                    <div class="dropdownMenu">
-                        <div class="dropdownItem">Red Bull</div>
-                        <div class="dropdownItem">Local Clubs</div>
-                        <div class="dropdownItem">Indie Orgs</div>
-                        <div class="dropdownItem">Verified</div>
-                    </div>
-                </div>
-
-                <div class="sortDropdownWrapper">
-                    <div class="sortBtn">
-                        Difficulty
-                        <svg class="arrowIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                    </div>
-                    <div class="dropdownMenu">
-                        <div class="dropdownItem">Beginner</div>
-                        <div class="dropdownItem">Intermediate</div>
-                        <div class="dropdownItem">Pro / Elite</div>
-                    </div>
-                </div>
-
-                <div class="sortDropdownWrapper">
-                    <div class="sortBtn">
-                        Distance
-                        <svg class="arrowIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                    </div>
-                    <div class="dropdownMenu">
-                        <div class="dropdownItem">&lt; 5 Miles</div>
-                        <div class="dropdownItem">&lt; 20 Miles</div>
-                        <div class="dropdownItem">&lt; 50 Miles</div>
-                        <div class="dropdownItem">Anywhere</div>
-                    </div>
-                </div>
-
-                <div class="sortDropdownWrapper">
-                    <div class="sortBtn">
-                        Location
-                        <svg class="arrowIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                    </div>
-                    <div class="dropdownMenu">
-                        <div class="dropdownItem">Maharashtra</div>
-                        <div class="dropdownItem">Punjab</div>
-                        <div class="dropdownItem">Gujrat</div>
-                        <div class="dropdownItem">Goa</div>
-                    </div>
-                </div>
-
+            <div class="filterField">
+                <label for="Relevance">Relevance</label>
+                <select id="Relevance" class="filterSelect">
+                    <option value="None">All</option>
+                    <option value="Most Popular">Most Popular</option>
+                    <option value="Newest">Newest</option>
+                    <option value="Trending">Trending</option>
+                </select>
             </div>
 
+            <div class="filterField">
+                <label for="Organizer">Organizer</label>
+                <select id="Organizer" class="filterSelect">
+                    <option value="None">All</option>
+                    <option value="Red Bull">Red Bull</option>
+                    <option value="Local Clubs">Local Clubs</option>
+                    <option value="Indie Orgs">Indie Orgs</option>
+                    <option value="Verified">Verified</option>
+                </select>
+            </div>
+            <div class="filterField">
+                <label for="Difficulty">Difficulty</label>
+                <select id="Difficulty" class="filterSelect">
+                    <option value="None">All</option>
+                    <option value="Beginner">Beginner</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Pro / Elite">Pro / Elite</option>
+                </select>
+            </div>
+            <div class="filterField">
+                <label for="Distance">Distance</label>
+                <select id="Distance" class="filterSelect">
+                    <option value="None">All</option>
+                    <option value="< 5 Miles">&lt; 5 Miles</option>
+                    <option value="< 20 Miles">&lt; 20 Miles</option>
+                    <option value="< 50 Miles">&lt; 50 Miles</option>
+                    <option value="Anywhere">Anywhere</option>
+                </select>
+            </div>
+
+            <div class="filterField">
+                <label for="Location">Location</label>
+                <select id="Location" class="filterSelect">
+                    <option value="None">All</option>
+                    <option value="Maharashtra">Maharashtra</option>
+                    <option value="Punjab">Punjab</option>
+                    <option value="Gujrat">Gujrat</option>
+                    <option value="Goa">Goa</option>
+                </select>
+            </div>
+
+            <div class="filterField">
+                <label for="Type">Type</label>
+                <select id="Type" class="filterSelect">
+                    <option value="None">All</option>
+                    <option value="Marathon">Marathon</option>
+                    <option value="Triathlon">Triathlon</option>
+                    <option value="Cycling">Cycling</option>
+                    <option value="Swimming">Swimming</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="cardList">
             <div class="pagination">
                 <span class="pageNum active">1</span>
                 <span class="pageNum">2</span>
@@ -124,10 +120,6 @@
                 <span class="pageNum">MAX</span>
                 <span class="pageArrow">&gt;</span>
             </div>
-        </div>
-
-        <div class="cardList">
-            
             <div class="card">
                 <img src="Assets/CycleSlideIn.png" alt="" class="cardBgIcon">
 

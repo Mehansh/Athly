@@ -30,16 +30,19 @@ function addMessageBox(text, sender) {
     bodyEl.scrollTop = bodyEl.scrollHeight;
 }
 
-function handleSend() {
+async function handleSend() {
     const message = input.value.trim();
     if (!message) return;
-    
+
     addMessageBox(message, 'user');
     input.value = '';
 
-    setTimeout(() => {
-        addMessageBox("I'm a simple bot reply!", 'bot');
-    }, 600);
+    sendBtn.disabled = true;
+    const res = await triggerModel(message);
+    sendBtn.disabled = false;
+    console.log(res);
+    addMessageBox(res.reply.reasoning, 'bot');
+    setFilters(res.reply.filters);
 }
 
 sendBtn.addEventListener('click', handleSend);
@@ -49,3 +52,23 @@ input.addEventListener('keypress', (e) => {
         handleSend();
     }
 });
+
+async function triggerModel(message) {
+    const res = await fetch("http://localhost:5000/chat", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({message})
+    });
+
+    const data = await res.json();
+    return data;
+}
+
+function setFilters(filters) {
+    for (const [key, value] of Object.entries(filters)) {
+        const select = document.getElementById(key);
+        if (!select) continue;
+
+        select.value = value;
+    }
+}

@@ -231,6 +231,7 @@ body {
     margin-bottom: 30px;
 }
 
+
 .sortGroup {
     display: flex;
     align-items: center;
@@ -285,6 +286,7 @@ body {
     transform: rotate(180deg);
 }
 
+
 .dropdownMenu {
     position: absolute;
     top: calc(100% + 8px);
@@ -327,6 +329,10 @@ body {
     color: var(--colTextMain);
 }
 
+.dropdownItem.active {
+    background: #1f2937;
+    color: white;
+}
 .pagination {
     display: flex;
     align-items: center;
@@ -752,3 +758,32 @@ body {
     color: black;
     align-self: flex-start;
 }
+
+.filterField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 150px;
+  padding-top: 60px;
+}
+
+.filterField label {
+  font-size: 13px;
+  color: #a1a1aa;
+}
+
+.filterSelect {
+    background:#1a1a1a;
+    color:#a1a1aa;
+    border-radius:5px;
+    padding:10px 14px;
+    border:1px solid transparent;
+    font-size:15px;
+}
+
+.filterSelect:hover,
+.filterSelect:focus {
+    box-shadow: 0 0 0 2px #4f46e5;
+    color:white;
+}
+

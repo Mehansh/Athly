@@ -6,3 +6,5 @@ pandas
 firebase-admin
 bs4
 hashlib
+flask
+flask-cors
