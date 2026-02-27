@@ -10,6 +10,7 @@ db = getDatabase()
 HEADERS = {
     "User-Agent": "Mozilla/5.0"
 }
+
 def save_event(event, event_type = "cycle_event"):
     unique_string = f"{event['title']}|{event['date']}|{event['location']}"
     event_id = hashlib.md5(unique_string.encode("utf-8")).hexdigest()
