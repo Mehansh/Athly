@@ -337,7 +337,7 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-top: 60px;
+    margin-top: 0px;
 }
 
 .pageNum, .pageDots, .pageArrow {
@@ -365,17 +365,19 @@ body {
   background-color: #1a1a1a;
   position: relative;
   z-index: 1; 
-  overflow: hidden;
-  padding: 20px;
-  padding-top: 32px;
-  padding-bottom: 32px;
+  overflow: visible; /* Changed to visible so the meter can pop out if needed */
+  
+  /* STATIC DIMENSIONS */
+  height: 140px;      /* Fixed height prevents vertical resizing */
+  padding: 0 24px;    /* Horizontal padding only */
+  
   display: flex;
+  align-items: center; /* This vertically centers the LeftCol, Content, and Stats */
   gap: 20px;
-  align-items: flex-start;
+  
   border-radius: 5px;
   margin-top: 10px;
 }
-
 .card::before {
   content: "";
   position: absolute;
@@ -458,13 +460,27 @@ body {
 }
 
 .cardStats {
+    /* 1. Layout the content vertically inside the bubble */
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
     gap: 8px;
-    min-width: 120px;
+    justify-content: center;
+    margin-top: -65px;
+    margin-right: -15px;
+    /* 2. Create the "Bubble" appearance */
+    background-color: var(--colBg);    /* Slightly darker background */
+    border-radius: 8px;             /* Rounded corners */
+    padding: 10px 14px;                      /* Spacing inside the bubble */
+    
+    /* 3. Positioning & Sizing - Crucial Fixes */
+    height: auto;           /* Do NOT stretch full height. Wrap the content. */
+    align-self: center;     /* Float in the vertical center of the card */
+    min-width: 130px;       /* Optional: keeps all bubbles the same width */
+    
+    /* 4. Text Styling */
     color: var(--colTextSec);
     font-size: 13px;
+    z-index: 10;
 }
 
 .statRow {
@@ -531,36 +547,51 @@ body {
 .cardLeftCol {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 15px;
+    
+    /* Centering Magic */
+    justify-content: center; /* Centers items vertically inside the column */
+    align-items: center;     /* Centers items horizontally */
+    
+    /* Fixed Dimensions */
+    width: 70px;            /* Fixed width so it never pushes the text right */
+    height: 100%;           /* Fills the card height */
+    flex-shrink: 0;         /* Prevents it from getting squished */
+    gap: 15px;              /* Fixed space between Icon and Meter */
     z-index: 10;
-    min-width: 68px; /* Fixed width prevents jittering */
 }
 
 /* NEW: This stays fixed size so the layout never moves */
 .meterWrapper {
-    position: relative;
-    width: 24px;  /* Match default meter width */
-    height: 6px;  /* Match default meter height */
+    position: relative;     /* Anchor point for the absolute meter */
+    width: 100%;            /* Fills the column width */
+    height: 20px;           /* TINY FIXED HEIGHT. This reserves space in the layout. */
+    
+    /* Centering */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .difficultyMeter {
-    /* Absolute positioning takes it out of the layout flow */
-    position: absolute;
-    top: 50%;
+    /* Taken out of the layout flow completely */
+    position: absolute; 
+    top: 50%; 
     left: 50%;
-    transform: translate(-50%, -50%); /* Centers it perfectly on the wrapper */
+    transform: translate(-50%, -50%); /* Keeps it perfectly centered on the wrapper */
     
-    height: 24px;
+    /* Default Size */
+    height: 8px;
     width: 24px;
     border-radius: 4px;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    
+    /* Styles */
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
     cursor: help;
-    z-index: 20; /* Ensures it expands ON TOP of everything */
+    z-index: 20; 
 }
 
 .difficultyText {
@@ -576,12 +607,12 @@ body {
 }
 
 /* Hover State */
-.difficultyMeter:hover {
-    width: 80px; /* Expands freely without pushing neighbors */
-    height: 18px;
+.meterWrapper:hover > .difficultyMeter {
+    width: 80px;  /* Make this as wide as you want */
+    height: 24px; /* Make this as tall as you want */
 }
 
-.difficultyMeter:hover .difficultyText {
+.meterWrapper:hover .difficultyText {
     opacity: 1;
     transform: translateY(0);
 }
@@ -599,10 +630,19 @@ body {
     font-family: 'Inter', sans-serif;
     transition: width 320ms cubic-bezier(.4,0,.2,1), height 220ms ease;
     overflow: visible;
+    border-radius: 5px;
+    transition: box-shadow 0.2s;
+    
+}
+
+#ai-chat:hover
+{
+    box-shadow: 0 0 0 2px var(--colGlow), 0 0 15px rgba(79, 70, 229, 0.3);
+    color: var(--colTextMain);
 }
 
 #ai-chat.collapsed {
-    width: 56px;
+    width: 100px;
     height: 56px;
 }
 
@@ -615,13 +655,15 @@ body {
     position: fixed;
     display: inline-grid;
     place-items: center;
-    width: 56px;
+    width: 100px;
     height: 56px;
     background: rgba(37,37,37,0.75);
-    border-radius: 12px;
-    border: 1px solid rgba(80,80,80,0.2);
+    border-radius: 5px;
+    border: 0;
     color: #ddd;
     cursor: pointer;
+    font-size: 20px;
+    font-family: 'Inter', sans-serif;
 }
 
 .unread-badge {
@@ -702,7 +744,7 @@ body {
     color: var(--colTextMain);
     outline:none;
     overflow:hidden;
-    font-family:inherit;
+    font-family: 'Inter', sans-serif;
 }
 
 .chat-input-area button {
@@ -718,6 +760,7 @@ body {
     color: white;
     border: none;
     font-size: 18px;
+    margin-top: -2px;
     cursor: pointer;
 }
 
@@ -730,12 +773,14 @@ body {
 }
 #chat-send {
     cursor: pointer;
-    padding: 15px;
+    padding-bottom: 20px;
+    padding-top: 20px;
+    transition: 0.2s box-shadow;
 }
 
 #chat-send:hover {
-    cursor: pointer;
-    background-color: #41414173;
+    box-shadow: 0 0 0 2px var(--colGlow), 0 0 15px rgba(79, 70, 229, 0.3);
+    color: var(--colTextMain);
 }
 
 .message-box {
@@ -765,6 +810,7 @@ body {
   gap: 6px;
   min-width: 150px;
   padding-top: 60px;
+
 }
 
 .filterField label {
@@ -779,11 +825,12 @@ body {
     padding:10px 14px;
     border:1px solid transparent;
     font-size:15px;
+    transition: box-shadow 0.2s;
 }
 
 .filterSelect:hover,
 .filterSelect:focus {
-    box-shadow: 0 0 0 2px #4f46e5;
-    color:white;
+    box-shadow: 0 0 0 2px var(--colGlow), 0 0 15px rgba(79, 70, 229, 0.3);
+    color: var(--colTextMain);
 }
 
