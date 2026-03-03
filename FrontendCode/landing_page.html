@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NicheSport - Uncover the sports the world forgot</title>
-
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
@@ -48,7 +47,6 @@
             font-family: inherit;
         }
 
-        /* --- Utilities --- */
         .container {
             max-width: var(--max-width);
             margin: 0 auto;
@@ -75,7 +73,6 @@
             white-space: nowrap;
         }
 
-        /* --- Navigation --- */
         nav {
             position: fixed;
             top: 0;
@@ -122,7 +119,6 @@
 
         .nav-links {
             display: none;
-            /* Hidden on mobile */
             gap: 2rem;
             font-size: 0.875rem;
             font-weight: 500;
@@ -166,12 +162,10 @@
             background-color: #3f3f46;
         }
 
-        /* --- Main Content --- */
         main {
             padding: 0 1rem;
         }
 
-        /* --- Hero Section --- */
         .hero {
             padding-top: 8rem;
             margin-bottom: 5rem;
@@ -203,15 +197,8 @@
         }
 
         @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: .5;
-            }
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
         }
 
         .hero h1 {
@@ -266,7 +253,6 @@
             background-color: #18181b;
         }
 
-        /* --- Search Bar --- */
         .search-container {
             max-width: 48rem;
             margin: 0 auto 6rem auto;
@@ -277,8 +263,7 @@
         .search-box-wrapper {
             position: relative;
         }
-
-        /* Glow effect behind search */
+        
         .glow-bg {
             position: absolute;
             inset: -4px;
@@ -289,7 +274,7 @@
             z-index: -1;
             transition: opacity 1s;
         }
-
+        
         .search-box-wrapper:hover .glow-bg {
             opacity: 0.5;
         }
@@ -363,7 +348,6 @@
             color: var(--text-secondary);
         }
 
-        /* --- Features Section --- */
         .features-section {
             padding: 6rem 0;
             border-top: 1px solid #18181b;
@@ -463,7 +447,6 @@
             flex-shrink: 0;
         }
 
-        /* --- Social Proof Section --- */
         .proof-section {
             padding: 6rem 0;
             border-top: 1px solid #18181b;
@@ -538,7 +521,6 @@
             color: var(--text-secondary);
         }
 
-        /* Stats Card */
         .stats-wrapper {
             position: relative;
         }
@@ -594,7 +576,6 @@
 
         .growth-indicator {
             color: #4ade80;
-            /* green-400 */
             display: flex;
             align-items: center;
             gap: 0.25rem;
@@ -619,17 +600,14 @@
             background-color: white;
         }
 
-        /* --- Footer --- */
         footer {
             text-align: center;
             color: #52525b;
-            /* zinc-600 */
             padding: 3rem 0;
             border-top: 1px solid #18181b;
             font-size: 0.875rem;
         }
 
-        /* --- Responsive Queries --- */
         @media (min-width: 640px) {
             .hero-buttons {
                 flex-direction: row;
@@ -640,7 +618,7 @@
             .nav-links {
                 display: flex;
             }
-
+            
             .hero h1 {
                 font-size: 4.5rem;
             }
@@ -668,12 +646,11 @@
         }
     </style>
 </head>
-
 <body>
 
     <nav>
         <div class="container nav-inner">
-
+            
             <a href="#" class="logo">
                 <div class="logo-icon">
                     <div class="logo-dot"></div>
@@ -688,10 +665,10 @@
             </div>
 
             <div class="nav-actions">
-                <button class="btn-login" onclick="window.location.href='login.html'">
+                <button class="btn-login">
                     Log in
                 </button>
-                <button class="btn-signup" onclick="window.location.href='login.html?mode=signup'" id="auth-btn">
+                <button class="btn-signup">
                     Sign Up
                 </button>
             </div>
@@ -700,22 +677,21 @@
     </nav>
 
     <main>
-
+        
         <section class="hero container">
-
+            
             <div class="badge">
                 <span class="pulse-dot"></span>
                 Beta Access Live
             </div>
-
+            
             <h1>
                 Uncover the sports <br />
                 <span class="text-gradient">the world forgot.</span>
             </h1>
-
+            
             <p>
-                The definitive platform for discovering, organizing, and competing in non-mainstream sports tournaments.
-                From Quidditch to Sepak Takraw.
+                The definitive platform for discovering, organizing, and competing in non-mainstream sports tournaments. From Quidditch to Sepak Takraw.
             </p>
 
             <div class="hero-buttons">
@@ -733,16 +709,15 @@
                 <div class="glow-bg"></div>
                 <div class="search-box">
                     <div class="search-icon-wrapper">
-                        <img src="./icons/search.svg" alt="Search">
+                        <img src=".../icons/search.svg" alt="Search">
                     </div>
-                    <input type="text" placeholder="Search events (e.g., 'Pickleball in Chicago')"
-                        class="search-input" />
+                    <input type="text" placeholder="Search events (e.g., 'Pickleball in Chicago')" class="search-input" />
                     <button class="btn-find">
                         Find
                     </button>
                 </div>
             </div>
-
+            
             <div class="tags">
                 <span class="tag-label">Trending:</span>
                 <span class="tag">Ultimate Frisbee</span>
@@ -755,42 +730,38 @@
             <div class="section-header">
                 <h2>Why NicheSport?</h2>
                 <p>
-                    We've stripped away the noise of mainstream platforms to focus on what matters for specialized
-                    communities.
+                    We've stripped away the noise of mainstream platforms to focus on what matters for specialized communities.
                 </p>
             </div>
 
             <div class="features-grid">
                 <div class="feature-card">
                     <div class="feature-icon-box">
-                        <img src="./icons/earth.svg" alt="icon: earth">
+                        <img src="../icons/earth.svg" alt="icon: earth">
                     </div>
                     <h3>Centralized Discovery</h3>
                     <p>
-                        No more scouring obscure forums or Facebook groups. We aggregate events from reliable organizers
-                        worldwide into one searchable index.
+                        No more scouring obscure forums or Facebook groups. We aggregate events from reliable organizers worldwide into one searchable index.
                     </p>
                 </div>
 
                 <div class="feature-card">
                     <div class="feature-icon-box">
-                        <img src="./icons/shield-check.svg" alt="icon: shield">
+                        <img src="../icons/shield-check.svg" alt="icon: shield">
                     </div>
                     <h3>Verified Tournaments</h3>
                     <p>
-                        Every event is vetted for legitimacy. We provide standard formats for rules, skill levels, and
-                        safety requirements so you know what to expect.
+                        Every event is vetted for legitimacy. We provide standard formats for rules, skill levels, and safety requirements so you know what to expect.
                     </p>
                 </div>
 
                 <div class="feature-card">
                     <div class="feature-icon-box">
-                        <img src=" ./icons/users.svg" alt="icon: users">
+                        <img src="../icons/users.svg" alt="icon: users">
                     </div>
                     <h3>Micro-Communities</h3>
                     <p>
-                        Connect with players who share your specific passion. Discuss gear, strategy, and logistics in
-                        dedicated, sport-specific channels.
+                        Connect with players who share your specific passion. Discuss gear, strategy, and logistics in dedicated, sport-specific channels.
                     </p>
                 </div>
             </div>
@@ -798,22 +769,20 @@
             <div class="secondary-features">
                 <div class="secondary-card">
                     <div class="secondary-icon-circle">
-                        <img src="./icons/bell-ring.svg" alt="icon: bell">
+                        <img src="../icons/bell-ring.svg" alt="icon: bell">
                     </div>
                     <div>
                         <h3>Instant Notifications</h3>
-                        <p class="sub-text">Never miss a bracket change or weather update. Real-time alerts via SMS and
-                            App.</p>
+                        <p class="sub-text">Never miss a bracket change or weather update. Real-time alerts via SMS and App.</p>
                     </div>
                 </div>
                 <div class="secondary-card">
                     <div class="secondary-icon-circle">
-                        <img src="./icons/zap.svg" alt="icon: zap">
+                        <img src="../icons/zap.svg" alt="icon: zap">
                     </div>
                     <div>
                         <h3>Seamless Registration</h3>
-                        <p class="sub-text">One profile for all your sports. Pay entry fees, sign waivers, and join
-                            teams in seconds.</p>
+                        <p class="sub-text">One profile for all your sports. Pay entry fees, sign waivers, and join teams in seconds.</p>
                     </div>
                 </div>
             </div>
@@ -821,7 +790,7 @@
 
         <section class="proof-section">
             <div class="proof-grid">
-
+                
                 <div class="proof-content">
                     <h2>Trusted by the Underrated.</h2>
                     <div class="testimonials">
@@ -840,8 +809,7 @@
                             <div class="testimonial-number">02</div>
                             <div class="testimonial-text">
                                 <p class="quote">"Organizer tools that actually work."</p>
-                                <p class="sub">Managing brackets for our Quadball league used to be a nightmare. Not
-                                    anymore.</p>
+                                <p class="sub">Managing brackets for our Quadball league used to be a nightmare. Not anymore.</p>
                                 <div class="user-info">
                                     <div class="avatar">SJ</div>
                                     <span class="user-name">Sarah J. - Austin, TX</span>
@@ -872,12 +840,12 @@
                                 <div class="label">Fill Rate</div>
                             </div>
                         </div>
-
+                        
                         <div class="graph-container">
                             <div class="graph-header">
                                 <span>Tournament Growth</span>
                                 <span class="growth-indicator">
-                                    <img src="./icons/activity.svg" alt="activity-icon"> +24%
+                                    <img src="../icons/activity.svg" alt="activity-icon"> +24%
                                 </span>
                             </div>
                             <div class="bar-chart">
@@ -903,63 +871,6 @@
             &copy; 2024 NicheSport Inc. All rights reserved.
         </footer>
     </main>
-    <script type="module">
-        // 1. Firebase Imports
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        // 2. Your Firebase Configuration (Matches your project: minor-project-a5077)
-        const firebaseConfig = {
-            apiKey: "AIzaSyCo8N5TfHzWq5PXELyTXoHb_SrzikweBwo",
-            authDomain: "minor-project-a5077.firebaseapp.com",
-            projectId: "minor-project-a5077",
-            storageBucket: "minor-project-a5077.firebasestorage.app",
-            messagingSenderId: "525600101149",
-            appId: "1:525600101149:web:f98570a47b3e6e582047f4"
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-
-        // 3. Elements Selection
-        const loginBtn = document.querySelector('.btn-login');
-        const authBtn = document.getElementById('auth-btn');
-
-        // 4. AUTH SYNC LOGIC
-        // This runs automatically whenever the user logs in or out
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                // Change "Log in" to "Hi, [First Name]"
-                const name = user.displayName ? user.displayName.split(' ')[0] : user.email.split('@')[0];
-                loginBtn.textContent = `Hi, ${name}`;
-
-                // Change "Sign Up" button to "Sign Out"
-                authBtn.textContent = "Sign Out";
-                
-                // Update click behavior to Sign Out
-                authBtn.onclick = () => {
-                    signOut(auth).then(() => {
-                        alert("Signed out successfully!");
-                        window.location.reload(); 
-                    }).catch((error) => console.error("Sign out error:", error));
-                };
-
-                // Optional: Make Login button lead to a profile page instead
-                loginBtn.onclick = () => { window.location.href = 'community.html'; };
-            } else {
-                // Default logged-out state
-                loginBtn.textContent = "Log in";
-                authBtn.textContent = "Sign Up";
-                
-                // Ensure buttons lead to the login page
-                loginBtn.onclick = () => { window.location.href = 'login.html'; };
-                authBtn.onclick = () => { window.location.href = 'login.html?mode=signup'; };
-            }
-        });
-    </script>
 </body>
-</html>
-</body>
-
 </html>

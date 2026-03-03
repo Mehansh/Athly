@@ -15,6 +15,7 @@ db = getDatabase()
 HEADERS = {
     "User-Agent": "Mozilla/5.0"
 }
+
 def save_event(event, event_type = "cycle_event"):
     unique_string = f"{event['title']}{event['url']}"
     event_id = hashlib.md5(unique_string.encode("utf-8")).hexdigest()
@@ -60,7 +61,7 @@ def clear_events_for_website(event_type="default", website="default"):
         batch.delete(doc.reference)
         count += 1
 
-        # Firestore batch safety (max 500)
+        #Firestore batch safety (max 500)
         if count % 400 == 0:
             batch.commit()
             batch = db.batch()
