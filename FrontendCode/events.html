@@ -54,8 +54,6 @@
                 <select id="Relevance" class="filterSelect">
                     <option value="None">All</option>
                     <option value="Most Popular">Most Popular</option>
-                    <option value="Newest">Newest</option>
-                    <option value="Trending">Trending</option>
                 </select>
             </div>
 
@@ -112,7 +110,7 @@
             </div>
         </div>
 
-        <div class="cardList">
+        <div class="cardList" id="eventsContainer">
             <div class="pagination">
                 <span class="pageNum active">1</span>
                 <span class="pageNum">2</span>
@@ -198,52 +196,10 @@
                     </div>
                 </div>
             </div>
-
-            <div class="card">
-                <img src="Assets/CycleSlideIn.png" alt="" class="cardBgIcon">
-
-                <div class="cardLeftCol">
-                    <div class="cardIcon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <rect x="3" y="3" width="7" height="7"/>
-                            <rect x="14" y="3" width="7" height="7"/>
-                            <rect x="14" y="14" width="7" height="7"/>
-                            <rect x="3" y="14" width="7" height="7"/>
-                        </svg>
-                    </div>
-                    <div class="meterWrapper">
-                        <div class="difficultyMeter diff-easy">
-                            <span class="difficultyText">Easy</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="cardContent">
-                    <div class="cardHeader">
-                        <a href="#" class="cardTitle">Let Me Ride</a>
-                        <span class="cardAuthor">by <a href="#">XYZ</a></span>
-                    </div>
-                    <p class="cardDesc">A simple example of a longer description ? A simple example of a longer description twice ?</p>
-                    <div class="cardTags">
-                        <img src="Assets/CycleIcon.svg" alt="Description" width="30" height="30" class="svgTagcycle" title="Cycling">
-                    </div>
-                </div>
-
-                <div class="cardStats">
-                    <div class="statRow">
-                        <svg class="statIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4" ry="4"/><path d="M8 12l3 3 5-5"/></svg>
-                        <span>12.82M</span>
-                    </div>
-                    <div class="statRow updateInfo">
-                        <svg class="statIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                        <span>Updated last month</span>
-                    </div>
-                </div>
-            </div>
         </div>
         
         <div id="ai-chat" class="collapsed">
-            <button class="chat-toggle">AI Chat</button>
+            <button class="chat-toggle">Athly Assistant</button>
 
             <div class="chat-panel">
                 <div class="chat-header">
@@ -290,6 +246,6 @@
             });
         });
     </script>
-    <script src="events.js"></script>
+    <script type="module" src="events.js"></script>
 </body>
 </html>

@@ -15,3 +15,40 @@ db = firestore.client()
 
 def getDatabase():
     return db
+
+def get_db_filters():
+    """
+    Fetches all unique Locations and Clubs (Organizers) from the database
+    so the AI knows what actually exists.
+    """
+    try:
+        # Get all documents from the collection
+        docs = db.collection("scraped_events").stream()
+        
+        locations = set()
+        organizers = set()
+
+        for doc in docs:
+            data = doc.to_dict()
+            
+            # 1. Grab Location
+            if "location" in data and data["location"] and data["location"] != "Online":
+                locations.add(data["location"])
+                
+            # 2. Grab Club/Organizer
+            if "club" in data and data["club"]:
+                organizers.add(data["club"])
+            elif "organizer" in data and data["organizer"]:
+                organizers.add(data["organizer"])
+
+        return {
+            "Location": sorted(list(locations)),
+            "Organizer": sorted(list(organizers))
+        }
+    except Exception as e:
+        print(f"Error fetching DB filters: {e}")
+        # Fallback if DB fails
+        return { 
+            "Location": ["Mumbai", "Pune", "Delhi", "Bangalore"], 
+            "Organizer": [] 
+        }
