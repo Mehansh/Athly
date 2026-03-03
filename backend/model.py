@@ -52,13 +52,13 @@ prompt = ChatPromptTemplate.from_template(template)
 chain = prompt | model
 
 def run_model(prompt_query):
-    # Pass the DYNAMIC site_filters to the AI
+    #Pass the DYNAMIC site_filters to AI
     result = chain.invoke({"filters": site_filters, "query": prompt_query})
 
     text = result
     text = re.sub(r"```json|```", "", text).strip()
     
-    # Simple error handling if JSON fails
+    #error handling if JSON fails
     try:
         return json.loads(text)
     except:

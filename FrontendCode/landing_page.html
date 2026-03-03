@@ -8,15 +8,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* --- CSS Reset & Variables --- */
         :root {
-            --bg-body: #09090b; /* zinc-950 */
+            --bg-body: #09090b;
             --bg-card: #09090b;
-            --bg-card-hover: #18181b; /* zinc-900 approx */
-            --border-color: #27272a; /* zinc-800 */
+            --bg-card-hover: #18181b;
+            --border-color: #27272a;
             --text-primary: #fafafa;
-            --text-secondary: #a1a1aa; /* zinc-400 */
-            --text-muted: #71717a; /* zinc-500 */
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
             --accent-gradient-start: #60a5fa;
             --accent-gradient-end: #a855f7;
             --font-main: 'Inter', sans-serif;
@@ -48,7 +47,6 @@
             font-family: inherit;
         }
 
-        /* --- Utilities --- */
         .container {
             max-width: var(--max-width);
             margin: 0 auto;
@@ -75,7 +73,6 @@
             white-space: nowrap;
         }
 
-        /* --- Navigation --- */
         nav {
             position: fixed;
             top: 0;
@@ -121,7 +118,7 @@
         }
 
         .nav-links {
-            display: none; /* Hidden on mobile */
+            display: none;
             gap: 2rem;
             font-size: 0.875rem;
             font-weight: 500;
@@ -165,12 +162,10 @@
             background-color: #3f3f46;
         }
 
-        /* --- Main Content --- */
         main {
             padding: 0 1rem;
         }
 
-        /* --- Hero Section --- */
         .hero {
             padding-top: 8rem;
             margin-bottom: 5rem;
@@ -258,7 +253,6 @@
             background-color: #18181b;
         }
 
-        /* --- Search Bar --- */
         .search-container {
             max-width: 48rem;
             margin: 0 auto 6rem auto;
@@ -270,7 +264,6 @@
             position: relative;
         }
         
-        /* Glow effect behind search */
         .glow-bg {
             position: absolute;
             inset: -4px;
@@ -355,7 +348,6 @@
             color: var(--text-secondary);
         }
 
-        /* --- Features Section --- */
         .features-section {
             padding: 6rem 0;
             border-top: 1px solid #18181b;
@@ -455,7 +447,6 @@
             flex-shrink: 0;
         }
 
-        /* --- Social Proof Section --- */
         .proof-section {
             padding: 6rem 0;
             border-top: 1px solid #18181b;
@@ -530,7 +521,6 @@
             color: var(--text-secondary);
         }
 
-        /* Stats Card */
         .stats-wrapper {
             position: relative;
         }
@@ -585,7 +575,7 @@
         }
 
         .growth-indicator {
-            color: #4ade80; /* green-400 */
+            color: #4ade80;
             display: flex;
             align-items: center;
             gap: 0.25rem;
@@ -610,16 +600,14 @@
             background-color: white;
         }
 
-        /* --- Footer --- */
         footer {
             text-align: center;
-            color: #52525b; /* zinc-600 */
+            color: #52525b;
             padding: 3rem 0;
             border-top: 1px solid #18181b;
             font-size: 0.875rem;
         }
 
-        /* --- Responsive Queries --- */
         @media (min-width: 640px) {
             .hero-buttons {
                 flex-direction: row;

@@ -1,10 +1,6 @@
-// ==========================================
-// 1. FIREBASE IMPORTS & CONFIG
-// ==========================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// *** YOUR CONFIG ***
 const firebaseConfig = {
     apiKey: "AIzaSyCo8N5TfHzWq5PXELyTXoHb_SrzikweBwo",
     authDomain: "minor-project-a5077.firebaseapp.com",
@@ -17,7 +13,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Data Config
 const EVENT_SOURCES = [
     { type: 'cycle_event', collectionPath: 'scraped_events/cycle_event/audaxindia', sourceName: 'Audax India' },
     { type: 'cycle_event', collectionPath: 'scraped_events/cycle_event/hclcyclothon', sourceName: 'HCL Cyclothon' },
@@ -33,9 +28,6 @@ const ICONS = {
 
 let allEvents = [];
 
-// ==========================================
-// 2. AI CHATBOT LOGIC
-// ==========================================
 const chatRoot = document.getElementById('ai-chat');
 const bodyEl = document.getElementById('chat-body');
 const input = document.getElementById('chat-input');
@@ -121,11 +113,6 @@ function setFilters(filters) {
     }
     applyFilters(); 
 }
-
-
-// ==========================================
-// 3. EVENT FETCHING & RENDERING (ANIMATED)
-// ==========================================
 
 document.addEventListener('DOMContentLoaded', () => {
     fetchAndRenderEvents();
@@ -261,14 +248,12 @@ function renderEvents(eventsToRender) {
         return;
     }
 
-    // *** MODIFIED LOOP: Now passes 'index' to createCardHTML ***
     eventsToRender.forEach((event, index) => {
         const cardHTML = createCardHTML(event, index);
         container.insertAdjacentHTML('beforeend', cardHTML);
     });
 }
 
-// *** MODIFIED FUNCTION: Accepts 'index' for delay calculation ***
 function createCardHTML(event, index) {
     let slideImage = 'Assets/CycleSlideIn.png';
     let iconSvg = ICONS.cycle;

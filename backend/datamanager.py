@@ -22,7 +22,7 @@ def get_db_filters():
     so the AI knows what actually exists.
     """
     try:
-        # Get all documents from the collection
+        #Gets all documents from the collection
         docs = db.collection("scraped_events").stream()
         
         locations = set()
@@ -31,11 +31,11 @@ def get_db_filters():
         for doc in docs:
             data = doc.to_dict()
             
-            # 1. Grab Location
+            #Grab Location
             if "location" in data and data["location"] and data["location"] != "Online":
                 locations.add(data["location"])
                 
-            # 2. Grab Club/Organizer
+            #Grab Club/Organizer
             if "club" in data and data["club"]:
                 organizers.add(data["club"])
             elif "organizer" in data and data["organizer"]:
@@ -47,7 +47,7 @@ def get_db_filters():
         }
     except Exception as e:
         print(f"Error fetching DB filters: {e}")
-        # Fallback if DB fails
+        #Fallback if DB fails
         return { 
             "Location": ["Mumbai", "Pune", "Delhi", "Bangalore"], 
             "Organizer": [] 

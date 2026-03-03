@@ -56,7 +56,7 @@ def clear_events_for_website(event_type="default", website="default"):
         batch.delete(doc.reference)
         count += 1
 
-        # Firestore batch safety (max 500)
+        #Firestore batch safety (max 500)
         if count % 400 == 0:
             batch.commit()
             batch = db.batch()
