@@ -4,6 +4,8 @@ scraper/serviceAccountKey.json
 .env
 *.json.local
 
+backend/serviceAccountKey.json
+
 # --- FIREBASE ---
 .firebase/
 firebase-debug.log*

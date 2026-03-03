@@ -5,13 +5,18 @@ from datamanager import getDatabase
 import re
 from urllib.parse import urljoin
 from math import ceil
+
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+import time
+import re
 db = getDatabase()
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0"
 }
 def save_event(event, event_type = "cycle_event"):
-    unique_string = f"{event['title']}|{event['date']}|{event['location']}"
+    unique_string = f"{event['title']}{event['url']}"
     event_id = hashlib.md5(unique_string.encode("utf-8")).hexdigest()
 
     db.collection("scraped_events").document(event_id).set(event)
@@ -166,7 +171,241 @@ def scrape_audax_india(session=None, headers=None):
     clear_events_for_website("cycle_event", "audaxindia")
     save_events_batch(events[:10], "audaxindia")
 
+def scrape_district():
+    print("Scraping District...")
+
+    URL = "https://www.district.in/activities/"
+    EVENT_TYPE = "activity_event"
+    WEBSITE = "district"
+    MAX_EVENTS = 10
+
+    driver = webdriver.Chrome()
+    driver.get(URL)
+    time.sleep(6)
+
+    for _ in range(2):
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(5)
+
+    links = driver.find_elements(
+        By.XPATH, "//a[contains(@href, '/events/') and string-length(normalize-space()) > 20]"
+    )
+
+    events = []
+
+    for link in links:
+        href = link.get_attribute("href")
+        raw_text = link.text.strip()
+
+        if not raw_text or href.endswith("/events/"):
+            continue
+
+        if any(w in raw_text.lower() for w in ["off","free","discount","sale","offer"]):
+            continue
+
+        lines = [l.strip() for l in raw_text.split("\n") if l.strip()]
+        event_name, date, city = "Unknown Event", "Not Available", "Not Available"
+
+        for line in lines:
+            if "₹" in line:
+                continue
+            elif any(d in line for d in ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]):
+                date = line
+            elif any(c in line for c in ["Mumbai","Delhi","Gurgaon","Noida","Pune","Bangalore"]):
+                city = line
+            elif event_name == "Unknown Event":
+                event_name = line
+
+        events.append({
+            "location": city,
+            "club": event_name,
+            "date": date,
+            "url": href,
+            "type": EVENT_TYPE
+        })
+
+    driver.quit()
+    clear_events_for_website(EVENT_TYPE, WEBSITE)
+    save_events_batch(events[:MAX_EVENTS], WEBSITE)
+
+def scrape_HCL_cyclothon():
+    print("Scraping HCL Cyclothon...")
+
+    EVENT_TYPE = "cycle_event"
+    WEBSITE = "hclcyclothon"
+    MAX_EVENTS = 10
+
+    EDITION_URLS = {
+        "Noida": "https://hclcyclothon.com/noida",
+        "Chennai": "https://hclcyclothon.com/chennai",
+        "Bengaluru": "https://hclcyclothon.com/bengaluru"
+    }
+
+    driver = webdriver.Chrome()
+    events = []
+
+    for edition_name, url in EDITION_URLS.items():
+
+        driver.get(url)
+        time.sleep(5)
+
+        soup = BeautifulSoup(driver.page_source, "html.parser")
+        full_text = soup.get_text(" ", strip=True)
+
+        # --------------------
+        # Extract Date
+        # --------------------
+        date = "Not Available"
+        date_match = re.search(
+            r"(January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s+\d{4}",
+            full_text
+        )
+        if date_match:
+            date = date_match.group(0)
+
+        # --------------------
+        # Extract Categories
+        # --------------------
+        cards = soup.find_all("div")
+
+        for card in cards:
+
+            text = card.get_text(" ", strip=True)
+
+            if "Distance:" not in text:
+                continue
+
+            category_name = "Not Available"
+
+            if "Professional Road Race" in text:
+                category_name = "Professional Road Race"
+
+            elif "Amateur MTB Road Race" in text:
+                category_name = "Amateur MTB Road Race"
+
+            elif "Amateur Race" in text:
+                category_name = "Amateur Race"
+
+            elif "Green Ride" in text:
+                category_name = "Green Ride"
+
+            if category_name == "Not Available":
+                continue
+
+            # Extract distance
+            distance_matches = re.findall(r"\d+\s?km", text.lower())
+            distances = list(set(distance_matches)) if distance_matches else ["Not Available"]
+
+            # Extract bicycle type
+            bicycle_type = "Not Available"
+            if "Road Cycles" in text:
+                bicycle_type = "Road"
+            elif "MTB Cycles" in text:
+                bicycle_type = "MTB"
+            elif "Road and Hybrid" in text or "Hybrid" in text:
+                bicycle_type = "Road & Hybrid"
+            elif "Any cycle" in text:
+                bicycle_type = "Any"
+
+            # Extract registration fee
+            fee_match = re.search(r"₹\d+", text)
+            registration_fee = fee_match.group(0) if fee_match else "Not Available"
+
+            events.append({
+                "location": edition_name,
+                "club": category_name,
+                "date": date,
+                "distance": distances,
+                "bicycle_type": bicycle_type,
+                "registration_fee": registration_fee,
+                "url": url,
+                "type": EVENT_TYPE
+            })
+
+    driver.quit()
+
+    clear_events_for_website(EVENT_TYPE, WEBSITE)
+    save_events_batch(events[:MAX_EVENTS], WEBSITE)
+
+    print(f"HCL Cyclothon events saved: {len(events[:MAX_EVENTS])}")
+
+def scrape_champ_endurance():
+    print("Scraping Champ Endurance...")
+
+    EVENT_TYPE = "run_event"
+    WEBSITE = "champendurance"
+    MAX_EVENTS = 10
+    BASE_URL = "https://www.champendurance.com/all-events"
+
+    driver = webdriver.Chrome()
+    driver.get(BASE_URL)
+    time.sleep(6)
+
+    soup = BeautifulSoup(driver.page_source, "html.parser")
+    events = []
+
+    links = soup.find_all("a", href=True)
+
+    for link in links:
+
+        href = link["href"]
+
+        if "/event/" not in href:
+            continue
+
+        event_url = href if href.startswith("http") else f"https://www.champendurance.com{href}"
+
+        event_name = link.get_text(strip=True)
+        if not event_name:
+            continue
+
+        # Open event page
+        driver.get(event_url)
+        time.sleep(4)
+
+        detail_soup = BeautifulSoup(driver.page_source, "html.parser")
+        full_text = detail_soup.get_text(" ", strip=True)
+
+        # ---------------------
+        # Extract Distances
+        # ---------------------
+        distances = re.findall(r"\d+\s?km", full_text.lower())
+        distances = list(set(distances)) if distances else ["Not Available"]
+
+        # ---------------------
+        # Extract Participants
+        # ---------------------
+        participants = "Not Available"
+        part_match = re.search(r"(\d{2,6})\s*(Participants|Runners)", full_text, re.IGNORECASE)
+        if part_match:
+            participants = part_match.group(1)
+
+        events.append({
+            "location": "India",
+            "club": event_name,
+            "distance": distances,
+            "participants": participants,
+            "url": event_url,
+            "type": EVENT_TYPE
+        })
+
+        if len(events) >= MAX_EVENTS:
+            break
+
+        driver.get(BASE_URL)
+        time.sleep(3)
+
+    driver.quit()
+
+    clear_events_for_website(EVENT_TYPE, WEBSITE)
+    save_events_batch(events[:MAX_EVENTS], WEBSITE)
+
+    print(f"Champ Endurance events saved: {len(events[:MAX_EVENTS])}")
+
+
 def run_all():
     scrape_audax_india()
-
+    scrape_district()
+    scrape_HCL_cyclothon()
+    scrape_champ_endurance()
 run_all()
