@@ -1,6 +1,9 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+// 1. ADD AUTH IMPORTS
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
+// YOUR CONFIG
 const firebaseConfig = {
     apiKey: "AIzaSyCo8N5TfHzWq5PXELyTXoHb_SrzikweBwo",
     authDomain: "minor-project-a5077.firebaseapp.com",
@@ -12,6 +15,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app); // 2. INITIALIZE AUTH
 
 const EVENT_SOURCES = [
     { type: 'cycle_event', collectionPath: 'scraped_events/cycle_event/audaxindia', sourceName: 'Audax India' },
@@ -28,6 +32,9 @@ const ICONS = {
 
 let allEvents = [];
 
+// ==========================================
+// AI CHATBOT LOGIC
+// ==========================================
 const chatRoot = document.getElementById('ai-chat');
 const bodyEl = document.getElementById('chat-body');
 const input = document.getElementById('chat-input');
@@ -100,13 +107,11 @@ function setFilters(filters) {
         if (!select) continue;
 
         const cleanValue = value.toString().trim().toLowerCase();
-        let foundMatch = false;
         
         for (let i = 0; i < select.options.length; i++) {
             const optionVal = select.options[i].value;
             if (optionVal.toLowerCase() === cleanValue) {
                 select.value = optionVal;
-                foundMatch = true;
                 break;
             }
         }
@@ -114,10 +119,60 @@ function setFilters(filters) {
     applyFilters(); 
 }
 
+// ==========================================
+// INITIALIZATION
+// ==========================================
+
 document.addEventListener('DOMContentLoaded', () => {
     fetchAndRenderEvents();
     setupFilters();
+    setupAuth(); // 3. CALL AUTH SETUP
 });
+
+// 4. AUTH FUNCTION
+function setupAuth() {
+    // Note: events.html uses 'btnLogin' class (no hyphen)
+    const loginBtn = document.querySelector('.btnLogin');
+    const signupBtn = document.querySelector('.btnSignup');
+
+    // Monitor Login State
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            // User is signed in
+            const name = user.displayName ? user.displayName.split(' ')[0] : user.email.split('@')[0];
+            if(loginBtn) loginBtn.textContent = `Hi, ${name}`;
+            if(signupBtn) signupBtn.textContent = "Sign Out";
+            
+            // Optional: Disable login click if already logged in
+            if(loginBtn) loginBtn.onclick = () => { /* Do nothing or go to profile */ };
+        } else {
+            // User is signed out
+            if(loginBtn) loginBtn.textContent = "Log in";
+            if(signupBtn) signupBtn.textContent = "Sign Up";
+            
+            // Reset clicks
+            if(loginBtn) loginBtn.onclick = () => window.location.href='login.html';
+        }
+    });
+
+    // Handle Sign Out / Sign Up Click
+    if(signupBtn) {
+        signupBtn.addEventListener('click', () => {
+            const user = auth.currentUser;
+            if (user) {
+                signOut(auth).then(() => {
+                    window.location.reload(); // Refresh to update UI
+                });
+            } else {
+                window.location.href = 'login.html?mode=signup';
+            }
+        });
+    }
+}
+
+// ==========================================
+// DATA FETCHING
+// ==========================================
 
 async function fetchAndRenderEvents() {
     const container = document.getElementById('eventsContainer');
@@ -167,11 +222,11 @@ function normalizeEventData(data, sourceConfig) {
         title = title.split(' ').slice(0, 4).join(' ');
     }
 
-    let difficulty = "Intermediate";
+    let difficulty = "Medium";
     if (dist.includes('km')) {
         const distVal = parseInt(dist);
-        if (distVal > 100) difficulty = "Pro / Elite";
-        else if (distVal < 20) difficulty = "Beginner";
+        if (distVal > 100) difficulty = "Difficult";
+        else if (distVal < 20) difficulty = "Easy";
     }
     
     let displayType = "Sports";
@@ -270,7 +325,6 @@ function createCardHTML(event, index) {
     }
 
     const viewString = event.views > 1000 ? (event.views/1000).toFixed(1) + 'k' : event.views;
-
     const animationDelay = index * 0.05; 
 
     return `
@@ -291,7 +345,6 @@ function createCardHTML(event, index) {
                 <span class="cardAuthor">by <a href="#">${event.organizer}</a></span>
             </div>
             <p class="cardDesc">${event.location} • ${event.date}</p>
-            
             <div class="cardTags">
                  <a href="${event.url}" target="_blank" class="btnCardLink">Link</a>
             </div>

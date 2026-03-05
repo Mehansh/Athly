@@ -3,20 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Organizer Dashboard - NicheSport</title>
+    <title>Organizer Dashboard</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* --- CSS Variables & Reset --- */
         :root {
             --bg-body: #09090b;
-            --bg-card: #0c0c0e; /* zinc-950 equivalent */
+            --bg-card: #0c0c0e;
             --bg-hover: #1f1f22;
-            --border-color: #27272a; /* zinc-800 */
+            --border-color: #27272a;
             --text-main: #fafafa;
-            --text-muted: #a1a1aa; /* zinc-400 */
-            --text-dim: #52525b; /* zinc-600 */
+            --text-muted: #a1a1aa;
+            --text-dim: #52525b;
             --accent-green: #4ade80;
             --bg-green-dim: rgba(74, 222, 128, 0.1);
             --font-family: 'Inter', sans-serif;
@@ -49,6 +48,11 @@
             min-height: 100vh;
         }
 
+        .navItem_active
+        {
+            color: white;
+        }
+
         a { text-decoration: none; color: inherit; }
         button { background: none; border: none; cursor: pointer; font-family: inherit; }
         input, textarea { font-family: inherit; }
@@ -74,7 +78,6 @@
 
         .hidden { display: none !important; }
 
-        /* --- Navbar --- */
         .navbar {
             position: fixed;
             top: 0;
@@ -115,7 +118,7 @@
 
         .logo-dot { width: 12px; height: 12px; background-color: black; border-radius: 50%; }
 
-        .nav-links { display: none; gap: 32px; font-size: 0.875rem; font-weight: 500; color: var(--text-muted); }
+        .nav-links { display: none; gap: 32px; font-size: 0.875rem; font-weight: 500; color: var(--text-muted); position: absolute; margin-left: 475px; }
         .nav-links a:hover { color: white; }
 
         .nav-actions { display: flex; align-items: center; gap: 24px; }
@@ -361,13 +364,13 @@
                 <div class="logo-box">
                     <div class="logo-dot"></div>
                 </div>
-                <span>NicheSport</span>
+                <span>Athly</span>
             </a>
 
             <div class="nav-links">
                 <a href="events.html">Discover</a>
                 <a href="community.html">Community</a>
-                <a href="dashboard.html">Organizers</a>
+                <a href="dashboard.html"><div class="navItem_active">Organizers</div></a>
             </div>
 
             <div class="nav-actions">
@@ -548,6 +551,56 @@
 
         </div>
     </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCo8N5TfHzWq5PXELyTXoHb_SrzikweBwo",
+            authDomain: "minor-project-a5077.firebaseapp.com",
+            projectId: "minor-project-a5077",
+            storageBucket: "minor-project-a5077.firebasestorage.app",
+            messagingSenderId: "525600101149",
+            appId: "1:525600101149:web:f98570a47b3e6e582047f4"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        const loginBtn = document.querySelector('.btn-login');
+        const signupBtn = document.querySelector('.btn-signup'); // Dashboard uses hyphenated class names
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // Logged In
+                const name = user.displayName ? user.displayName.split(' ')[0] : user.email.split('@')[0];
+                if(loginBtn) {
+                    loginBtn.textContent = `Hi, ${name}`;
+                    loginBtn.onclick = null; // Prevent going to login page
+                }
+                if(signupBtn) signupBtn.textContent = "Sign Out";
+            } else {
+                // Logged Out
+                if(loginBtn) {
+                    loginBtn.textContent = "Log in";
+                    loginBtn.onclick = () => window.location.href = 'login.html';
+                }
+                if(signupBtn) signupBtn.textContent = "Sign Up";
+            }
+        });
+
+        if(signupBtn) {
+            signupBtn.addEventListener('click', () => {
+                const user = auth.currentUser;
+                if (user) {
+                    signOut(auth).then(() => window.location.reload());
+                } else {
+                    window.location.href = 'login.html?mode=signup';
+                }
+            });
+        }
+    </script>
 
     <script>
         // Toggle Modal Visibility

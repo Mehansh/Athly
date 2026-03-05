@@ -86,10 +86,11 @@ body {
 }
 
 .navLinks {
+    position: absolute;
     display: none;
     align-items: center;
     gap: 32px;
-    margin-left: 55px;
+    margin-left: 475px;
 }
 
 @media (min-width: 768px) {
@@ -107,6 +108,11 @@ body {
 }
 
 .navItem:hover {
+    color: white;
+}
+
+.navItem_active
+{
     color: white;
 }
 

@@ -4,12 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Community Hub - NicheSport</title>
+    <title>Community Hub</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* --- CSS Variables & Reset --- */
         :root {
             --bg-body: #09090b;
             --bg-card: #0c0c0e;
@@ -62,7 +61,6 @@
             font-family: inherit;
         }
 
-        /* --- Utility Classes --- */
         .container {
             max-width: 1280px;
             margin: 0 auto;
@@ -80,7 +78,6 @@
             padding: 2px 4px;
         }
 
-        /* --- Navbar --- */
         .navbar {
             position: fixed;
             top: 0;
@@ -99,6 +96,7 @@
             justify-content: space-between;
             align-items: center;
             width: 100%;
+
         }
 
         .logo {
@@ -132,6 +130,8 @@
             font-size: 0.875rem;
             font-weight: 500;
             color: var(--text-muted);
+            position: absolute;
+            margin-left: 475px;
         }
 
         .nav-links a:hover {
@@ -171,13 +171,10 @@
             box-shadow: 0 0 0 2px var(--colGlow), 0 0 15px rgba(79, 70, 229, 0.3);
         }
 
-        /* --- Main Layout --- */
         .main-wrapper {
             max-width: 1024px;
-            /* Narrower container for content */
             margin: 0 auto;
             padding: 100px 24px 80px 24px;
-            /* Top padding accounts for fixed nav */
         }
 
         .header-section {
@@ -507,7 +504,6 @@
             color: white;
         }
 
-        /* --- Colors for chat usernames --- */
         .u-blue {
             color: #60a5fa;
         }
@@ -518,6 +514,11 @@
 
         .u-green {
             color: #4ade80;
+        }
+
+        .navItem_active
+        {
+            color: white;
         }
 
         /* --- Media Queries --- */
@@ -549,19 +550,18 @@
                 <div class="logo-box">
                     <div class="logo-dot"></div>
                 </div>
-                <span>NicheSport</span>
+                <span>Athly</span>
             </a>
 
             <div class="nav-links">
-                <a href="events.html    ">Discover</a>
-                <a href="community.html">Community</a>
+                <a href="events.html">Discover</a>
+                <a href="community.html"><div class="navItem_active">Community</div></a>
                 <a href="dashboard.html">Organizers</a>
             </div>
 
             <div class="nav-actions">
                 <button class="btn-login" onclick="window.location.href='login.html'">Log in</button>
-                <button class="btn-signup" id="auth-btn" onclick="window.location.href='login.html?mode=signup'">Sign
-                    Up</button>
+                <button class="btn-signup" id="auth-btn" onclick="window.location.href='login.html?mode=signup'">SignUp</button>
             </div>
         </div>
     </nav>
