@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Registration - NicheSport</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-body: #09090b;
+            --bg-card: #18181b;
+            --border-color: #27272a;
+            --text-primary: #fafafa;
+            --text-secondary: #a1a1aa;
+            --accent: #60a5fa;
+            --font-main: 'Inter', sans-serif;
+            --max-width: 600px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            font-family: var(--font-main);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* --- Nav --- */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+            border-bottom: 1px solid var(--border-color);
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(12px);
+            height: 64px;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        .nav-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 100%;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 700;
+            font-size: 1.125rem;
+            color: white;
+        }
+
+        .logo-dot {
+            width: 12px;
+            height: 12px;
+            background-color: var(--text-primary);
+            border-radius: 50%;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .nav-links a:hover {
+            color: white;
+        }
+
+        /* --- Main Content --- */
+        .main-wrapper {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 6rem 1.5rem 4rem 1.5rem;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-bottom: 2rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: white;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        h2 {
+            font-size: 1.25rem;
+            color: var(--accent);
+            margin-bottom: 2rem;
+            font-weight: 500;
+        }
+
+        /* Forms */
+        .form-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .form-input,
+        .form-select {
+            background-color: var(--bg-body);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-family: inherit;
+            width: 100%;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: #52525b;
+        }
+
+        .btn-submit {
+            display: block;
+            width: 100%;
+            background-color: white;
+            color: black;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 2rem;
+        }
+
+        .btn-submit:hover {
+            background-color: #e4e4e7;
+        }
+
+        .btn-submit:disabled {
+            background-color: #71717a;
+            color: #d4d4d8;
+            cursor: not-allowed;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+            display: none;
+        }
+
+        .alert-error {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .alert-success {
+            background-color: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <div class="container nav-inner">
+            <a href="index.html" class="logo">
+                <div class="logo-dot"></div>
+                <span>Athly</span>
+            </a>
+            <div class="nav-links">
+                <a href="events.html">Discover</a>
+                <a href="community.html">Community</a>
+            </div>
+            <div style="width: 64px;"></div> <!-- Spacer -->
+        </div>
+    </nav>
+
+    <div class="main-wrapper">
+        <a id="back-btn" href="events.html" class="back-link">
+            &larr; Back to Event
+        </a>
+
+        <h1>Athlete Registration</h1>
+        <h2 id="event-name-display">Loading Event...</h2>
+
+        <div id="alert-error" class="alert alert-error">An error occurred.</div>
+        <div id="alert-success" class="alert alert-success">Registration successful! Redirecting...</div>
+
+        <div class="form-card">
+            <form id="registration-form">
+                <div class="form-group">
+                    <label class="form-label" for="reg-name">Full Name *</label>
+                    <input type="text" id="reg-name" class="form-input" required placeholder="John Doe">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="reg-email">Contact Email *</label>
+                    <input type="email" id="reg-email" class="form-input" required placeholder="john@example.com">
+                </div>
+
+                <div style="display: flex; gap: 1rem;">
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label" for="reg-age">Age *</label>
+                        <input type="number" id="reg-age" class="form-input" required min="10" max="100"
+                            placeholder="25">
+                    </div>
+
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label" for="reg-gender">Gender *</label>
+                        <select id="reg-gender" class="form-select" required style="color-scheme: dark;">
+                            <option value="" disabled selected>Select</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="reg-phone">Phone Number *</label>
+                    <input type="tel" id="reg-phone" class="form-input" required placeholder="+1 234 567 8900">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="reg-emergency">Emergency Contact (Name & Number) *</label>
+                    <input type="text" id="reg-emergency" class="form-input" required
+                        placeholder="Jane Doe: +1 987 654 3210">
+                </div>
+
+                <button type="submit" id="submit-btn" class="btn-submit">Complete Registration</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyCo8N5TfHzWq5PXELyTXoHb_SrzikweBwo",
+            authDomain: "minor-project-a5077.firebaseapp.com",
+            projectId: "minor-project-a5077",
+            storageBucket: "minor-project-a5077.firebasestorage.app",
+            messagingSenderId: "525600101149",
+            appId: "1:525600101149:web:f98570a47b3e6e582047f4"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // Core UI Hooks
+        const titleDisplay = document.getElementById('event-name-display');
+        const backBtn = document.getElementById('back-btn');
+        const form = document.getElementById('registration-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const alertSuccess = document.getElementById('alert-success');
+        const alertError = document.getElementById('alert-error');
+
+        // State variables
+        let eventId = null;
+        let currentUser = null;
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            eventId = urlParams.get('id');
+
+            if (!eventId) {
+                alert("Invalid event link.");
+                window.location.href = 'events.html';
+                return;
+            }
+
+            backBtn.href = `event-details.html?id=${eventId}`;
+            fetchEventDetails();
+        });
+
+        async function fetchEventDetails() {
+            try {
+                const eventSnap = await getDoc(doc(db, 'events', eventId));
+                if (eventSnap.exists()) {
+                    titleDisplay.textContent = eventSnap.data().name || eventSnap.data().title || 'Untitled Event';
+                } else {
+                    titleDisplay.textContent = "Event Not Found";
+                    form.style.display = 'none';
+                }
+            } catch (err) {
+                console.error(err);
+                titleDisplay.textContent = "Error Loading Event";
+            }
+        }
+
+        // Auth Check (Strictly Athletes)
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                try {
+                    const userDoc = await getDoc(doc(db, 'users', user.uid));
+                    if (userDoc.exists() && userDoc.data().role === 'athlete') {
+                        currentUser = user;
+                        // Pre-fill email and name from auth if available
+                        document.getElementById('reg-email').value = user.email || '';
+                        document.getElementById('reg-name').value = user.displayName || '';
+                    } else {
+                        alert("Access Denied: Only athletes can register for events.");
+                        window.location.href = `event-details.html?id=${eventId}`;
+                    }
+                } catch (error) {
+                    console.error("error:", error);
+                }
+            } else {
+                alert("Please log in as an Athlete to register.");
+                window.location.href = 'login.html';
+            }
+        });
+
+        // Submission
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentUser || !eventId) return;
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Processing...';
+            alertError.style.display = 'none';
+            alertSuccess.style.display = 'none';
+
+            const payload = {
+                name: document.getElementById('reg-name').value.trim(),
+                email: document.getElementById('reg-email').value.trim(),
+                age: document.getElementById('reg-age').value,
+                gender: document.getElementById('reg-gender').value,
+                phone: document.getElementById('reg-phone').value.trim(),
+                emergencyContact: document.getElementById('reg-emergency').value.trim(),
+                registeredAt: serverTimestamp(),
+                userId: currentUser.uid,
+                eventId: eventId
+            };
+
+            try {
+                // 1. Save Registration Data securely to a `registrations` root collection
+                // (using document ID structure: eventId_userId to prevent duplicates natively)
+                const regDocId = `${eventId}_${currentUser.uid}`;
+                await setDoc(doc(db, 'registrations', regDocId), payload);
+
+                // 2. Increment participant count on the source event
+                await updateDoc(doc(db, 'events', eventId), {
+                    participants: increment(1)
+                });
+
+                // Success
+                alertSuccess.style.display = 'block';
+                setTimeout(() => {
+                    window.location.href = `event-details.html?id=${eventId}`;
+                }, 2000);
+
+            } catch (err) {
+                console.error("Registration Error:", err);
+                alertError.textContent = "Error completing registration. You may already be registered.";
+                alertError.style.display = 'block';
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Complete Registration';
+            }
+        });
+
+    </script>
+</body>
+
+</html>

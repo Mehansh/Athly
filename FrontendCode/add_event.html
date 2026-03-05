@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organizer Area - Add Event</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-body: #09090b;
+            --bg-card: #0c0c0e;
+            --bg-hover: #1f1f22;
+            --border-color: #27272a;
+            --text-main: #fafafa;
+            --text-muted: #a1a1aa;
+            --text-dim: #52525b;
+            --accent-green: #4ade80;
+            --bg-green-dim: rgba(74, 222, 128, 0.1);
+            --font-family: 'Inter', sans-serif;
+
+            --colBg: #09090b;
+            --colCardBg: #111111;
+            --colBorder: #27272a;
+            --colBorderLight: #3f3f46;
+
+            --colTextMain: #ffffff;
+            --colTextSec: #a1a1aa;
+            --colTextMuted: #71717a;
+
+            --colInputBg: #1a1a1a;
+            --colAccent: #ffffff;
+            --colGlow: #4f46e5;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            font-family: var(--font-family);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        .navItem_active {
+            color: white;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        input,
+        textarea {
+            font-family: inherit;
+        }
+
+        /* --- Utility Classes --- */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            background-color: #000;
+            border-bottom: 1px solid var(--border-color);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 1.125rem;
+        }
+
+        .logo-box {
+            width: 32px;
+            height: 32px;
+            background-color: white;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-dot {
+            width: 12px;
+            height: 12px;
+            background-color: black;
+            border-radius: 50%;
+        }
+
+        .nav-links {
+            display: none;
+            gap: 32px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            position: absolute;
+            margin-left: 475px;
+        }
+
+        .nav-links a:hover {
+            color: white;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .btn-login {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .btn-login:hover {
+            color: white;
+        }
+
+        .btn-signup {
+            background-color: var(--colBorder);
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 5px;
+            transition: background-color 0.15s, box-shadow 0.2s;
+        }
+
+        .btn-signup:hover {
+            box-shadow: 0 0 0 2px var(--colGlow), 0 0 15px rgba(79, 70, 229, 0.3);
+        }
+
+        /* --- Main Content Layout --- */
+        .main-wrapper {
+            max-width: 800px;
+            /* narrowed for form focus */
+            padding-top: 100px;
+            padding-bottom: 80px;
+            margin: auto;
+        }
+
+        /* --- Header Section --- */
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .page-title {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: white;
+        }
+
+        .page-subtitle {
+            color: var(--text-muted);
+        }
+
+        /* Navigation back */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            margin-bottom: 16px;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: white;
+        }
+
+        /* --- Create Form --- */
+        .form-card {
+            background-color: rgba(24, 24, 27, 0.3);
+            border: 1px solid #3f3f46;
+            border-radius: 12px;
+            padding: 32px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .form-input,
+        .form-textarea {
+            width: 100%;
+            background-color: black;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus,
+        .form-textarea:focus {
+            border-color: var(--text-dim);
+        }
+
+        .form-textarea {
+            height: 120px;
+            resize: none;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 16px;
+            margin-top: 16px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 24px;
+        }
+
+        .btn-cancel {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            color: white;
+            font-size: 0.875rem;
+        }
+
+        .btn-cancel:hover {
+            background-color: var(--border-color);
+        }
+
+        .btn-submit {
+            padding: 10px 20px;
+            border-radius: 8px;
+            background-color: white;
+            color: black;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .btn-submit:hover {
+            background-color: #e4e4e7;
+        }
+
+        .btn-submit:disabled {
+            background-color: #71717a;
+            color: #a1a1aa;
+            cursor: not-allowed;
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            font-size: 0.875rem;
+            display: none;
+        }
+
+        .alert-success {
+            background-color: rgba(34, 197, 94, 0.1);
+            border: 1px solid #22c55e;
+            color: #4ade80;
+        }
+
+        .alert-error {
+            background-color: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            color: #f87171;
+        }
+
+        @media (min-width: 768px) {
+            .nav-links {
+                display: flex;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .full-width-col {
+                grid-column: span 2;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="container nav-content">
+            <a href="index.html" class="logo">
+                <div class="logo-box">
+                    <div class="logo-dot"></div>
+                </div>
+                <span>Athly</span>
+            </a>
+
+            <div class="nav-links">
+                <a href="events.html">Discover</a>
+                <a href="community.html">Community</a>
+                <a href="dashboard.html">
+                    <div class="navItem_active">Organizers</div>
+                </a>
+            </div>
+
+            <div class="nav-actions">
+                <button class="btn-login" id="login-btn">Log in</button>
+                <button class="btn-signup" id="auth-btn">Sign Up</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container main-wrapper">
+        <a href="dashboard.html" class="back-link">
+            &larr; Back to Dashboard
+        </a>
+
+        <div class="header-row">
+            <div>
+                <h1 class="page-title">Publish New Event</h1>
+                <p class="page-subtitle">Add your tournament to the global directory.</p>
+            </div>
+        </div>
+
+        <div id="alert-success" class="alert alert-success">
+            Event published successfully! Redirecting...
+        </div>
+        <div id="alert-error" class="alert alert-error">
+            An error occurred while publishing the event.
+        </div>
+
+        <div class="form-card">
+            <form id="add-event-form">
+                <div class="form-grid">
+                    <div class="form-group full-width-col">
+                        <label class="form-label">Event Title *</label>
+                        <input type="text" id="event-title" placeholder="e.g. Summer Slam 2024" class="form-input"
+                            required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Sport *</label>
+                        <input type="text" id="event-sport" placeholder="e.g. Drone Racing" class="form-input" required>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; grid-column: 1 / -1;">
+                        <div class="form-group" style="flex: 1;">
+                            <label class="form-label">Date *</label>
+                            <input type="date" id="event-date" class="form-input" style="color-scheme: dark;" required>
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label class="form-label">Distance</label>
+                            <input type="text" id="event-distance" placeholder="e.g. 5km, 10 Miles" class="form-input">
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width-col">
+                        <label class="form-label">Venue / Location</label>
+                        <input type="text" id="event-location" placeholder="e.g. Central Park Courts"
+                            class="form-input">
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; grid-column: 1 / -1;">
+                        <div class="form-group" style="flex: 1;">
+                            <label class="form-label">City *</label>
+                            <input type="text" id="event-city" placeholder="e.g. Mumbai" class="form-input" required>
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label class="form-label">State / Province *</label>
+                            <input type="text" id="event-state" placeholder="e.g. Maharashtra" class="form-input"
+                                required>
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width-col">
+                        <label class="form-label">Description</label>
+                        <textarea id="event-desc" placeholder="Provide details about registration, rules, gear..."
+                            class="form-textarea"></textarea>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" onclick="window.location.href='dashboard.html'"
+                        class="btn-cancel">Cancel</button>
+                    <button type="submit" id="submit-btn" class="btn-submit">Publish Event</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        // Firebase Imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyCo8N5TfHzWq5PXELyTXoHb_SrzikweBwo",
+            authDomain: "minor-project-a5077.firebaseapp.com",
+            projectId: "minor-project-a5077",
+            storageBucket: "minor-project-a5077.firebasestorage.app",
+            messagingSenderId: "525600101149",
+            appId: "1:525600101149:web:f98570a47b3e6e582047f4"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Auth Logic
+        const loginBtn = document.getElementById('login-btn');
+        const authBtn = document.getElementById('auth-btn');
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                // Verify Role
+                try {
+                    // Import doc and getDoc if they aren't already imported (we'll add them to the import list above)
+                    // We'll assume they're imported in the block below
+                    const userDoc = await getDoc(doc(db, 'users', user.uid));
+                    if (userDoc.exists()) {
+                        const userData = userDoc.data();
+                        if (userData.role !== 'organizer') {
+                            alert("Access Denied: Only organizers can publish events.");
+                            window.location.href = 'index.html';
+                            return;
+                        }
+                    } else {
+                        alert("Access Denied: Organizer profile not found.");
+                        window.location.href = 'index.html';
+                        return;
+                    }
+                } catch (error) {
+                    console.error("Error verifying role:", error);
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                const name = user.displayName ? user.displayName.split(' ')[0] : user.email.split('@')[0];
+                loginBtn.textContent = `Hi, ${name}`;
+                authBtn.textContent = "Sign Out";
+
+                authBtn.onclick = () => {
+                    signOut(auth).then(() => { window.location.href = 'index.html'; });
+                };
+                loginBtn.onclick = () => { window.location.href = 'dashboard.html'; };
+            } else {
+                loginBtn.textContent = "Log in";
+                authBtn.textContent = "Sign Up";
+                loginBtn.onclick = () => { window.location.href = 'login.html'; };
+                authBtn.onclick = () => { window.location.href = 'login.html?mode=signup'; };
+
+                // Unauthenticated user
+                alert("Please log in as an organizer to access this page.");
+                window.location.href = 'index.html';
+            }
+        });
+
+        // Form Submission Logic
+        const form = document.getElementById('add-event-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const alertSuccess = document.getElementById('alert-success');
+        const alertError = document.getElementById('alert-error');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // UI Loading state
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Publishing...';
+            alertSuccess.style.display = 'none';
+            alertError.style.display = 'none';
+
+            // Gather data
+            const eventData = {
+                name: document.getElementById('event-title').value.trim(),
+                sport: document.getElementById('event-sport').value.trim(),
+                date: document.getElementById('event-date').value,
+                distance: document.getElementById('event-distance').value.trim() || 'N/A',
+                location: document.getElementById('event-location').value.trim() || '',
+                city: document.getElementById('event-city').value.trim(),
+                state: document.getElementById('event-state').value.trim(),
+                description: document.getElementById('event-desc').value.trim(),
+                createdAt: serverTimestamp(),
+                organizerId: auth.currentUser ? auth.currentUser.uid : 'anonymous', // Record who created it
+                clicks: 0,
+                participants: 0,
+                revenue: 0
+            };
+
+            try {
+                // Add to Firestore
+                const docRef = await addDoc(collection(db, "events"), eventData);
+                console.log("Document written with ID: ", docRef.id);
+
+                // Show Success
+                alertSuccess.style.display = 'block';
+
+                // Redirect back to dashboard after a delay
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1500);
+
+            } catch (error) {
+                console.error("Error adding event: ", error);
+                // Show Error
+                alertError.textContent = `Error: ${error.message}`;
+                alertError.style.display = 'block';
+
+                // Reset button
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Publish Event';
+            }
+        });
+    </script>
+</body>
+
+</html>

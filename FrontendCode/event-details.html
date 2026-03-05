@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Details - NicheSport</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-body: #09090b;
+            --bg-card: #18181b;
+            --border-color: #27272a;
+            --text-primary: #fafafa;
+            --text-secondary: #a1a1aa;
+            --accent: #60a5fa;
+            --font-main: 'Inter', sans-serif;
+            --max-width: 800px;
+            /* narrowed for reading */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            font-family: var(--font-main);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* --- Nav --- */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+            border-bottom: 1px solid var(--border-color);
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(12px);
+            height: 64px;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        .nav-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 100%;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 700;
+            font-size: 1.125rem;
+            color: white;
+        }
+
+        .logo-dot {
+            width: 12px;
+            height: 12px;
+            background-color: var(--text-primary);
+            border-radius: 50%;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .nav-links a:hover {
+            color: white;
+        }
+
+        /* --- Main Content --- */
+        .main-wrapper {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 6rem 1.5rem 4rem 1.5rem;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-bottom: 2rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: white;
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, #18181b 25%, #27272a 50%, #18181b 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: 4px;
+        }
+
+        @keyframes loading {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        /* Event Header */
+        .event-header {
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .event-sport {
+            color: var(--accent);
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .event-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+        }
+
+        .event-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Event Body */
+        .event-description {
+            font-size: 1.125rem;
+            color: var(--text-primary);
+            line-height: 1.7;
+            white-space: pre-wrap;
+            margin-bottom: 3rem;
+        }
+
+        .info-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .btn-primary {
+            display: block;
+            width: 100%;
+            text-align: center;
+            background-color: white;
+            color: black;
+            padding: 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: background-color 0.2s;
+            margin-top: 1.5rem;
+        }
+
+        .btn-primary:hover {
+            background-color: #e4e4e7;
+        }
+
+        #error-container {
+            text-align: center;
+            padding: 4rem 1rem;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <div class="container nav-inner">
+            <a href="index.html" class="logo">
+                <div class="logo-dot"></div>
+                <span>Athly</span>
+            </a>
+            <div class="nav-links">
+                <a href="events.html">Discover</a>
+                <a href="community.html">Community</a>
+            </div>
+            <div style="width: 64px;"></div> <!-- Spacer -->
+        </div>
+    </nav>
+
+    <div class="main-wrapper">
+        <a href="events.html" class="back-link">
+            &larr; Back to Discover
+        </a>
+
+        <!-- Loading State -->
+        <div id="loading-state">
+            <div class="skeleton" style="width: 100px; height: 16px; margin-bottom: 1rem;"></div>
+            <div class="skeleton" style="width: 80%; height: 48px; margin-bottom: 1rem;"></div>
+            <div class="skeleton" style="width: 60%; height: 24px; margin-bottom: 3rem;"></div>
+            <div class="skeleton" style="width: 100%; height: 200px;"></div>
+        </div>
+
+        <!-- Error State -->
+        <div id="error-container">
+            <h2 style="font-size: 2rem; margin-bottom: 1rem;">Event Not Found</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem;">This event may have been removed or the link
+                is invalid.</p>
+            <a href="index.html" style="color: white; text-decoration: underline;">Return Home</a>
+        </div>
+
+        <!-- Content State -->
+        <div id="content-state" style="display: none;">
+            <div class="event-header">
+                <div class="event-sport" id="display-sport">Sport Name</div>
+                <h1 class="event-title" id="display-title">Event Title</h1>
+                <div class="event-meta">
+                    <div class="meta-item">
+                        <span style="color: #d4d4d8;">📅</span>
+                        <span id="display-date">Date</span>
+                    </div>
+                    <div class="meta-item">
+                        <span style="color: #d4d4d8;">📍</span>
+                        <span id="display-location">Location</span>
+                    </div>
+                    <div class="meta-item" id="distance-container" style="display: none;">
+                        <span style="color: #d4d4d8;">🏃</span>
+                        <span id="display-distance">Distance</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="event-description" id="display-desc">
+                Event Description
+            </div>
+
+            <div class="info-card">
+                <h3 class="info-title">Registration Status</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 0.5rem;">Join other athletes in this upcoming
+                    event.</p>
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: 1rem;">
+                    <div>
+                        <div style="font-size: 1.5rem; font-weight: 700; color: white;" id="display-participants">0
+                        </div>
+                        <div style="font-size: 0.875rem; color: var(--text-secondary);">Registered</div>
+                    </div>
+                </div>
+                <div id="auth-btn-container" style="display: none;">
+                    <button class="btn-primary" id="btn-register-now">Register
+                        Now</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="module">
+        // Firebase Config
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCo8N5TfHzWq5PXELyTXoHb_SrzikweBwo",
+            authDomain: "minor-project-a5077.firebaseapp.com",
+            projectId: "minor-project-a5077",
+            storageBucket: "minor-project-a5077.firebasestorage.app",
+            messagingSenderId: "525600101149",
+            appId: "1:525600101149:web:f98570a47b3e6e582047f4"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // Check user role for Registration Button
+        onAuthStateChanged(auth, async (user) => {
+            const btnContainer = document.getElementById('auth-btn-container');
+            if (user && btnContainer) {
+                try {
+                    const userDoc = await getDoc(doc(db, 'users', user.uid));
+                    if (userDoc.exists() && userDoc.data().role === 'athlete') {
+                        btnContainer.style.display = 'block';
+                    } else {
+                        btnContainer.style.display = 'none';
+                    }
+                } catch (error) {
+                    console.error("Error checking role:", error);
+                }
+            } else if (btnContainer) {
+                btnContainer.style.display = 'none';
+            }
+        });
+
+        // Fetch Event Data
+        async function loadEvent() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const eventId = urlParams.get('id');
+
+            if (!eventId) {
+                showError();
+                return;
+            }
+
+            // Hook up register button
+            const regBtn = document.getElementById('btn-register-now');
+            if (regBtn) {
+                regBtn.onclick = () => {
+                    window.location.href = `register.html?id=${eventId}`;
+                };
+            }
+
+            try {
+                const eventRef = doc(db, 'events', eventId);
+                const eventSnap = await getDoc(eventRef);
+
+                if (eventSnap.exists()) {
+                    const data = eventSnap.data();
+                    renderEvent(data);
+                } else {
+                    showError();
+                }
+            } catch (error) {
+                console.error("Error fetching event:", error);
+                showError();
+            }
+        }
+
+        function renderEvent(data) {
+            // Hide loading, show content
+            document.getElementById('loading-state').style.display = 'none';
+            document.getElementById('content-state').style.display = 'block';
+
+            // Populate Fields
+            document.getElementById('display-sport').textContent = data.sport || 'Unknown Sport';
+            document.getElementById('display-title').textContent = data.name || data.title || 'Untitled Event';
+            document.getElementById('display-desc').textContent = data.description || 'No description provided for this event.';
+            document.getElementById('display-participants').textContent = data.participants || '0';
+
+            // Format Date
+            let dateStr = data.date || 'TBD';
+            if (data.date) {
+                // Try format if it's YYYY-MM-DD
+                try {
+                    const d = new Date(data.date);
+                    if (!isNaN(d.getTime())) {
+                        dateStr = d.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                    }
+                } catch (e) { }
+            }
+            document.getElementById('display-date').textContent = dateStr;
+
+            // Format Location
+            let locStr = "Location TBD";
+            let parts = [];
+            if (data.location) parts.push(data.location);
+            if (data.city) parts.push(data.city);
+            if (data.state) parts.push(data.state);
+            if (parts.length > 0) locStr = parts.join(', ');
+            document.getElementById('display-location').textContent = locStr;
+
+            // Format Distance
+            if (data.distance && data.distance !== "N/A" && data.distance.trim() !== "") {
+                document.getElementById('display-distance').textContent = data.distance;
+                document.getElementById('distance-container').style.display = 'flex';
+            } else {
+                document.getElementById('distance-container').style.display = 'none';
+            }
+        }
+
+        function showError() {
+            document.getElementById('loading-state').style.display = 'none';
+            document.getElementById('error-container').style.display = 'block';
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', loadEvent);
+    </script>
+</body>
+
+</html>

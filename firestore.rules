@@ -36,6 +36,36 @@ service cloud.firestore {
       // Only signed-in users can send messages
       allow create: if isSignedIn();
     }
+
+    // Rules for Organizer Events
+    match /events/{eventId} {
+      // Anyone can search and read events
+      allow read: if true;
+      
+      // Only signed-in organizers can create an event
+      allow create: if isSignedIn();
+      allow update: if (isSignedIn() && request.auth.uid == resource.data.organizerId)
+                    || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['clicks'])
+                        && request.resource.data.clicks == resource.data.clicks + 1)
+                    || (isSignedIn()
+                        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['participants'])
+                        && request.resource.data.participants == resource.data.participants + 1);
+      allow delete: if isSignedIn() && request.auth.uid == resource.data.organizerId;
+    }
+
+    // Rules for Athlete Registrations
+    match /registrations/{regId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if false;
+    }
+
+    // Rules for Scraped External Events 
+    // Allow searching anything under the scraped_events hierarchy
+    match /scraped_events/{document=**} {
+      allow read: if true;
+      allow write: if false; // Only written via external backend scripts
+    }
   }
 }
 

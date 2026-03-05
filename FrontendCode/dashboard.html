@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Organizer Dashboard</title>
-    
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
@@ -24,11 +25,11 @@
             --colCardBg: #111111;
             --colBorder: #27272a;
             --colBorderLight: #3f3f46;
-            
+
             --colTextMain: #ffffff;
             --colTextSec: #a1a1aa;
             --colTextMuted: #71717a;
-            
+
             --colInputBg: #1a1a1a;
             --colAccent: #ffffff;
             --colGlow: #4f46e5;
@@ -48,14 +49,26 @@
             min-height: 100vh;
         }
 
-        .navItem_active
-        {
+        .navItem_active {
             color: white;
         }
 
-        a { text-decoration: none; color: inherit; }
-        button { background: none; border: none; cursor: pointer; font-family: inherit; }
-        input, textarea { font-family: inherit; }
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        input,
+        textarea {
+            font-family: inherit;
+        }
 
         /* --- Utility Classes --- */
         .container {
@@ -76,7 +89,9 @@
             font-style: normal;
         }
 
-        .hidden { display: none !important; }
+        .hidden {
+            display: none !important;
+        }
 
         .navbar {
             position: fixed;
@@ -116,14 +131,42 @@
             justify-content: center;
         }
 
-        .logo-dot { width: 12px; height: 12px; background-color: black; border-radius: 50%; }
+        .logo-dot {
+            width: 12px;
+            height: 12px;
+            background-color: black;
+            border-radius: 50%;
+        }
 
-        .nav-links { display: none; gap: 32px; font-size: 0.875rem; font-weight: 500; color: var(--text-muted); position: absolute; margin-left: 475px; }
-        .nav-links a:hover { color: white; }
+        .nav-links {
+            display: none;
+            gap: 32px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            position: absolute;
+            margin-left: 475px;
+        }
 
-        .nav-actions { display: flex; align-items: center; gap: 24px; }
-        .btn-login { color: var(--text-muted); font-size: 0.875rem; font-weight: 500; }
-        .btn-login:hover { color: white; }
+        .nav-links a:hover {
+            color: white;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .btn-login {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .btn-login:hover {
+            color: white;
+        }
 
         .btn-signup {
             background-color: var(--colBorder);
@@ -145,7 +188,8 @@
         /* --- Main Content Layout --- */
         .main-wrapper {
             max-width: 1024px;
-            padding-top: 100px; /* Offset for fixed navbar */
+            padding-top: 100px;
+            /* Offset for fixed navbar */
             padding-bottom: 80px;
         }
 
@@ -157,8 +201,16 @@
             margin-bottom: 40px;
         }
 
-        .page-title { font-size: 1.875rem; font-weight: 700; margin-bottom: 8px; color: white; }
-        .page-subtitle { color: var(--text-muted); }
+        .page-title {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: white;
+        }
+
+        .page-subtitle {
+            color: var(--text-muted);
+        }
 
         .btn-create {
             background-color: var(--colBorder);
@@ -173,7 +225,8 @@
             font-family: 'Inter', sans-serif;
             margin-top: 40px;
         }
-        .btn-create:hover { 
+
+        .btn-create:hover {
             box-shadow: 0 0 0 2px var(--colGlow), 0 0 15px rgba(79, 70, 229, 0.3);
         }
 
@@ -190,7 +243,12 @@
             padding: 24px;
         }
 
-        .form-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 24px; color: white; }
+        .form-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: white;
+        }
 
         .form-grid {
             display: grid;
@@ -199,10 +257,19 @@
             margin-bottom: 24px;
         }
 
-        .form-group { display: flex; flex-direction: column; gap: 8px; }
-        .form-label { font-size: 0.875rem; color: var(--text-muted); }
-        
-        .form-input, .form-textarea {
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .form-input,
+        .form-textarea {
             width: 100%;
             background-color: black;
             border: 1px solid var(--border-color);
@@ -213,8 +280,16 @@
             outline: none;
             transition: border-color 0.2s;
         }
-        .form-input:focus, .form-textarea:focus { border-color: var(--text-dim); }
-        .form-textarea { height: 96px; resize: none; }
+
+        .form-input:focus,
+        .form-textarea:focus {
+            border-color: var(--text-dim);
+        }
+
+        .form-textarea {
+            height: 96px;
+            resize: none;
+        }
 
         .magic-fill-btn {
             font-size: 0.75rem;
@@ -223,11 +298,22 @@
             align-items: center;
             gap: 4px;
         }
-        .magic-fill-btn:hover { color: #93c5fd; }
-        .magic-fill-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        .form-actions { display: flex; justify-content: flex-end; gap: 12px; }
-        
+        .magic-fill-btn:hover {
+            color: #93c5fd;
+        }
+
+        .magic-fill-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
         .btn-cancel {
             padding: 8px 16px;
             border-radius: 8px;
@@ -235,7 +321,10 @@
             color: white;
             font-size: 0.875rem;
         }
-        .btn-cancel:hover { background-color: var(--border-color); }
+
+        .btn-cancel:hover {
+            background-color: var(--border-color);
+        }
 
         .btn-submit {
             padding: 8px 16px;
@@ -245,7 +334,10 @@
             font-size: 0.875rem;
             font-weight: 500;
         }
-        .btn-submit:hover { background-color: #e4e4e7; }
+
+        .btn-submit:hover {
+            background-color: #e4e4e7;
+        }
 
 
         /* --- Stats Grid --- */
@@ -263,14 +355,21 @@
             padding: 24px;
         }
 
-        .stat-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
-        
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
         .icon-box {
             padding: 8px;
             background-color: #18181b;
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            display: flex; align-items: center; justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .stat-badge {
@@ -282,13 +381,31 @@
             border-radius: 9999px;
         }
 
-        .stat-value { font-size: 1.5rem; font-weight: 700; color: white; margin-bottom: 4px; }
-        .stat-label { font-size: 0.875rem; color: var(--text-dim); }
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-dim);
+        }
 
         /* --- Events List --- */
-        .section-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 24px; color: white; }
-        
-        .events-list { display: flex; flex-direction: column; gap: 16px; }
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: white;
+        }
+
+        .events-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
 
         .event-item {
             display: flex;
@@ -300,22 +417,66 @@
             border-radius: 8px;
             transition: all 0.2s;
         }
-        .event-item:hover { border-color: #3f3f46; }
 
-        .event-info { display: flex; align-items: center; gap: 16px; }
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; }
-        .dot-red { background-color: #ef4444; }
-        .dot-green { background-color: #22c55e; }
+        .event-item:hover {
+            border-color: #3f3f46;
+        }
 
-        .event-details h4 { color: white; font-weight: 500; margin-bottom: 4px; }
-        .event-details div { font-size: 0.75rem; color: var(--text-dim); }
+        .event-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
 
-        .event-stats { display: flex; align-items: center; gap: 32px; }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
 
-        .progress-wrapper { text-align: right; display: none; } /* Hidden on mobile by default */
-        .progress-text { font-size: 0.875rem; color: #d4d4d8; }
-        .progress-label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; }
-        
+        .dot-red {
+            background-color: #ef4444;
+        }
+
+        .dot-green {
+            background-color: #22c55e;
+        }
+
+        .event-details h4 {
+            color: white;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .event-details div {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        .event-stats {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .progress-wrapper {
+            text-align: right;
+            display: none;
+        }
+
+        /* Hidden on mobile by default */
+        .progress-text {
+            font-size: 0.875rem;
+            color: #d4d4d8;
+        }
+
+        .progress-label {
+            font-size: 10px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
         .progress-bar {
             width: 96px;
             height: 6px;
@@ -324,7 +485,11 @@
             overflow: hidden;
             display: none;
         }
-        .progress-fill { height: 100%; background-color: white; }
+
+        .progress-fill {
+            height: 100%;
+            background-color: white;
+        }
 
         .btn-manage {
             padding: 6px 12px;
@@ -335,27 +500,55 @@
             color: white;
             transition: background-color 0.2s;
         }
-        .btn-manage:hover { background-color: var(--border-color); }
+
+        .btn-manage:hover {
+            background-color: var(--border-color);
+        }
 
         /* --- Media Queries --- */
         @media (min-width: 768px) {
-            .nav-links { display: flex; }
-            .form-grid { grid-template-columns: 1fr 1fr; }
-            .full-width-col { grid-column: span 2; }
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
-            .progress-wrapper, .progress-bar { display: block; }
+            .nav-links {
+                display: flex;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .full-width-col {
+                grid-column: span 2;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .progress-wrapper,
+            .progress-bar {
+                display: block;
+            }
         }
 
         @media (min-width: 1024px) {
-            .stats-grid { grid-template-columns: repeat(4, 1fr); }
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
         }
 
         @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
+
 <body>
 
     <nav class="navbar">
@@ -370,7 +563,9 @@
             <div class="nav-links">
                 <a href="events.html">Discover</a>
                 <a href="community.html">Community</a>
-                <a href="dashboard.html"><div class="navItem_active">Organizers</div></a>
+                <a href="dashboard.html">
+                    <div class="navItem_active">Organizers</div>
+                </a>
             </div>
 
             <div class="nav-actions">
@@ -381,13 +576,13 @@
     </nav>
 
     <div class="container main-wrapper">
-        
+
         <div class="header-row">
             <div>
                 <h1 class="page-title">Organizer Dashboard</h1>
                 <p class="page-subtitle">Manage your leagues, tournaments, and participants.</p>
             </div>
-            <button onclick="toggleModal()" id="create-btn" class="btn-create">
+            <button onclick="window.location.href='add_event.html'" id="create-btn" class="btn-create">
                 Create New Event
             </button>
         </div>
@@ -395,25 +590,24 @@
         <div id="create-modal" class="create-form-container hidden">
             <div class="form-card">
                 <h2 class="form-title">Create New Tournament</h2>
-                
+
                 <div class="form-grid">
                     <div class="form-group">
                         <label class="form-label">Event Title</label>
-                        <input type="text" id="event-title" placeholder="e.g. Summer Slam 2024" 
-                            class="form-input" oninput="checkMagicFill()">
+                        <input type="text" id="event-title" placeholder="e.g. Summer Slam 2024" class="form-input"
+                            oninput="checkMagicFill()">
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Sport</label>
-                        <input type="text" id="event-sport" placeholder="e.g. Drone Racing" 
-                            class="form-input" oninput="checkMagicFill()">
+                        <input type="text" id="event-sport" placeholder="e.g. Drone Racing" class="form-input"
+                            oninput="checkMagicFill()">
                     </div>
 
                     <div class="form-group full-width-col">
                         <div style="display: flex; justify-content: space-between;">
                             <label class="form-label">Description</label>
-                            <button id="magic-fill-btn" onclick="handleMagicFill()" disabled 
-                                class="magic-fill-btn">
+                            <button id="magic-fill-btn" onclick="handleMagicFill()" disabled class="magic-fill-btn">
                                 <span class="icon-placeholder" id="magic-icon">[Sparkles]</span>
                                 AI Magic Fill
                             </button>
@@ -421,14 +615,31 @@
                         <textarea id="event-desc" placeholder="Describe your event..." class="form-textarea"></textarea>
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label">Date</label>
-                        <input type="date" class="form-input" style="color-scheme: dark;">
+                    <div style="display: flex; gap: 1rem; grid-column: 1 / -1;">
+                        <div class="form-group" style="flex: 1;">
+                            <label class="form-label">Date</label>
+                            <input type="date" class="form-input" style="color-scheme: dark;">
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label class="form-label">Distance</label>
+                            <input type="text" placeholder="e.g. 5km" class="form-input">
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label">Location</label>
+                    <div class="form-group full-width-col">
+                        <label class="form-label">Venue / Location</label>
                         <input type="text" class="form-input">
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; grid-column: 1 / -1;">
+                        <div class="form-group" style="flex: 1;">
+                            <label class="form-label">City</label>
+                            <input type="text" class="form-input">
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label class="form-label">State</label>
+                            <input type="text" class="form-input">
+                        </div>
                     </div>
                 </div>
 
@@ -445,9 +656,8 @@
                     <div class="icon-box">
                         <img src="./icons/users.svg" alt="Users">
                     </div>
-                    <span class="stat-badge">+12%</span>
                 </div>
-                <div class="stat-value">1,248</div>
+                <div class="stat-value" id="stat-participants">0</div>
                 <div class="stat-label">Total Participants</div>
             </div>
 
@@ -456,9 +666,8 @@
                     <div class="icon-box">
                         <img src=" ./icons/calendar.svg" alt="Calendar">
                     </div>
-                    <span class="stat-badge">+2</span>
                 </div>
-                <div class="stat-value">8</div>
+                <div class="stat-value" id="stat-events">0</div>
                 <div class="stat-label">Active Events</div>
             </div>
 
@@ -467,10 +676,9 @@
                     <div class="icon-box">
                         <img src="./icons/dollar-sign.svg" alt="Dollar">
                     </div>
-                    <span class="stat-badge">+8.5%</span>
                 </div>
-                <div class="stat-value">$45.2k</div>
-                <div class="stat-label">Revenue (YTD)</div>
+                <div class="stat-value" id="stat-revenue">$0</div>
+                <div class="stat-label">Revenue</div>
             </div>
 
             <div class="stat-card">
@@ -478,83 +686,23 @@
                     <div class="icon-box">
                         <img src="./icons/trending-up.svg" alt="Trend">
                     </div>
-                    <span class="stat-badge">+24%</span>
                 </div>
-                <div class="stat-value">89.4k</div>
-                <div class="stat-label">Page Views</div>
+                <div class="stat-value" id="stat-clicks">0</div>
+                <div class="stat-label">Event Clicks</div>
             </div>
         </div>
 
         <h2 class="section-title">Your Events</h2>
-        
-        <div class="events-list">
-            
-            <div class="event-item">
-                <div class="event-info">
-                    <div class="status-dot dot-red"></div>
-                    <div class="event-details">
-                        <h4>Regional Roundnet Championship</h4>
-                        <div>Oct 24, 2024</div>
-                    </div>
-                </div>
-                <div class="event-stats">
-                    <div class="progress-wrapper">
-                        <div class="progress-text">64/64</div>
-                        <div class="progress-label">Registrations</div>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 100%"></div>
-                    </div>
-                    <button class="btn-manage">Manage</button>
-                </div>
-            </div>
 
-            <div class="event-item">
-                <div class="event-info">
-                    <div class="status-dot dot-green"></div>
-                    <div class="event-details">
-                        <h4>Underwater Rugby Open</h4>
-                        <div>Nov 02, 2024</div>
-                    </div>
-                </div>
-                <div class="event-stats">
-                    <div class="progress-wrapper">
-                        <div class="progress-text">42/100</div>
-                        <div class="progress-label">Registrations</div>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 42%"></div>
-                    </div>
-                    <button class="btn-manage">Manage</button>
-                </div>
-            </div>
-
-            <div class="event-item">
-                <div class="event-info">
-                    <div class="status-dot dot-green"></div>
-                    <div class="event-details">
-                        <h4>Unicycle Polo Charity Match</h4>
-                        <div>Nov 15, 2024</div>
-                    </div>
-                </div>
-                <div class="event-stats">
-                    <div class="progress-wrapper">
-                        <div class="progress-text">12/20</div>
-                        <div class="progress-label">Registrations</div>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 60%"></div>
-                    </div>
-                    <button class="btn-manage">Manage</button>
-                </div>
-            </div>
-
+        <div class="events-list" id="events-container">
+            <div style="text-align:center; padding: 20px; color:#71717a">Loading events...</div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, collection, query, where, getDocs, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCo8N5TfHzWq5PXELyTXoHb_SrzikweBwo",
@@ -567,38 +715,120 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getFirestore(app);
 
         const loginBtn = document.querySelector('.btn-login');
-        const signupBtn = document.querySelector('.btn-signup'); // Dashboard uses hyphenated class names
+        const signupBtn = document.querySelector('.btn-signup');
 
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
-                // Logged In
+                // Verify Role
+                try {
+                    const userDoc = await getDoc(doc(db, 'users', user.uid));
+                    if (userDoc.exists()) {
+                        const userData = userDoc.data();
+                        if (userData.role !== 'organizer') {
+                            alert("Access Denied: Only organizers can view the dashboard.");
+                            window.location.href = 'index.html';
+                            return;
+                        }
+                    } else {
+                        alert("Access Denied: Organizer profile not found.");
+                        window.location.href = 'index.html';
+                        return;
+                    }
+                } catch (error) {
+                    console.error("Error verifying role:", error);
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                // Logged In (Authorized Organizer)
                 const name = user.displayName ? user.displayName.split(' ')[0] : user.email.split('@')[0];
-                if(loginBtn) {
+                if (loginBtn) {
                     loginBtn.textContent = `Hi, ${name}`;
                     loginBtn.onclick = null; // Prevent going to login page
                 }
-                if(signupBtn) signupBtn.textContent = "Sign Out";
-            } else {
-                // Logged Out
-                if(loginBtn) {
-                    loginBtn.textContent = "Log in";
-                    loginBtn.onclick = () => window.location.href = 'login.html';
+                if (signupBtn) {
+                    signupBtn.textContent = "Sign Out";
+                    signupBtn.onclick = () => {
+                        signOut(auth).then(() => window.location.href = 'index.html');
+                    };
                 }
-                if(signupBtn) signupBtn.textContent = "Sign Up";
+
+                // Load Dashboard Data
+                loadDashboardData(user.uid);
+            } else {
+                // Not Logged In
+                alert("Please log in as an organizer to view the dashboard.");
+                window.location.href = 'index.html';
             }
         });
 
-        if(signupBtn) {
-            signupBtn.addEventListener('click', () => {
-                const user = auth.currentUser;
-                if (user) {
-                    signOut(auth).then(() => window.location.reload());
-                } else {
-                    window.location.href = 'login.html?mode=signup';
-                }
-            });
+        function loadDashboardData(uid) {
+            try {
+                const eventsRef = collection(db, 'events');
+                const q = query(eventsRef, where('organizerId', '==', uid));
+
+                // Use onSnapshot for real-time updates
+                onSnapshot(q, (snapshot) => {
+                    let totalEvents = 0;
+                    let totalParticipants = 0;
+                    let totalRevenue = 0;
+                    let totalClicks = 0;
+
+                    const eventsContainer = document.getElementById('events-container');
+                    eventsContainer.innerHTML = '';
+
+                    if (snapshot.empty) {
+                        eventsContainer.innerHTML = '<div style="text-align:center; padding: 20px; color:#71717a">No events found. Click "Create New Event" to get started!</div>';
+                    }
+
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        totalEvents += 1;
+                        totalParticipants += (data.participants || 0);
+                        totalRevenue += (data.revenue || 0);
+                        totalClicks += (data.clicks || 0);
+
+                        const dateStr = data.createdAt ? new Date(data.createdAt.toDate()).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) : 'Unknown Date';
+
+                        const eventHTML = `
+                            <div class="event-item">
+                                <div class="event-info">
+                                    <div class="status-dot dot-green"></div>
+                                    <div class="event-details">
+                                        <h4>${data.name || data.title || 'Untitled Event'}</h4>
+                                        <div>Created ${dateStr}</div>
+                                    </div>
+                                </div>
+                                <div class="event-stats">
+                                    <div class="progress-wrapper">
+                                        <div class="progress-text">${data.participants || 0}</div>
+                                        <div class="progress-label">Participants</div>
+                                    </div>
+                                    <div style="margin: 0 15px; text-align:center;">
+                                        <div class="progress-text" style="color:#a1a1aa; font-weight:600;">${data.clicks || 0}</div>
+                                        <div class="progress-label">Clicks</div>
+                                    </div>
+                                    <button class="btn-manage" onclick="window.location.href='event-details.html?id=${doc.id}'">View</button>
+                                </div>
+                            </div>
+                        `;
+                        eventsContainer.insertAdjacentHTML('beforeend', eventHTML);
+                    });
+
+                    // Update Stats in real-time
+                    document.getElementById('stat-events').innerText = totalEvents;
+                    document.getElementById('stat-participants').innerText = totalParticipants;
+                    document.getElementById('stat-revenue').innerText = '$' + totalRevenue;
+                    document.getElementById('stat-clicks').innerText = totalClicks;
+                });
+
+            } catch (error) {
+                console.error("Error loading dashboard data:", error);
+                document.getElementById('events-container').innerHTML = '<div style="color: #ef4444; padding: 20px;">Failed to load events.</div>';
+            }
         }
     </script>
 
@@ -607,7 +837,7 @@
         function toggleModal() {
             const modal = document.getElementById('create-modal');
             const btn = document.getElementById('create-btn');
-            
+
             if (modal.classList.contains('hidden')) {
                 modal.classList.remove('hidden');
                 btn.innerText = 'Cancel';
@@ -622,8 +852,8 @@
             const title = document.getElementById('event-title').value;
             const sport = document.getElementById('event-sport').value;
             const btn = document.getElementById('magic-fill-btn');
-            
-            if(title && sport) {
+
+            if (title && sport) {
                 btn.disabled = false;
             } else {
                 btn.disabled = true;
@@ -646,7 +876,7 @@
             setTimeout(() => {
                 // Mock Response
                 textarea.value = `Join us for the ultimate ${title}! Competitors from across the region will gather to showcase their skills in ${sport}. This event features a round-robin group stage followed by single-elimination playoffs. \n\nEntry fee includes a jersey and lunch. Spectators welcome!`;
-                
+
                 // Reset State
                 icon.innerText = '[Sparkles]';
                 btn.disabled = false;
@@ -654,4 +884,5 @@
         }
     </script>
 </body>
+
 </html>

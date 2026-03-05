@@ -735,11 +735,16 @@
                     <div class="search-icon-wrapper">
                         <img src="./icons/search.svg" alt="Search">
                     </div>
-                    <input type="text" placeholder="Search events (e.g., 'Pickleball in Chicago')"
-                        class="search-input" />
-                    <button class="btn-find">
+                    <input type="text" id="event-search-input"
+                        placeholder="Search events (e.g., 'Pickleball in Chicago')" class="search-input" />
+                    <button id="event-search-btn" class="btn-find">
                         Find
                     </button>
+                </div>
+                <!-- Dropdown for real-time search results -->
+                <div id="search-results-container"
+                    style="display: none; position: absolute; top: 100%; left: 0; width: 100%; background: #18181b; border: 1px solid #27272a; border-radius: 0.75rem; z-index: 20; max-height: 300px; overflow-y: auto; margin-top: 0.5rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);">
+                    <!-- Results injected here -->
                 </div>
             </div>
 
@@ -904,62 +909,14 @@
         </footer>
     </main>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyCo8N5TfHzWq5PXELyTXoHb_SrzikweBwo",
-            authDomain: "minor-project-a5077.firebaseapp.com",
-            projectId: "minor-project-a5077",
-            storageBucket: "minor-project-a5077.firebasestorage.app",
-            messagingSenderId: "525600101149",
-            appId: "1:525600101149:web:f98570a47b3e6e582047f4"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-
-        const loginBtn = document.querySelector('.btn-login');
-        const signupBtn = document.querySelector('.btn-signup'); // Dashboard uses hyphenated class names
-
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                // Logged In
-                const name = user.displayName ? user.displayName.split(' ')[0] : user.email.split('@')[0];
-                if(loginBtn) {
-                    loginBtn.textContent = `Hi, ${name}`;
-                    loginBtn.onclick = null; // Prevent going to login page
-                }
-                if(signupBtn) signupBtn.textContent = "Sign Out";
-            } else {
-                // Logged Out
-                if(loginBtn) {
-                    loginBtn.textContent = "Log in";
-                    loginBtn.onclick = () => window.location.href = 'login.html';
-                }
-                if(signupBtn) signupBtn.textContent = "Sign Up";
-            }
-        });
-
-        if(signupBtn) {
-            signupBtn.addEventListener('click', () => {
-                const user = auth.currentUser;
-                if (user) {
-                    signOut(auth).then(() => window.location.reload());
-                } else {
-                    window.location.href = 'login.html?mode=signup';
-                }
-            });
-        }
-    </script>
 
     <script type="module">
         // 1. Firebase Imports
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, query, where, getDocs, limit, orderBy, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // 2. Your Firebase Configuration (Matches your project: minor-project-a5077)
+        // 2. Your Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyCo8N5TfHzWq5PXELyTXoHb_SrzikweBwo",
             authDomain: "minor-project-a5077.firebaseapp.com",
@@ -972,44 +929,232 @@
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getFirestore(app);
 
         // 3. Elements Selection
         const loginBtn = document.querySelector('.btn-login');
         const authBtn = document.getElementById('auth-btn');
 
         // 4. AUTH SYNC LOGIC
-        // This runs automatically whenever the user logs in or out
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // Change "Log in" to "Hi, [First Name]"
                 const name = user.displayName ? user.displayName.split(' ')[0] : user.email.split('@')[0];
                 loginBtn.textContent = `Hi, ${name}`;
-
-                // Change "Sign Up" button to "Sign Out"
                 authBtn.textContent = "Sign Out";
-                
-                // Update click behavior to Sign Out
+
                 authBtn.onclick = () => {
                     signOut(auth).then(() => {
-                        alert("Signed out successfully!");
-                        window.location.reload(); 
+                        window.location.reload();
                     }).catch((error) => console.error("Sign out error:", error));
                 };
 
-                // Optional: Make Login button lead to a profile page instead
                 loginBtn.onclick = () => { window.location.href = 'community.html'; };
             } else {
-                // Default logged-out state
                 loginBtn.textContent = "Log in";
                 authBtn.textContent = "Sign Up";
-                
-                // Ensure buttons lead to the login page
                 loginBtn.onclick = () => { window.location.href = 'login.html'; };
                 authBtn.onclick = () => { window.location.href = 'login.html?mode=signup'; };
             }
         });
+
+        // 5. SEARCH LOGIC
+        const searchInput = document.getElementById('event-search-input');
+        const searchBtn = document.getElementById('event-search-btn');
+        const resultsContainer = document.getElementById('search-results-container');
+
+        // Debounce function to limit database reads
+        function debounce(func, delay) {
+            let timeoutId;
+            return function (...args) {
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => {
+                    func.apply(this, args);
+                }, delay);
+            };
+        }
+
+        const EVENT_SOURCES = [
+            { type: 'organizer', collectionPath: 'events', sourceName: 'Organizer' },
+            { type: 'cycle_event', collectionPath: 'scraped_events/cycle_event/audaxindia', sourceName: 'Audax India' },
+            { type: 'cycle_event', collectionPath: 'scraped_events/cycle_event/hclcyclothon', sourceName: 'HCL Cyclothon' },
+            { type: 'run_event', collectionPath: 'scraped_events/run_event/champendurance', sourceName: 'Champ Endurance' },
+            { type: 'sports_event', collectionPath: 'scraped_events/sports_event/bookmyshow', sourceName: 'BookMyShow' }
+        ];
+
+        let cachedEvents = null;
+        let isFetching = false;
+
+        async function fetchAllEvents() {
+            if (cachedEvents) return cachedEvents;
+            if (isFetching) {
+                while (isFetching) {
+                    await new Promise(r => setTimeout(r, 100));
+                }
+                return cachedEvents;
+            }
+
+            isFetching = true;
+            try {
+                const promises = EVENT_SOURCES.map(async (source) => {
+                    const colRef = collection(db, source.collectionPath);
+                    const snapshot = await getDocs(colRef);
+                    return snapshot.docs.map(doc => {
+                        const data = doc.data();
+
+                        let title = "";
+                        if (source.type === 'organizer') {
+                            title = data.name || "Untitled Event";
+                        } else {
+                            let rawTitle = data.club;
+                            if (!rawTitle || rawTitle === "Not Available") {
+                                if (source.type === 'cycle_event') title = "Cycling Event";
+                                else if (source.type === 'run_event') title = "Running Event";
+                                else title = "Sports Event";
+                            } else {
+                                title = rawTitle.split(' ').slice(0, 4).join(' '); // Fix "17 Dec" bugs
+                            }
+                        }
+
+                        let sport = source.type === 'organizer' ? data.sport : source.sourceName;
+                        let locationStr = "Location TBD";
+
+                        if (source.type === 'organizer') {
+                            let parts = [];
+                            if (data.city) parts.push(data.city);
+                            if (data.state) parts.push(data.state);
+                            if (parts.length > 0) locationStr = parts.join(', ');
+                        } else {
+                            locationStr = data.location || "Location TBD";
+                        }
+
+                        return {
+                            id: data.url || doc.id,
+                            title: title,
+                            sport: sport,
+                            location: locationStr,
+                            rawType: source.type,
+                            url: source.type !== 'organizer' ? data.url : `event-details.html?id=${doc.id}`
+                        };
+                    });
+                });
+
+                const results = await Promise.all(promises);
+                cachedEvents = results.flat();
+            } catch (error) {
+                console.error("Error fetching events:", error);
+                cachedEvents = [];
+            }
+            isFetching = false;
+            return cachedEvents;
+        }
+
+        searchInput.addEventListener('focus', () => {
+            if (!cachedEvents && !isFetching) {
+                fetchAllEvents();
+            }
+        });
+
+        async function performSearch(searchTerm) {
+            if (!searchTerm.trim()) {
+                resultsContainer.style.display = 'none';
+                resultsContainer.innerHTML = '';
+                return;
+            }
+
+            if (!cachedEvents) {
+                resultsContainer.innerHTML = '<div style="padding: 12px 16px; color: #a1a1aa; font-size: 0.875rem;">Loading events...</div>';
+                resultsContainer.style.display = 'block';
+            }
+
+            const events = await fetchAllEvents();
+
+            const lowerTerm = searchTerm.toLowerCase();
+            const matchedEvents = events.filter(e =>
+                e.title.toLowerCase().includes(lowerTerm) ||
+                (e.sport && e.sport.toLowerCase().includes(lowerTerm)) ||
+                (e.location && e.location.toLowerCase().includes(lowerTerm))
+            ).slice(0, 5);
+
+            resultsContainer.innerHTML = '';
+
+            if (matchedEvents.length === 0) {
+                resultsContainer.innerHTML = '<div style="padding: 12px 16px; color: #a1a1aa; font-size: 0.875rem;">No events found matching your query.</div>';
+            } else {
+                matchedEvents.forEach(eventData => {
+                    const resultItem = document.createElement('div');
+                    resultItem.style.padding = '12px 16px';
+                    resultItem.style.borderBottom = '1px solid #27272a';
+                    resultItem.style.cursor = 'pointer';
+                    resultItem.style.color = '#fafafa';
+                    resultItem.style.fontSize = '0.875rem';
+                    resultItem.style.display = 'flex';
+                    resultItem.style.justifyContent = 'space-between';
+
+                    resultItem.onmouseover = () => resultItem.style.backgroundColor = '#27272a';
+                    resultItem.onmouseout = () => resultItem.style.backgroundColor = 'transparent';
+
+                    const leftSide = document.createElement('div');
+                    leftSide.innerHTML = `<strong style="color: white">${eventData.title}</strong> - <span style="color: #a1a1aa">${eventData.sport || 'Misc'}</span>`;
+
+                    const rightSide = document.createElement('div');
+                    rightSide.style.color = '#71717a';
+                    rightSide.innerText = eventData.location;
+
+                    resultItem.appendChild(leftSide);
+                    resultItem.appendChild(rightSide);
+
+                    resultItem.addEventListener('click', async () => {
+                        // Analytics Click Tracking for Organizers
+                        if (eventData.rawType === 'organizer') {
+                            let clickedEvents = [];
+                            try {
+                                clickedEvents = JSON.parse(localStorage.getItem('nicheSportUserClicks')) || [];
+                            } catch (e) {
+                                clickedEvents = [];
+                            }
+
+                            if (!clickedEvents.includes(eventData.id)) {
+                                try {
+                                    const eventRef = doc(db, 'events', eventData.id);
+                                    await updateDoc(eventRef, {
+                                        clicks: increment(1)
+                                    });
+                                    clickedEvents.push(eventData.id);
+                                    localStorage.setItem('nicheSportUserClicks', JSON.stringify(clickedEvents));
+                                } catch (error) {
+                                    console.error("Error tracking click:", error);
+                                }
+                            }
+                        }
+
+                        // Proceed to URL
+                        window.location.href = eventData.url || '#';
+                    });
+
+                    resultsContainer.appendChild(resultItem);
+                });
+            }
+
+            resultsContainer.style.display = 'block';
+        }
+
+        searchInput.addEventListener('input', debounce((e) => {
+            performSearch(e.target.value);
+        }, 150));
+
+        searchBtn.addEventListener('click', () => {
+            performSearch(searchInput.value);
+        });
+
+        // Hide dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!searchInput.contains(e.target) && !searchBtn.contains(e.target) && !resultsContainer.contains(e.target)) {
+                resultsContainer.style.display = 'none';
+            }
+        });
     </script>
 </body>
+
 </html>
 </body>
 
