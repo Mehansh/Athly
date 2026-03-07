@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, getDocs, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs, doc, updateDoc, increment, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 // 1. ADD AUTH IMPORTS
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
@@ -167,15 +167,24 @@ function setupAuth() {
     const signupBtn = document.querySelector('.btnSignup');
 
     // Monitor Login State
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
         if (user) {
             // User is signed in
             const name = user.displayName ? user.displayName.split(' ')[0] : user.email.split('@')[0];
             if (loginBtn) loginBtn.textContent = `Hi, ${name}`;
             if (signupBtn) signupBtn.textContent = "Sign Out";
 
+            try {
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                if (userDoc.exists()) {
+                    const data = userDoc.data();
+                    const finalName = data.username || data.displayName || data.fullName || name;
+                    if (loginBtn) loginBtn.textContent = `Hi, ${finalName.split(' ')[0]}`;
+                }
+            } catch (e) { console.error('Error fetching nav user data', e); }
+
             // Optional: Disable login click if already logged in
-            if (loginBtn) loginBtn.onclick = () => { /* Do nothing or go to profile */ };
+            if (loginBtn) loginBtn.onclick = () => { window.location.href = 'profile.html'; };
         } else {
             // User is signed out
             if (loginBtn) loginBtn.textContent = "Log in";

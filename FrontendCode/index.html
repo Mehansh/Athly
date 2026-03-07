@@ -685,6 +685,7 @@
                 <a href="events.html">Discover</a>
                 <a href="community.html">Community</a>
                 <a href="dashboard.html">Organizers</a>
+                <a href="profile.html">Profile</a>
             </div>
 
             <div class="nav-actions">
@@ -914,7 +915,7 @@
         // 1. Firebase Imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, query, where, getDocs, limit, orderBy, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, query, where, getDocs, limit, orderBy, doc, updateDoc, increment, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         // 2. Your Firebase Configuration
         const firebaseConfig = {
@@ -936,11 +937,20 @@
         const authBtn = document.getElementById('auth-btn');
 
         // 4. AUTH SYNC LOGIC
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
                 const name = user.displayName ? user.displayName.split(' ')[0] : user.email.split('@')[0];
                 loginBtn.textContent = `Hi, ${name}`;
                 authBtn.textContent = "Sign Out";
+
+                try {
+                    const userDoc = await getDoc(doc(db, 'users', user.uid));
+                    if (userDoc.exists()) {
+                        const data = userDoc.data();
+                        const finalName = data.username || data.displayName || data.fullName || name;
+                        loginBtn.textContent = `Hi, ${finalName.split(' ')[0]}`;
+                    }
+                } catch (e) { console.error('Error fetching user data', e); }
 
                 authBtn.onclick = () => {
                     signOut(auth).then(() => {
@@ -948,7 +958,7 @@
                     }).catch((error) => console.error("Sign out error:", error));
                 };
 
-                loginBtn.onclick = () => { window.location.href = 'community.html'; };
+                loginBtn.onclick = () => { window.location.href = 'profile.html'; };
             } else {
                 loginBtn.textContent = "Log in";
                 authBtn.textContent = "Sign Up";

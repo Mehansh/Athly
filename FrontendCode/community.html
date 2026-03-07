@@ -558,6 +558,7 @@
                     <div class="navItem_active">Community</div>
                 </a>
                 <a href="dashboard.html">Organizers</a>
+                <a href="profile.html">Profile</a>
             </div>
 
             <div class="nav-actions">
@@ -716,18 +717,35 @@
         let currentTab = 'new'; // 'trending', 'new', 'myposts'
         let unsubscribeChat = null; // To stop listening to previous thread's chat
         let unsubscribeThreads = null;
+        let activeDisplayName = null; // Store user's preferred name
 
         // 4. Auth Management
         const authBtn = document.getElementById('auth-btn');
 
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
                 const name = user.displayName ? user.displayName.split(' ')[0] : user.email.split('@')[0];
                 loginBtn.textContent = `Hi, ${name}`;
                 authBtn.textContent = "Sign Out";
+
+                try {
+                    const userDoc = await getDoc(doc(db, 'users', user.uid));
+                    if (userDoc.exists()) {
+                        const data = userDoc.data();
+                        const finalName = data.username || data.displayName || data.fullName || name;
+                        activeDisplayName = finalName.split(' ')[0];
+                        loginBtn.textContent = `Hi, ${activeDisplayName}`;
+                    } else {
+                        activeDisplayName = name;
+                    }
+                } catch (e) {
+                    console.error('Error fetching nav user data', e);
+                    activeDisplayName = name;
+                }
             } else {
                 currentUser = null;
+                activeDisplayName = null;
                 loginBtn.textContent = "Log in";
                 authBtn.textContent = "Sign Up";
             }
@@ -745,8 +763,8 @@
         }
 
         loginBtn.addEventListener('click', () => {
-            // If already logged in, maybe go to profile? For now, just login ensures sign in.
             if (!currentUser) window.location.href = 'login.html';
+            else window.location.href = 'profile.html';
         });
 
         authBtn.addEventListener('click', () => {
@@ -950,7 +968,7 @@
                 try {
                     await addDoc(collection(db, "threads"), {
                         title: title,
-                        author: currentUser.displayName || currentUser.email.split('@')[0],
+                        author: activeDisplayName || currentUser.displayName || currentUser.email.split('@')[0],
                         authorUid: currentUser.uid,
                         tags: sportTag ? [sportTag] : ['General'],
                         createdAt: serverTimestamp(),
@@ -1053,7 +1071,7 @@
             try {
                 await addDoc(collection(db, "messages"), {
                     text: text,
-                    userName: currentUser.displayName || currentUser.email.split('@')[0],
+                    userName: activeDisplayName || currentUser.displayName || currentUser.email.split('@')[0],
                     uid: currentUser.uid,
                     threadId: activeThreadId,
                     createdAt: serverTimestamp()

@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Athly</title>
+    <meta name="description" content="Manage your Athly athlete profile, track your events and activity metrics.">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-body: #09090b;
+            --bg-card: #0c0c0e;
+            --bg-card-hover: #18181b;
+            --border-color: #27272a;
+            --border-light: #3f3f46;
+            --text-main: #fafafa;
+            --text-sec: #a1a1aa;
+            --text-muted: #71717a;
+            --text-dim: #52525b;
+            --accent-purple: #a855f7;
+            --accent-blue: #60a5fa;
+            --accent-green: #4ade80;
+            --accent-orange: #fb923c;
+            --accent-pink: #f472b6;
+            --glow-purple: rgba(168, 85, 247, 0.15);
+            --glow-blue: rgba(96, 165, 250, 0.15);
+            --font-main: 'Inter', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            font-family: var(--font-main);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            font-family: inherit;
+        }
+
+        /* --- Navbar --- */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            background-color: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-color);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+            width: 100%;
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 1.125rem;
+        }
+
+        .logo-box {
+            width: 32px;
+            height: 32px;
+            background-color: white;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-dot {
+            width: 12px;
+            height: 12px;
+            background-color: black;
+            border-radius: 50%;
+        }
+
+        .nav-links {
+            display: none;
+            gap: 32px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-sec);
+            position: absolute;
+            margin-left: 475px;
+        }
+
+        .nav-links a:hover {
+            color: white;
+        }
+
+        .navItem_active {
+            color: white;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .btn-login {
+            background: none;
+            color: var(--text-sec);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .btn-login:hover {
+            color: white;
+        }
+
+        .btn-signup {
+            background-color: var(--border-color);
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 5px;
+            transition: background-color 0.15s, box-shadow 0.2s;
+        }
+
+        .btn-signup:hover {
+            box-shadow: 0 0 0 2px #4f46e5, 0 0 15px rgba(79, 70, 229, 0.3);
+        }
+
+        /* --- Main Content --- */
+        .main-wrapper {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 100px 24px 80px 24px;
+        }
+
+        /* --- Profile Header --- */
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .avatar-wrapper {
+            position: relative;
+        }
+
+        .avatar-circle {
+            width: 88px;
+            height: 88px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 800;
+            color: white;
+            text-transform: uppercase;
+            box-shadow: 0 0 30px var(--glow-purple), 0 0 60px rgba(96, 165, 250, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .avatar-circle:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 40px var(--glow-purple), 0 0 80px rgba(96, 165, 250, 0.15);
+        }
+
+        .avatar-badge {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 22px;
+            height: 22px;
+            background-color: var(--accent-green);
+            border: 3px solid var(--bg-body);
+            border-radius: 50%;
+        }
+
+        .profile-header-info h1 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .profile-header-info p {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .profile-header-info .role-badge {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 3px 10px;
+            border-radius: 9999px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background: var(--glow-purple);
+            color: var(--accent-purple);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+        }
+
+        /* --- Section Title --- */
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title .icon-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background-color: var(--bg-card-hover);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+        }
+
+        /* --- Metrics Grid --- */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 48px;
+        }
+
+        .metric-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-purple), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .metric-card:hover {
+            border-color: var(--border-light);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .metric-card:hover::before {
+            opacity: 1;
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .metric-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 4px;
+        }
+
+        .metric-sub {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        .metric-icon {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            font-size: 1.25rem;
+            opacity: 0.5;
+        }
+
+        /* Engagement level color coding */
+        .engagement-newcomer {
+            color: var(--text-sec);
+        }
+
+        .engagement-active {
+            color: var(--accent-blue);
+        }
+
+        .engagement-pro {
+            color: var(--accent-purple);
+        }
+
+        .engagement-legend {
+            color: var(--accent-orange);
+        }
+
+        /* --- Profile Completion Bar --- */
+        .completion-bar-wrapper {
+            margin-bottom: 48px;
+        }
+
+        .completion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .completion-header span {
+            font-size: 0.875rem;
+            color: var(--text-sec);
+        }
+
+        .completion-pct {
+            font-weight: 700;
+            color: white;
+        }
+
+        .completion-track {
+            width: 100%;
+            height: 8px;
+            background-color: var(--border-color);
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+
+        .completion-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-purple), var(--accent-blue));
+            border-radius: 9999px;
+            transition: width 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 0 12px var(--glow-purple);
+        }
+
+        /* --- Form Card --- */
+        .form-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 48px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-sec);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            background-color: var(--bg-body);
+            border: 1px solid var(--border-color);
+            color: white;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+
+        .form-input:disabled,
+        .form-input[readonly] {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .form-input:focus:not(:disabled):not([readonly]),
+        .form-select:focus,
+        .form-textarea:focus {
+            border-color: var(--accent-purple);
+            box-shadow: 0 0 0 3px var(--glow-purple);
+        }
+
+        .form-select {
+            color-scheme: dark;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .btn-save {
+            display: block;
+            width: 100%;
+            background: linear-gradient(135deg, #a855f7, #60a5fa);
+            color: white;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 24px;
+            transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-save::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-save:hover::before {
+            left: 100%;
+        }
+
+        .btn-save:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 25px rgba(168, 85, 247, 0.3), 0 4px 10px rgba(96, 165, 250, 0.2);
+        }
+
+        .btn-save:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* --- Alert / Toast --- */
+        .toast {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            padding: 14px 24px;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            z-index: 1000;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast-success {
+            background: rgba(74, 222, 128, 0.15);
+            color: var(--accent-green);
+            border: 1px solid rgba(74, 222, 128, 0.3);
+            backdrop-filter: blur(12px);
+        }
+
+        .toast-error {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            backdrop-filter: blur(12px);
+        }
+
+        /* --- Loading Skeleton --- */
+        .skeleton {
+            background: linear-gradient(90deg, var(--border-color) 25%, var(--border-light) 50%, var(--border-color) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 6px;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        /* --- Responsive --- */
+        @media (min-width: 640px) {
+            .form-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .form-group.full-width {
+                grid-column: span 2;
+            }
+
+            .metrics-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (min-width: 768px) {
+            .nav-links {
+                display: flex;
+            }
+
+            .metrics-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 639px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-in {
+            animation: fadeInUp 0.5s ease-out both;
+        }
+
+        .delay-1 {
+            animation-delay: 0.1s;
+        }
+
+        .delay-2 {
+            animation-delay: 0.2s;
+        }
+
+        .delay-3 {
+            animation-delay: 0.3s;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Toast notification -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container nav-content">
+            <a href="index.html" class="logo">
+                <div class="logo-box">
+                    <div class="logo-dot"></div>
+                </div>
+                <span>Athly</span>
+            </a>
+
+            <div class="nav-links">
+                <a href="events.html">Discover</a>
+                <a href="community.html">Community</a>
+                <a href="dashboard.html">Organizers</a>
+                <a href="profile.html">
+                    <div class="navItem_active">Profile</div>
+                </a>
+            </div>
+
+            <div class="nav-actions">
+                <button class="btn-login" onclick="window.location.href='login.html'">Log in</button>
+                <button class="btn-signup" id="auth-btn" onclick="window.location.href='login.html?mode=signup'">Sign
+                    Up</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-wrapper">
+
+        <!-- Profile Header -->
+        <div class="profile-header animate-in" id="profile-header">
+            <div class="avatar-wrapper">
+                <div class="avatar-circle" id="avatar-initials">--</div>
+                <div class="avatar-badge"></div>
+            </div>
+            <div class="profile-header-info">
+                <h1 id="display-name">Loading...</h1>
+                <p id="display-email">—</p>
+                <span class="role-badge" id="display-role">—</span>
+            </div>
+        </div>
+
+        <!-- Profile Completion -->
+        <div class="completion-bar-wrapper animate-in delay-1" id="completion-section">
+            <div class="completion-header">
+                <span>Profile Completion</span>
+                <span class="completion-pct" id="completion-pct">0%</span>
+            </div>
+            <div class="completion-track">
+                <div class="completion-fill" id="completion-fill" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- Auto-Tracked Metrics -->
+        <div class="animate-in delay-1">
+            <h2 class="section-title">
+                <span class="icon-circle">📊</span>
+                Your Activity
+            </h2>
+        </div>
+
+        <div class="metrics-grid animate-in delay-2" id="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-icon">🏅</div>
+                <div class="metric-label">Events Joined</div>
+                <div class="metric-value" id="metric-events">—</div>
+                <div class="metric-sub">Total registrations</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon">⚔️</div>
+                <div class="metric-label">Matches Played</div>
+                <div class="metric-value" id="metric-matches">—</div>
+                <div class="metric-sub">Based on events</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon">⭐</div>
+                <div class="metric-label">Reputation Score</div>
+                <div class="metric-value" id="metric-reputation">—</div>
+                <div class="metric-sub">Events + community</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon">⚡</div>
+                <div class="metric-label">Activity Score</div>
+                <div class="metric-value" id="metric-activity">—</div>
+                <div class="metric-sub">Overall engagement</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon">🔥</div>
+                <div class="metric-label">Engagement Level</div>
+                <div class="metric-value" id="metric-engagement">—</div>
+                <div class="metric-sub" id="metric-engagement-sub">Keep going!</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon">✅</div>
+                <div class="metric-label">Profile Completion</div>
+                <div class="metric-value" id="metric-completion">—</div>
+                <div class="metric-sub">Fill all fields to reach 100%</div>
+            </div>
+        </div>
+
+        <!-- Edit Profile Form -->
+        <div class="animate-in delay-3">
+            <h2 class="section-title">
+                <span class="icon-circle">✏️</span>
+                Edit Profile
+            </h2>
+        </div>
+
+        <div class="form-card animate-in delay-3">
+            <form id="profile-form">
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label class="form-label" for="pf-fullname">Full Name</label>
+                        <input type="text" id="pf-fullname" class="form-input" placeholder="John Doe" disabled readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="pf-username">Username / Handle</label>
+                        <input type="text" id="pf-username" class="form-input" placeholder="@johndoe">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="pf-dob">Date of Birth</label>
+                        <input type="date" id="pf-dob" class="form-input" style="color-scheme:dark;">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="pf-gender">Gender</label>
+                        <select id="pf-gender" class="form-select">
+                            <option value="" disabled selected>Select</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Non-binary">Non-binary</option>
+                            <option value="Prefer not to say">Prefer not to say</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="pf-city">City / Location</label>
+                        <input type="text" id="pf-city" class="form-input" placeholder="Mumbai, India">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="pf-email">Contact Email</label>
+                        <input type="email" id="pf-email" class="form-input" placeholder="john@example.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="pf-phone">Phone (optional)</label>
+                        <input type="tel" id="pf-phone" class="form-input" placeholder="+91 98765 43210">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="pf-primary-sport">Primary Sport</label>
+                        <input type="text" id="pf-primary-sport" class="form-input" placeholder="e.g. Cycling">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="pf-secondary-sports">Secondary Sports</label>
+                        <input type="text" id="pf-secondary-sports" class="form-input"
+                            placeholder="e.g. Running, Swimming">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="pf-experience">Years of Experience</label>
+                        <input type="number" id="pf-experience" class="form-input" min="0" max="50" placeholder="3">
+                    </div>
+
+                    <div class="form-group full-width" style="grid-column: 1 / -1;">
+                        <label class="form-label" for="pf-bio">Bio / Short Description</label>
+                        <textarea id="pf-bio" class="form-textarea"
+                            placeholder="Tell us about yourself, your athletic journey, and what drives you..."></textarea>
+                    </div>
+                </div>
+
+                <button type="submit" id="btn-save" class="btn-save">Save Profile</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import {
+            getFirestore, doc, getDoc, setDoc,
+            collection, query, where, getDocs, onSnapshot
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCo8N5TfHzWq5PXELyTXoHb_SrzikweBwo",
+            authDomain: "minor-project-a5077.firebaseapp.com",
+            projectId: "minor-project-a5077",
+            storageBucket: "minor-project-a5077.firebasestorage.app",
+            messagingSenderId: "525600101149",
+            appId: "1:525600101149:web:f98570a47b3e6e582047f4"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // --- Elements ---
+        const loginBtn = document.querySelector('.btn-login');
+        const authBtn = document.getElementById('auth-btn');
+        const profileForm = document.getElementById('profile-form');
+        const btnSave = document.getElementById('btn-save');
+
+        let currentUser = null;
+
+        // --- Toast ---
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast toast-${type} show`;
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // --- Profile Fields Config ---
+        const PROFILE_FIELDS = [
+            { id: 'pf-fullname', key: 'displayName' },
+            { id: 'pf-username', key: 'username' },
+            { id: 'pf-dob', key: 'dateOfBirth' },
+            { id: 'pf-gender', key: 'gender' },
+            { id: 'pf-city', key: 'city' },
+            { id: 'pf-email', key: 'contactEmail' },
+            { id: 'pf-phone', key: 'phone' },
+            { id: 'pf-primary-sport', key: 'primarySport' },
+            { id: 'pf-secondary-sports', key: 'secondarySports' },
+            { id: 'pf-experience', key: 'yearsOfExperience' },
+            { id: 'pf-bio', key: 'bio' }
+        ];
+
+        // --- Compute Profile Completion % ---
+        function computeCompletion() {
+            let filled = 0;
+            PROFILE_FIELDS.forEach(f => {
+                const val = document.getElementById(f.id).value.trim();
+                if (val) filled++;
+            });
+            return Math.round((filled / PROFILE_FIELDS.length) * 100);
+        }
+
+        function updateCompletionUI() {
+            const pct = computeCompletion();
+            document.getElementById('completion-pct').textContent = pct + '%';
+            document.getElementById('completion-fill').style.width = pct + '%';
+            document.getElementById('metric-completion').textContent = pct + '%';
+        }
+
+        // Listen for input changes to update completion live
+        PROFILE_FIELDS.forEach(f => {
+            document.getElementById(f.id).addEventListener('input', updateCompletionUI);
+        });
+
+        // --- Auth ---
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                const name = user.displayName ? user.displayName.split(' ')[0] : user.email.split('@')[0];
+                loginBtn.textContent = `Hi, ${name}`; // Initial fallback before snapshot loads
+                loginBtn.onclick = () => { window.location.href = 'profile.html'; };
+
+                authBtn.textContent = "Sign Out";
+                authBtn.onclick = () => {
+                    signOut(auth).then(() => window.location.href = 'index.html');
+                };
+
+                // Check role — redirect organizers to their own profile page
+                try {
+                    const userSnap = await getDoc(doc(db, 'users', user.uid));
+                    if (userSnap.exists() && userSnap.data().role === 'organizer') {
+                        window.location.href = 'organizer-profile.html';
+                        return;
+                    }
+                } catch (e) { console.error('Role check error:', e); }
+
+                await loadProfile(user);
+                await loadMetrics(user.uid);
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+
+        // --- Load Profile from Firestore (Real-time sync for header) ---
+        let formInitialLoaded = false;
+        function loadProfile(user) {
+            try {
+                const userRef = doc(db, 'users', user.uid);
+
+                onSnapshot(userRef, (docSnap) => {
+                    const data = docSnap.exists() ? docSnap.data() : {};
+
+                    // Header updates reflect in real-time
+                    const fullName = data.displayName || data.fullName || user.displayName || user.email.split('@')[0];
+                    const displayNavName = data.username || fullName.split(' ')[0];
+
+                    document.getElementById('display-name').textContent = fullName;
+                    document.getElementById('display-email').textContent = data.contactEmail || user.email;
+                    document.getElementById('display-role').textContent = data.role || 'athlete';
+                    loginBtn.textContent = `Hi, ${displayNavName}`;
+
+                    // Avatar initials
+                    const initials = fullName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+                    document.getElementById('avatar-initials').textContent = initials;
+
+                    // Only populate form fields on first load to avoid overwriting typing
+                    if (!formInitialLoaded) {
+                        const fieldMap = {
+                            displayName: data.displayName || data.fullName || user.displayName || '',
+                            username: data.username || '',
+                            dateOfBirth: data.dateOfBirth || '',
+                            gender: data.gender || '',
+                            city: data.city || '',
+                            contactEmail: data.contactEmail || user.email || '',
+                            phone: data.phone || '',
+                            primarySport: data.primarySport || '',
+                            secondarySports: data.secondarySports || '',
+                            yearsOfExperience: data.yearsOfExperience || '',
+                            bio: data.bio || ''
+                        };
+
+                        PROFILE_FIELDS.forEach(f => {
+                            const el = document.getElementById(f.id);
+                            if (el) el.value = fieldMap[f.key] || '';
+                        });
+
+                        updateCompletionUI();
+                        formInitialLoaded = true;
+                    }
+                });
+            } catch (err) {
+                console.error('Error setting up athlete profile sync:', err);
+                showToast('Error syncing profile data', 'error');
+            }
+        }
+
+        // --- Load Auto-Tracked Metrics ---
+        async function loadMetrics(uid) {
+            try {
+                // Events joined (registrations where userId == uid)
+                const regQuery = query(collection(db, 'registrations'), where('userId', '==', uid));
+                const regSnap = await getDocs(regQuery);
+                const eventsJoined = regSnap.size;
+
+                // Threads created
+                let threadCount = 0;
+                try {
+                    const threadQuery = query(collection(db, 'threads'), where('authorUid', '==', uid));
+                    const threadSnap = await getDocs(threadQuery);
+                    threadCount = threadSnap.size;
+                } catch (e) { /* threads may not be accessible */ }
+
+                // Compute scores
+                const matchesPlayed = eventsJoined; // 1 reg = 1 match
+                const reputationScore = (eventsJoined * 10) + (threadCount * 5);
+                const activityScore = (eventsJoined * 15) + (threadCount * 8);
+
+                // Engagement level
+                let engagementLevel = 'Newcomer';
+                let engagementClass = 'engagement-newcomer';
+                let engagementSub = 'Join events to level up!';
+
+                if (activityScore >= 200) {
+                    engagementLevel = '🏆 Legend';
+                    engagementClass = 'engagement-legend';
+                    engagementSub = 'Top-tier contributor!';
+                } else if (activityScore >= 100) {
+                    engagementLevel = '💎 Pro';
+                    engagementClass = 'engagement-pro';
+                    engagementSub = 'Impressive track record';
+                } else if (activityScore >= 30) {
+                    engagementLevel = '🚀 Active';
+                    engagementClass = 'engagement-active';
+                    engagementSub = 'Keep up the momentum!';
+                }
+
+                // Update UI
+                document.getElementById('metric-events').textContent = eventsJoined;
+                document.getElementById('metric-matches').textContent = matchesPlayed;
+                document.getElementById('metric-reputation').textContent = reputationScore;
+                document.getElementById('metric-activity').textContent = activityScore;
+
+                const engEl = document.getElementById('metric-engagement');
+                engEl.textContent = engagementLevel;
+                engEl.className = 'metric-value ' + engagementClass;
+                document.getElementById('metric-engagement-sub').textContent = engagementSub;
+
+            } catch (err) {
+                console.error('Error loading metrics:', err);
+            }
+        }
+
+        // --- Save Profile ---
+        profileForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentUser) return;
+
+            btnSave.disabled = true;
+            btnSave.textContent = 'Saving...';
+
+            const profileData = {};
+            PROFILE_FIELDS.forEach(f => {
+                const val = document.getElementById(f.id).value.trim();
+                if (val) profileData[f.key] = val;
+            });
+
+            try {
+                await setDoc(doc(db, 'users', currentUser.uid), profileData, { merge: true });
+
+                // Update header immediately
+                const name = profileData.fullName || currentUser.displayName || currentUser.email.split('@')[0];
+                document.getElementById('display-name').textContent = name;
+                document.getElementById('display-email').textContent = profileData.contactEmail || currentUser.email;
+                const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+                document.getElementById('avatar-initials').textContent = initials;
+
+                updateCompletionUI();
+                showToast('Profile saved successfully! ✨');
+            } catch (err) {
+                console.error('Error saving profile:', err);
+                showToast('Failed to save profile. Try again.', 'error');
+            }
+
+            btnSave.disabled = false;
+            btnSave.textContent = 'Save Profile';
+        });
+    </script>
+</body>
+
+</html>

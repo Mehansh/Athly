@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,11 +10,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="events.css">
 </head>
+
 <body>
 
     <nav class="navbar">
         <div class="navContainer">
-            
+
             <a href="index.html" class="brandLink">
                 <div class="brandLogoBox">
                     <div class="brandLogoDot"></div>
@@ -22,26 +24,30 @@
             </a>
 
             <div class="navLinks">
-                <a href="events.html" class="navItem"><div class="navItem_active">Discover</div></a>
+                <a href="events.html" class="navItem">
+                    <div class="navItem_active">Discover</div>
+                </a>
                 <a href="community.html" class="navItem">Community</a>
                 <a href="dashboard.html" class="navItem">Organizers</a>
+                <a href="profile.html" class="navItem">Profile</a>
             </div>
 
             <div class="authGroup">
                 <button class="btnLogin" onclick="window.location.href='login.html'">Log in</button>
-                <button class="btnSignup" onclick="window.location.href='login.html?mode=signup'" id="auth-btn">Sign Up</button>
+                <button class="btnSignup" onclick="window.location.href='login.html?mode=signup'" id="auth-btn">Sign
+                    Up</button>
             </div>
 
         </div>
     </nav>
 
     <div class="mainContainer">
-        
+
         <div class="searchSection">
             <div class="searchBarWrapper">
                 <svg class="searchIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="11" cy="11" r="8"/>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
                 </svg>
                 <input type="text" placeholder="Search events (e.g., 'Pickleball in Chicago')" class="searchInput">
                 <button class="btnFind">Find</button>
@@ -119,7 +125,7 @@
                 <span class="pageArrow">&gt;</span>
             </div>
         </div>
-        
+
         <div id="ai-chat" class="collapsed">
             <button class="chat-toggle">Athly Assistant</button>
 
@@ -138,17 +144,17 @@
             </div>
         </div>
     </div>
-    
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const dropdowns = document.querySelectorAll('.sortDropdownWrapper');
 
             dropdowns.forEach(dropdown => {
                 const btn = dropdown.querySelector('.sortBtn');
-                
+
                 btn.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    
+
                     //closes other dropdowns before opening current
                     dropdowns.forEach(other => {
                         if (other !== dropdown) {
@@ -170,4 +176,5 @@
     </script>
     <script type="module" src="events.js"></script>
 </body>
+
 </html>

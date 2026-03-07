@@ -471,6 +471,7 @@
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 // Verify Role
+                let finalName = user.displayName ? user.displayName.split(' ')[0] : user.email.split('@')[0];
                 try {
                     // Import doc and getDoc if they aren't already imported (we'll add them to the import list above)
                     // We'll assume they're imported in the block below
@@ -482,6 +483,8 @@
                             window.location.href = 'index.html';
                             return;
                         }
+                        const n = userData.username || userData.displayName || userData.organizerName || userData.fullName || finalName;
+                        finalName = n.split(' ')[0];
                     } else {
                         alert("Access Denied: Organizer profile not found.");
                         window.location.href = 'index.html';
@@ -493,8 +496,7 @@
                     return;
                 }
 
-                const name = user.displayName ? user.displayName.split(' ')[0] : user.email.split('@')[0];
-                loginBtn.textContent = `Hi, ${name}`;
+                loginBtn.textContent = `Hi, ${finalName}`;
                 authBtn.textContent = "Sign Out";
 
                 authBtn.onclick = () => {

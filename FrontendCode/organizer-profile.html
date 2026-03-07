@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organizer Profile - Athly</title>
+    <meta name="description" content="Manage your Athly organizer profile, track events and participant metrics.">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-body: #09090b;
+            --bg-card: #0c0c0e;
+            --bg-card-hover: #18181b;
+            --border-color: #27272a;
+            --border-light: #3f3f46;
+            --text-main: #fafafa;
+            --text-sec: #a1a1aa;
+            --text-muted: #71717a;
+            --text-dim: #52525b;
+            --accent-purple: #a855f7;
+            --accent-blue: #60a5fa;
+            --accent-green: #4ade80;
+            --accent-orange: #fb923c;
+            --accent-indigo: #818cf8;
+            --glow-indigo: rgba(129, 140, 248, 0.15);
+            --glow-purple: rgba(168, 85, 247, 0.15);
+            --font-main: 'Inter', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            font-family: var(--font-main);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            font-family: inherit;
+        }
+
+        /* --- Navbar --- */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            background-color: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-color);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+            width: 100%;
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 1.125rem;
+        }
+
+        .logo-box {
+            width: 32px;
+            height: 32px;
+            background-color: white;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-dot {
+            width: 12px;
+            height: 12px;
+            background-color: black;
+            border-radius: 50%;
+        }
+
+        .nav-links {
+            display: none;
+            gap: 32px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-sec);
+            position: absolute;
+            margin-left: 475px;
+        }
+
+        .nav-links a:hover {
+            color: white;
+        }
+
+        .navItem_active {
+            color: white;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .btn-login {
+            background: none;
+            color: var(--text-sec);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .btn-login:hover {
+            color: white;
+        }
+
+        .btn-signup {
+            background-color: var(--border-color);
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 5px;
+            transition: background-color 0.15s, box-shadow 0.2s;
+        }
+
+        .btn-signup:hover {
+            box-shadow: 0 0 0 2px #4f46e5, 0 0 15px rgba(79, 70, 229, 0.3);
+        }
+
+        /* --- Main Content --- */
+        .main-wrapper {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 100px 24px 80px 24px;
+        }
+
+        /* --- Profile Header --- */
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .avatar-wrapper {
+            position: relative;
+        }
+
+        .avatar-circle {
+            width: 88px;
+            height: 88px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-indigo), var(--accent-purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 800;
+            color: white;
+            text-transform: uppercase;
+            box-shadow: 0 0 30px var(--glow-indigo), 0 0 60px var(--glow-purple);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .avatar-circle:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 40px var(--glow-indigo), 0 0 80px var(--glow-purple);
+        }
+
+        .avatar-badge {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 22px;
+            height: 22px;
+            background-color: var(--accent-indigo);
+            border: 3px solid var(--bg-body);
+            border-radius: 50%;
+        }
+
+        .profile-header-info h1 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .profile-header-info p {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .role-badge {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 3px 10px;
+            border-radius: 9999px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background: var(--glow-indigo);
+            color: var(--accent-indigo);
+            border: 1px solid rgba(129, 140, 248, 0.3);
+        }
+
+        /* --- Section Title --- */
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title .icon-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background-color: var(--bg-card-hover);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+        }
+
+        /* --- Metrics Grid --- */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 48px;
+        }
+
+        .metric-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-indigo), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .metric-card:hover {
+            border-color: var(--border-light);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .metric-card:hover::before {
+            opacity: 1;
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .metric-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 4px;
+        }
+
+        .metric-sub {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        .metric-icon {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            font-size: 1.25rem;
+            opacity: 0.5;
+        }
+
+        /* --- Upcoming Events List --- */
+        .events-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 48px;
+        }
+
+        .event-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+
+        .event-item:hover {
+            border-color: var(--border-light);
+            transform: translateX(4px);
+        }
+
+        .event-item-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .event-date-badge {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, rgba(129, 140, 248, 0.15), rgba(168, 85, 247, 0.15));
+            border: 1px solid rgba(129, 140, 248, 0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .event-date-badge .month {
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--accent-indigo);
+            line-height: 1;
+        }
+
+        .event-date-badge .day {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: white;
+            line-height: 1.1;
+        }
+
+        .event-item-info h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 2px;
+        }
+
+        .event-item-info span {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        .event-item-right {
+            text-align: right;
+        }
+
+        .event-item-right .participants {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-sec);
+        }
+
+        .event-item-right .label {
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+        }
+
+        .btn-view-event {
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border: 1px solid var(--border-color);
+            color: white;
+            background: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-view-event:hover {
+            background-color: var(--border-color);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 32px;
+            color: var(--text-dim);
+            font-size: 0.875rem;
+        }
+
+        /* --- Form Card --- */
+        .form-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 48px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-sec);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .form-input,
+        .form-textarea {
+            background-color: var(--bg-body);
+            border: 1px solid var(--border-color);
+            color: white;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+
+        .form-input:focus,
+        .form-textarea:focus {
+            border-color: var(--accent-indigo);
+            box-shadow: 0 0 0 3px var(--glow-indigo);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn-save {
+            display: block;
+            width: 100%;
+            background: linear-gradient(135deg, #818cf8, #a855f7);
+            color: white;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 24px;
+            transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-save::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-save:hover::before {
+            left: 100%;
+        }
+
+        .btn-save:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 25px rgba(129, 140, 248, 0.3), 0 4px 10px rgba(168, 85, 247, 0.2);
+        }
+
+        .btn-save:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* --- Social Link Inputs --- */
+        .social-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .social-prefix {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            white-space: nowrap;
+            min-width: 40px;
+        }
+
+        /* --- Profile Completion Bar --- */
+        .completion-bar-wrapper {
+            margin-bottom: 48px;
+        }
+
+        .completion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .completion-header span {
+            font-size: 0.875rem;
+            color: var(--text-sec);
+        }
+
+        .completion-pct {
+            font-weight: 700;
+            color: white;
+        }
+
+        .completion-track {
+            width: 100%;
+            height: 8px;
+            background-color: var(--border-color);
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+
+        .completion-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-indigo), var(--accent-purple));
+            border-radius: 9999px;
+            transition: width 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 0 12px var(--glow-indigo);
+        }
+
+        /* --- Toast --- */
+        .toast {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            padding: 14px 24px;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            z-index: 1000;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast-success {
+            background: rgba(74, 222, 128, 0.15);
+            color: var(--accent-green);
+            border: 1px solid rgba(74, 222, 128, 0.3);
+            backdrop-filter: blur(12px);
+        }
+
+        .toast-error {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            backdrop-filter: blur(12px);
+        }
+
+        /* --- Responsive --- */
+        @media (min-width: 640px) {
+            .form-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .form-group.full-width {
+                grid-column: span 2;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .nav-links {
+                display: flex;
+            }
+
+            .metrics-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (max-width: 639px) {
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .event-item {
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-start;
+            }
+
+            .event-item-right {
+                text-align: left;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-in {
+            animation: fadeInUp 0.5s ease-out both;
+        }
+
+        .delay-1 {
+            animation-delay: 0.1s;
+        }
+
+        .delay-2 {
+            animation-delay: 0.2s;
+        }
+
+        .delay-3 {
+            animation-delay: 0.3s;
+        }
+
+        .delay-4 {
+            animation-delay: 0.4s;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Toast notification -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container nav-content">
+            <a href="index.html" class="logo">
+                <div class="logo-box">
+                    <div class="logo-dot"></div>
+                </div>
+                <span>Athly</span>
+            </a>
+
+            <div class="nav-links">
+                <a href="events.html">Discover</a>
+                <a href="community.html">Community</a>
+                <a href="dashboard.html">Organizers</a>
+                <a href="organizer-profile.html">
+                    <div class="navItem_active">Profile</div>
+                </a>
+            </div>
+
+            <div class="nav-actions">
+                <button class="btn-login" onclick="window.location.href='login.html'">Log in</button>
+                <button class="btn-signup" id="auth-btn" onclick="window.location.href='login.html?mode=signup'">Sign
+                    Up</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-wrapper">
+
+        <!-- Profile Header -->
+        <div class="profile-header animate-in" id="profile-header">
+            <div class="avatar-wrapper">
+                <div class="avatar-circle" id="avatar-initials">--</div>
+                <div class="avatar-badge"></div>
+            </div>
+            <div class="profile-header-info">
+                <h1 id="display-name">Loading...</h1>
+                <p id="display-email">—</p>
+                <span class="role-badge">Organizer</span>
+            </div>
+        </div>
+
+        <!-- Profile Completion -->
+        <div class="completion-bar-wrapper animate-in delay-1">
+            <div class="completion-header">
+                <span>Profile Completion</span>
+                <span class="completion-pct" id="completion-pct">0%</span>
+            </div>
+            <div class="completion-track">
+                <div class="completion-fill" id="completion-fill" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- Auto-Tracked Metrics -->
+        <div class="animate-in delay-1">
+            <h2 class="section-title">
+                <span class="icon-circle">📊</span>
+                Dashboard Metrics
+            </h2>
+        </div>
+
+        <div class="metrics-grid animate-in delay-1" id="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-icon">📅</div>
+                <div class="metric-label">Total Events Hosted</div>
+                <div class="metric-value" id="metric-events">—</div>
+                <div class="metric-sub">All time</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon">👥</div>
+                <div class="metric-label">Total Participants</div>
+                <div class="metric-value" id="metric-participants">—</div>
+                <div class="metric-sub">Across all events</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon">💰</div>
+                <div class="metric-label">Total Revenue</div>
+                <div class="metric-value" id="metric-revenue">—</div>
+                <div class="metric-sub">Generated from events</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon">📈</div>
+                <div class="metric-label">Total Clicks</div>
+                <div class="metric-value" id="metric-clicks">—</div>
+                <div class="metric-sub">Event page views</div>
+            </div>
+        </div>
+
+        <!-- Upcoming Events -->
+        <div class="animate-in delay-2">
+            <h2 class="section-title">
+                <span class="icon-circle">🗓️</span>
+                Upcoming Events
+            </h2>
+        </div>
+
+        <div class="events-list animate-in delay-2" id="upcoming-events">
+            <div class="empty-state">Loading events...</div>
+        </div>
+
+        <!-- Edit Profile Form -->
+        <div class="animate-in delay-3">
+            <h2 class="section-title">
+                <span class="icon-circle">✏️</span>
+                Edit Organizer Profile
+            </h2>
+        </div>
+
+        <div class="form-card animate-in delay-3">
+            <form id="profile-form">
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label class="form-label" for="pf-name">Organizer Name</label>
+                        <input type="text" id="pf-name" class="form-input" placeholder="Athly Sports Club">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="pf-city">City / Location</label>
+                        <input type="text" id="pf-city" class="form-input" placeholder="Mumbai, India">
+                    </div>
+
+                    <div class="form-group full-width" style="grid-column: 1 / -1;">
+                        <label class="form-label" for="pf-bio">Bio / Description</label>
+                        <textarea id="pf-bio" class="form-textarea"
+                            placeholder="Tell participants about your organization, your mission, and the events you host..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="pf-website">Website <span
+                                style="font-weight:400; text-transform:none; color:var(--text-dim);">(optional)</span></label>
+                        <input type="url" id="pf-website" class="form-input" placeholder="https://yoursite.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="pf-instagram">Instagram <span
+                                style="font-weight:400; text-transform:none; color:var(--text-dim);">(optional)</span></label>
+                        <div class="social-row">
+                            <input type="text" id="pf-instagram" class="form-input" placeholder="@username">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="pf-twitter">Twitter / X <span
+                                style="font-weight:400; text-transform:none; color:var(--text-dim);">(optional)</span></label>
+                        <div class="social-row">
+                            <input type="text" id="pf-twitter" class="form-input" placeholder="@username">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="pf-contact-email">Contact Email</label>
+                        <input type="email" id="pf-contact-email" class="form-input" placeholder="events@yourorg.com">
+                    </div>
+                </div>
+
+                <button type="submit" id="btn-save" class="btn-save">Save Profile</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import {
+            getFirestore, doc, getDoc, setDoc,
+            collection, query, where, getDocs, orderBy, onSnapshot
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCo8N5TfHzWq5PXELyTXoHb_SrzikweBwo",
+            authDomain: "minor-project-a5077.firebaseapp.com",
+            projectId: "minor-project-a5077",
+            storageBucket: "minor-project-a5077.firebasestorage.app",
+            messagingSenderId: "525600101149",
+            appId: "1:525600101149:web:f98570a47b3e6e582047f4"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // --- Elements ---
+        const loginBtn = document.querySelector('.btn-login');
+        const authBtn = document.getElementById('auth-btn');
+        const profileForm = document.getElementById('profile-form');
+        const btnSave = document.getElementById('btn-save');
+
+        let currentUser = null;
+
+        // --- Toast ---
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast toast-${type} show`;
+            setTimeout(() => { toast.classList.remove('show'); }, 3000);
+        }
+
+        // --- Profile Fields ---
+        const PROFILE_FIELDS = [
+            { id: 'pf-name', key: 'displayName' },
+            { id: 'pf-city', key: 'city' },
+            { id: 'pf-bio', key: 'bio' },
+            { id: 'pf-website', key: 'website', optional: true },
+            { id: 'pf-instagram', key: 'instagram', optional: true },
+            { id: 'pf-twitter', key: 'twitter', optional: true },
+            { id: 'pf-contact-email', key: 'contactEmail' }
+        ];
+
+        // --- Profile Completion (excludes optional fields) ---
+        const REQUIRED_FIELDS = PROFILE_FIELDS.filter(f => !f.optional);
+
+        function computeCompletion() {
+            let filled = 0;
+            REQUIRED_FIELDS.forEach(f => {
+                if (document.getElementById(f.id).value.trim()) filled++;
+            });
+            return Math.round((filled / REQUIRED_FIELDS.length) * 100);
+        }
+
+        function updateCompletionUI() {
+            const pct = computeCompletion();
+            document.getElementById('completion-pct').textContent = pct + '%';
+            document.getElementById('completion-fill').style.width = pct + '%';
+        }
+
+        // Live updates on input
+        PROFILE_FIELDS.forEach(f => {
+            document.getElementById(f.id).addEventListener('input', updateCompletionUI);
+        });
+
+        // --- Auth ---
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                const name = user.displayName ? user.displayName.split(' ')[0] : user.email.split('@')[0];
+                loginBtn.textContent = `Hi, ${name}`;
+                loginBtn.onclick = () => { window.location.href = 'organizer-profile.html'; };
+
+                authBtn.textContent = "Sign Out";
+                authBtn.onclick = () => {
+                    signOut(auth).then(() => window.location.href = 'index.html');
+                };
+
+                // Verify role
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                if (userDoc.exists()) {
+                    const data = userDoc.data();
+                    if (data.role !== 'organizer') {
+                        // Not an organizer — redirect to athlete profile
+                        window.location.href = 'profile.html';
+                        return;
+                    }
+                }
+
+                await loadProfile(user);
+                loadMetrics(user.uid);
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+
+        // --- Load Profile (Real-time sync for header) ---
+        let formInitialLoaded = false;
+        function loadProfile(user) {
+            try {
+                const userRef = doc(db, 'users', user.uid);
+
+                onSnapshot(userRef, (docSnap) => {
+                    const data = docSnap.exists() ? docSnap.data() : {};
+
+                    // Header updates reflect in real-time
+                    const displayName = data.displayName || data.organizerName || user.displayName || user.email.split('@')[0];
+                    document.getElementById('display-name').textContent = displayName;
+                    document.getElementById('display-email').textContent = data.contactEmail || user.email;
+
+                    // Update navigation name
+                    loginBtn.textContent = `Hi, ${displayName.split(' ')[0]}`;
+
+                    // Avatar initials
+                    const initials = displayName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+                    document.getElementById('avatar-initials').textContent = initials;
+
+                    // Only populate form fields on first load so we don't overwrite user's typing
+                    if (!formInitialLoaded) {
+                        const fieldMap = {
+                            displayName: data.displayName || data.organizerName || '',
+                            city: data.city || '',
+                            bio: data.bio || '',
+                            website: data.website || '',
+                            instagram: data.instagram || '',
+                            twitter: data.twitter || '',
+                            contactEmail: data.contactEmail || user.email || ''
+                        };
+
+                        PROFILE_FIELDS.forEach(f => {
+                            const el = document.getElementById(f.id);
+                            if (el) el.value = fieldMap[f.key] || '';
+                        });
+
+                        updateCompletionUI();
+                        formInitialLoaded = true;
+                    }
+                });
+            } catch (err) {
+                console.error('Error setting up profile sync:', err);
+                showToast('Error syncing profile', 'error');
+            }
+        }
+
+        // --- Load Metrics (real-time) ---
+        function loadMetrics(uid) {
+            try {
+                const eventsRef = collection(db, 'events');
+                const q = query(eventsRef, where('organizerId', '==', uid));
+
+                onSnapshot(q, (snapshot) => {
+                    let totalEvents = 0;
+                    let totalParticipants = 0;
+                    let totalRevenue = 0;
+                    let totalClicks = 0;
+                    const upcomingEvents = [];
+
+                    snapshot.forEach(docSnap => {
+                        const data = docSnap.data();
+                        totalEvents++;
+                        totalParticipants += (data.participants || 0);
+                        totalRevenue += (data.revenue || 0);
+                        totalClicks += (data.clicks || 0);
+
+                        // Check for upcoming events (has a date field in the future or just list all)
+                        upcomingEvents.push({
+                            id: docSnap.id,
+                            name: data.name || data.title || 'Untitled Event',
+                            sport: data.sport || 'General',
+                            participants: data.participants || 0,
+                            date: data.date || data.createdAt,
+                            city: data.city || ''
+                        });
+                    });
+
+                    // Update metric cards
+                    document.getElementById('metric-events').textContent = totalEvents;
+                    document.getElementById('metric-participants').textContent = totalParticipants.toLocaleString();
+                    document.getElementById('metric-revenue').textContent = '$' + totalRevenue.toLocaleString();
+                    document.getElementById('metric-clicks').textContent = totalClicks.toLocaleString();
+
+                    // Render upcoming events
+                    renderUpcomingEvents(upcomingEvents);
+                });
+            } catch (err) {
+                console.error('Error loading metrics:', err);
+            }
+        }
+
+        // --- Render Upcoming Events ---
+        function renderUpcomingEvents(events) {
+            const container = document.getElementById('upcoming-events');
+            container.innerHTML = '';
+
+            if (events.length === 0) {
+                container.innerHTML = '<div class="empty-state">No events yet. <a href="add_event.html" style="color: #818cf8; text-decoration: underline;">Create your first event →</a></div>';
+                return;
+            }
+
+            events.slice(0, 5).forEach(evt => {
+                let dateObj = null;
+                if (evt.date) {
+                    if (evt.date.toDate) dateObj = evt.date.toDate();
+                    else if (typeof evt.date === 'string') dateObj = new Date(evt.date);
+                }
+
+                const monthStr = dateObj ? dateObj.toLocaleDateString('en-US', { month: 'short' }) : '—';
+                const dayStr = dateObj ? dateObj.getDate() : '—';
+                const locationStr = evt.city ? ` · ${evt.city}` : '';
+
+                const html = `
+                    <div class="event-item">
+                        <div class="event-item-left">
+                            <div class="event-date-badge">
+                                <span class="month">${monthStr}</span>
+                                <span class="day">${dayStr}</span>
+                            </div>
+                            <div class="event-item-info">
+                                <h4>${evt.name}</h4>
+                                <span>${evt.sport}${locationStr}</span>
+                            </div>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:16px;">
+                            <div class="event-item-right">
+                                <div class="participants">${evt.participants}</div>
+                                <div class="label">Participants</div>
+                            </div>
+                            <button class="btn-view-event" onclick="window.location.href='event-details.html?id=${evt.id}'">View</button>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', html);
+            });
+        }
+
+        // --- Save Profile ---
+        profileForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentUser) return;
+
+            btnSave.disabled = true;
+            btnSave.textContent = 'Saving...';
+
+            const profileData = {};
+            PROFILE_FIELDS.forEach(f => {
+                const val = document.getElementById(f.id).value.trim();
+                if (val) profileData[f.key] = val;
+            });
+
+            try {
+                await setDoc(doc(db, 'users', currentUser.uid), profileData, { merge: true });
+
+                showToast('Profile saved successfully! ✨');
+            } catch (err) {
+                console.error('Error saving profile:', err);
+                showToast('Failed to save profile. Try again.', 'error');
+            }
+
+            btnSave.disabled = false;
+            btnSave.textContent = 'Save Profile';
+        });
+    </script>
+</body>
+
+</html>
