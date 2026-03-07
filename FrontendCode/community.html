@@ -558,7 +558,6 @@
                     <div class="navItem_active">Community</div>
                 </a>
                 <a href="dashboard.html">Organizers</a>
-                <a href="profile.html">Profile</a>
             </div>
 
             <div class="nav-actions">
@@ -736,18 +735,22 @@
                         const finalName = data.username || data.displayName || data.fullName || name;
                         activeDisplayName = finalName.split(' ')[0];
                         loginBtn.textContent = `Hi, ${activeDisplayName}`;
+                        loginBtn.onclick = () => { window.location.href = 'profile.html'; };
                     } else {
                         activeDisplayName = name;
+                        loginBtn.onclick = () => { window.location.href = 'profile.html'; };
                     }
                 } catch (e) {
                     console.error('Error fetching nav user data', e);
                     activeDisplayName = name;
+                    loginBtn.onclick = () => { window.location.href = 'profile.html'; };
                 }
             } else {
                 currentUser = null;
                 activeDisplayName = null;
                 loginBtn.textContent = "Log in";
                 authBtn.textContent = "Sign Up";
+                loginBtn.onclick = () => { window.location.href = 'login.html'; };
             }
             // Refresh threads in case "My Posts" was active or like buttons need update
             loadThreads(currentTab);

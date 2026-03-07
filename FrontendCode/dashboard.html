@@ -566,7 +566,6 @@
                 <a href="dashboard.html">
                     <div class="navItem_active">Organizers</div>
                 </a>
-                <a href="profile.html">Profile</a>
             </div>
 
             <div class="nav-actions">
@@ -750,7 +749,7 @@
                 // Logged In (Authorized Organizer)
                 if (loginBtn) {
                     loginBtn.textContent = `Hi, ${finalName}`;
-                    loginBtn.onclick = null; // Prevent going to login page
+                    loginBtn.onclick = () => { window.location.href = 'profile.html'; };
                 }
                 if (signupBtn) {
                     signupBtn.textContent = "Sign Out";
