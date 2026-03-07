@@ -719,10 +719,10 @@
             </p>
 
             <div class="hero-buttons">
-                <button onclick="console.log('Navigate: profile')" class="btn-primary">
+                <button onclick="window.location.href='events.html'" class="btn-primary">
                     Start Discovering
                 </button>
-                <button onclick="console.log('Navigate: organizer')" class="btn-secondary">
+                <button onclick="handleOrganizerClick()" class="btn-secondary" id="hero-organizer-btn">
                     For Organizers
                 </button>
             </div>
@@ -931,6 +931,9 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        // State variables
+        let currentUserRole = null;
+
         // 3. Elements Selection
         const loginBtn = document.querySelector('.btn-login');
         const authBtn = document.getElementById('auth-btn');
@@ -946,6 +949,7 @@
                     const userDoc = await getDoc(doc(db, 'users', user.uid));
                     if (userDoc.exists()) {
                         const data = userDoc.data();
+                        currentUserRole = data.role;
                         const finalName = data.username || data.displayName || data.fullName || name;
                         loginBtn.textContent = `Hi, ${finalName.split(' ')[0]}`;
                     }
@@ -963,8 +967,20 @@
                 authBtn.textContent = "Sign Up";
                 loginBtn.onclick = () => { window.location.href = 'login.html'; };
                 authBtn.onclick = () => { window.location.href = 'login.html?mode=signup'; };
+                currentUserRole = null;
             }
         });
+
+        // Global function for the hero "For Organizers" button
+        window.handleOrganizerClick = function () {
+            if (!auth.currentUser) {
+                window.location.href = 'login.html';
+            } else if (currentUserRole === 'organizer') {
+                window.location.href = 'dashboard.html';
+            } else {
+                alert('This section is for Organizers only. Please log in with an Organizer account.');
+            }
+        };
 
         // 5. SEARCH LOGIC
         const searchInput = document.getElementById('event-search-input');

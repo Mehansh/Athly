@@ -408,6 +408,11 @@
                             <label class="form-label">Distance</label>
                             <input type="text" id="event-distance" placeholder="e.g. 5km, 10 Miles" class="form-input">
                         </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label class="form-label">Registration Price (₹)</label>
+                            <input type="number" id="event-price" placeholder="0 for free" class="form-input" min="0"
+                                value="0">
+                        </div>
                     </div>
 
                     <div class="form-group full-width-col">
@@ -540,6 +545,7 @@
                 city: document.getElementById('event-city').value.trim(),
                 state: document.getElementById('event-state').value.trim(),
                 description: document.getElementById('event-desc').value.trim(),
+                price: parseInt(document.getElementById('event-price').value) || 0,
                 createdAt: serverTimestamp(),
                 organizerId: auth.currentUser ? auth.currentUser.uid : 'anonymous', // Record who created it
                 clicks: 0,

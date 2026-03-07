@@ -215,6 +215,7 @@
             display: none;
         }
     </style>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 
 <body>
@@ -289,6 +290,10 @@
                         </div>
                         <div style="font-size: 0.875rem; color: var(--text-secondary);">Registered</div>
                     </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 1.5rem; font-weight: 700; color: #4ade80;" id="display-price">Free</div>
+                        <div style="font-size: 0.875rem; color: var(--text-secondary);">Entry Fee</div>
+                    </div>
                 </div>
                 <div id="auth-btn-container" style="display: none;">
                     <button class="btn-primary" id="btn-register-now">Register
@@ -318,6 +323,11 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
+        // State
+        let eventPrice = 0;
+        let eventName = '';
+        let currentUserData = null;
+
         // Check user role for Registration Button
         onAuthStateChanged(auth, async (user) => {
             const btnContainer = document.getElementById('auth-btn-container');
@@ -326,6 +336,7 @@
                     const userDoc = await getDoc(doc(db, 'users', user.uid));
                     if (userDoc.exists() && userDoc.data().role === 'athlete') {
                         btnContainer.style.display = 'block';
+                        currentUserData = { uid: user.uid, email: user.email, ...userDoc.data() };
                     } else {
                         btnContainer.style.display = 'none';
                     }
@@ -350,9 +361,7 @@
             // Hook up register button
             const regBtn = document.getElementById('btn-register-now');
             if (regBtn) {
-                regBtn.onclick = () => {
-                    window.location.href = `register.html?id=${eventId}`;
-                };
+                regBtn.onclick = () => handleRegistration(eventId);
             }
 
             try {
@@ -361,6 +370,8 @@
 
                 if (eventSnap.exists()) {
                     const data = eventSnap.data();
+                    eventPrice = data.price || 0;
+                    eventName = data.name || data.title || 'Event';
                     renderEvent(data);
                 } else {
                     showError();
@@ -368,6 +379,40 @@
             } catch (error) {
                 console.error("Error fetching event:", error);
                 showError();
+            }
+        }
+
+        function handleRegistration(eventId) {
+            if (eventPrice > 0) {
+                // Open Razorpay Checkout
+                const options = {
+                    key: 'rzp_test_SNvSQSU6lJM1yQ', // TODO: Replace with your Razorpay test key
+                    amount: eventPrice * 100, // Razorpay expects amount in paise
+                    currency: 'INR',
+                    name: 'Athly',
+                    description: `Registration for ${eventName}`,
+                    handler: function (response) {
+                        // Payment successful — redirect to registration page with paymentId
+                        window.location.href = `register.html?id=${eventId}&paymentId=${response.razorpay_payment_id}`;
+                    },
+                    prefill: {
+                        email: currentUserData?.email || '',
+                        contact: currentUserData?.phone || ''
+                    },
+                    theme: {
+                        color: '#09090b'
+                    },
+                    modal: {
+                        ondismiss: function () {
+                            console.log('Payment dismissed');
+                        }
+                    }
+                };
+                const rzp = new Razorpay(options);
+                rzp.open();
+            } else {
+                // Free event — go directly to registration
+                window.location.href = `register.html?id=${eventId}&free=true`;
             }
         }
 
@@ -382,10 +427,21 @@
             document.getElementById('display-desc').textContent = data.description || 'No description provided for this event.';
             document.getElementById('display-participants').textContent = data.participants || '0';
 
+            // Price
+            const priceEl = document.getElementById('display-price');
+            if (data.price && data.price > 0) {
+                priceEl.textContent = `\u20b9${data.price}`;
+                priceEl.style.color = '#60a5fa';
+                document.getElementById('btn-register-now').textContent = `Pay \u20b9${data.price} & Register`;
+            } else {
+                priceEl.textContent = 'Free';
+                priceEl.style.color = '#4ade80';
+                document.getElementById('btn-register-now').textContent = 'Register (Free)';
+            }
+
             // Format Date
             let dateStr = data.date || 'TBD';
             if (data.date) {
-                // Try format if it's YYYY-MM-DD
                 try {
                     const d = new Date(data.date);
                     if (!isNaN(d.getTime())) {

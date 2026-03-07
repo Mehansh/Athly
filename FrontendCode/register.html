@@ -7,6 +7,8 @@
     <title>Event Registration - Athly</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
     <style>
         :root {
@@ -211,6 +213,175 @@
             color: #22c55e;
             border: 1px solid rgba(34, 197, 94, 0.2);
         }
+
+        /* --- Payment Badge --- */
+        .payment-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+        }
+
+        .payment-badge.paid {
+            background-color: rgba(34, 197, 94, 0.1);
+            color: #4ade80;
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
+        .payment-badge.free {
+            background-color: rgba(96, 165, 250, 0.1);
+            color: #60a5fa;
+            border: 1px solid rgba(96, 165, 250, 0.2);
+        }
+
+        /* --- Ticket Card --- */
+        .ticket-card {
+            background: linear-gradient(135deg, #18181b 0%, #1e1e22 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ticket-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #60a5fa, #818cf8, #a78bfa);
+        }
+
+        .ticket-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .ticket-header h2 {
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .ticket-header p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .ticket-qr {
+            background: white;
+            padding: 1rem;
+            border-radius: 12px;
+            display: inline-block;
+            margin: 1.5rem 0;
+        }
+
+        .ticket-qr canvas,
+        .ticket-qr img {
+            display: block;
+        }
+
+        .ticket-id {
+            font-family: 'Courier New', monospace;
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #a78bfa;
+            letter-spacing: 0.1em;
+            margin-bottom: 1.5rem;
+        }
+
+        .ticket-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            text-align: left;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+        }
+
+        .ticket-detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .ticket-detail-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .ticket-detail-value {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .ticket-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .ticket-actions button {
+            flex: 1;
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .btn-download {
+            background-color: white;
+            color: black;
+        }
+
+        .btn-download:hover {
+            background-color: #e4e4e7;
+        }
+
+        .btn-go-back {
+            background-color: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color) !important;
+        }
+
+        .btn-go-back:hover {
+            color: white;
+            border-color: #52525b !important;
+        }
+
+        .divider {
+            border: none;
+            border-top: 1px dashed var(--border-color);
+            margin: 1.5rem 0;
+        }
+
+        .email-status {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 0.75rem;
+        }
+
+        .email-status.sent {
+            color: #4ade80;
+        }
+
+        .email-status.failed {
+            color: #ef4444;
+        }
     </style>
 </head>
 
@@ -237,10 +408,14 @@
         <h1>Athlete Registration</h1>
         <h2 id="event-name-display">Loading Event...</h2>
 
-        <div id="alert-error" class="alert alert-error">An error occurred.</div>
-        <div id="alert-success" class="alert alert-success">Registration successful! Redirecting...</div>
+        <!-- Payment badge -->
+        <div id="payment-badge" style="display: none;"></div>
 
-        <div class="form-card">
+        <div id="alert-error" class="alert alert-error">An error occurred.</div>
+        <div id="alert-success" class="alert alert-success">Registration successful!</div>
+
+        <!-- Registration Form -->
+        <div class="form-card" id="registration-form-card">
             <form id="registration-form">
                 <div class="form-group">
                     <label class="form-label" for="reg-name">Full Name *</label>
@@ -284,6 +459,48 @@
                 <button type="submit" id="submit-btn" class="btn-submit">Complete Registration</button>
             </form>
         </div>
+
+        <!-- Ticket Card (hidden until registration completes) -->
+        <div id="ticket-card" class="ticket-card" style="display: none;">
+            <div class="ticket-header">
+                <h2>🎟️ Registration Confirmed!</h2>
+                <p>Your ticket for the event</p>
+            </div>
+
+            <div class="ticket-qr" id="ticket-qr-container">
+                <!-- QR code will be rendered here -->
+            </div>
+
+            <div class="ticket-id" id="ticket-id-display">ATHLY-XXXX-XXXX</div>
+
+            <hr class="divider">
+
+            <div class="ticket-details">
+                <div class="ticket-detail-item">
+                    <span class="ticket-detail-label">Event</span>
+                    <span class="ticket-detail-value" id="ticket-event-name">—</span>
+                </div>
+                <div class="ticket-detail-item">
+                    <span class="ticket-detail-label">Athlete</span>
+                    <span class="ticket-detail-value" id="ticket-athlete-name">—</span>
+                </div>
+                <div class="ticket-detail-item">
+                    <span class="ticket-detail-label">Date</span>
+                    <span class="ticket-detail-value" id="ticket-event-date">—</span>
+                </div>
+                <div class="ticket-detail-item">
+                    <span class="ticket-detail-label">Payment</span>
+                    <span class="ticket-detail-value" id="ticket-payment-status">—</span>
+                </div>
+            </div>
+
+            <div class="email-status" id="email-status">📧 Sending confirmation email...</div>
+
+            <div class="ticket-actions">
+                <button class="btn-download" id="btn-download-ticket">⬇ Download Ticket</button>
+                <button class="btn-go-back" id="btn-go-events">← Back to Events</button>
+            </div>
+        </div>
     </div>
 
     <script type="module">
@@ -305,27 +522,66 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
+        // ============================================
+        //  EmailJS Config (Replace with your own keys)
+        // ============================================
+        const EMAILJS_PUBLIC_KEY = 'nYA2vge7ruDgWhodg';   // TODO: Replace
+        const EMAILJS_SERVICE_ID = 'service_kzajpvr';   // TODO: Replace
+        const EMAILJS_TEMPLATE_ID = 'template_4xl1gsg'; // TODO: Replace
+
+        // Initialize EmailJS
+        try {
+            emailjs.init(EMAILJS_PUBLIC_KEY);
+        } catch (e) {
+            console.warn('EmailJS not initialized:', e);
+        }
+
         // Core UI Hooks
         const titleDisplay = document.getElementById('event-name-display');
         const backBtn = document.getElementById('back-btn');
         const form = document.getElementById('registration-form');
+        const formCard = document.getElementById('registration-form-card');
         const submitBtn = document.getElementById('submit-btn');
         const alertSuccess = document.getElementById('alert-success');
         const alertError = document.getElementById('alert-error');
+        const paymentBadge = document.getElementById('payment-badge');
 
         // State variables
         let eventId = null;
+        let paymentId = null;
+        let isFreeEvent = false;
         let currentUser = null;
+        let eventData = null;
 
         // Init
         document.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             eventId = urlParams.get('id');
+            paymentId = urlParams.get('paymentId');
+            isFreeEvent = urlParams.get('free') === 'true';
 
             if (!eventId) {
                 alert("Invalid event link.");
                 window.location.href = 'events.html';
                 return;
+            }
+
+            // Validate: must have either paymentId or free flag
+            if (!paymentId && !isFreeEvent) {
+                alert("Payment required. Please register through the event page.");
+                window.location.href = `event-details.html?id=${eventId}`;
+                return;
+            }
+
+            // Show payment badge
+            if (paymentId) {
+                paymentBadge.className = 'payment-badge paid';
+                paymentBadge.innerHTML = `✓ Payment Verified — ${paymentId}`;
+                paymentBadge.style.display = 'inline-flex';
+            } else if (isFreeEvent) {
+                paymentBadge.className = 'payment-badge free';
+                paymentBadge.innerHTML = '✓ Free Event — No Payment Required';
+                paymentBadge.style.display = 'inline-flex';
             }
 
             backBtn.href = `event-details.html?id=${eventId}`;
@@ -336,7 +592,8 @@
             try {
                 const eventSnap = await getDoc(doc(db, 'events', eventId));
                 if (eventSnap.exists()) {
-                    titleDisplay.textContent = eventSnap.data().name || eventSnap.data().title || 'Untitled Event';
+                    eventData = eventSnap.data();
+                    titleDisplay.textContent = eventData.name || eventData.title || 'Untitled Event';
                 } else {
                     titleDisplay.textContent = "Event Not Found";
                     form.style.display = 'none';
@@ -370,6 +627,15 @@
             }
         });
 
+        // Generate Ticket ID
+        function generateTicketId() {
+            const prefix = 'ATHLY';
+            const eventPart = eventId ? eventId.slice(0, 4).toUpperCase() : 'XXXX';
+            const timePart = Date.now().toString(36).toUpperCase().slice(-4);
+            const randPart = Math.random().toString(36).substring(2, 6).toUpperCase();
+            return `${prefix}-${eventPart}-${timePart}-${randPart}`;
+        }
+
         // Submission
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -380,6 +646,8 @@
             alertError.style.display = 'none';
             alertSuccess.style.display = 'none';
 
+            const ticketId = generateTicketId();
+
             const payload = {
                 name: document.getElementById('reg-name').value.trim(),
                 email: document.getElementById('reg-email').value.trim(),
@@ -389,12 +657,14 @@
                 emergencyContact: document.getElementById('reg-emergency').value.trim(),
                 registeredAt: serverTimestamp(),
                 userId: currentUser.uid,
-                eventId: eventId
+                eventId: eventId,
+                ticketId: ticketId,
+                paymentId: paymentId || null,
+                paymentStatus: paymentId ? 'paid' : 'free'
             };
 
             try {
-                // 1. Save Registration Data securely to a `registrations` root collection
-                // (using document ID structure: eventId_userId to prevent duplicates natively)
+                // 1. Save Registration Data
                 const regDocId = `${eventId}_${currentUser.uid}`;
                 await setDoc(doc(db, 'registrations', regDocId), payload);
 
@@ -403,11 +673,11 @@
                     participants: increment(1)
                 });
 
-                // Success
-                alertSuccess.style.display = 'block';
-                setTimeout(() => {
-                    window.location.href = `event-details.html?id=${eventId}`;
-                }, 2000);
+                // 3. Show ticket
+                showTicket(ticketId, payload);
+
+                // 4. Send confirmation email (non-blocking)
+                sendConfirmationEmail(payload, ticketId);
 
             } catch (err) {
                 console.error("Registration Error:", err);
@@ -417,6 +687,128 @@
                 submitBtn.textContent = 'Complete Registration';
             }
         });
+
+        // Show Ticket with QR Code
+        async function showTicket(ticketId, registrationData) {
+            // Hide form, show ticket
+            formCard.style.display = 'none';
+            alertSuccess.style.display = 'none';
+            alertError.style.display = 'none';
+            paymentBadge.style.display = 'none';
+            document.querySelector('h1').textContent = 'Your Ticket';
+            titleDisplay.style.display = 'none';
+
+            const ticketCard = document.getElementById('ticket-card');
+            ticketCard.style.display = 'block';
+
+            // Populate ticket details
+            document.getElementById('ticket-id-display').textContent = ticketId;
+            document.getElementById('ticket-event-name').textContent = eventData?.name || eventData?.title || 'Event';
+            document.getElementById('ticket-athlete-name').textContent = registrationData.name;
+            document.getElementById('ticket-payment-status').textContent = paymentId ? `Paid (${paymentId.slice(0, 12)}...)` : 'Free';
+
+            // Format event date
+            if (eventData?.date) {
+                try {
+                    const d = new Date(eventData.date);
+                    if (!isNaN(d.getTime())) {
+                        document.getElementById('ticket-event-date').textContent =
+                            d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                    } else {
+                        document.getElementById('ticket-event-date').textContent = eventData.date;
+                    }
+                } catch (e) {
+                    document.getElementById('ticket-event-date').textContent = eventData.date || 'TBD';
+                }
+            } else {
+                document.getElementById('ticket-event-date').textContent = 'TBD';
+            }
+
+            // Generate QR Code
+            const qrContainer = document.getElementById('ticket-qr-container');
+            try {
+                const qrData = JSON.stringify({
+                    ticketId: ticketId,
+                    eventId: eventId,
+                    athleteName: registrationData.name,
+                    paymentId: paymentId || 'free'
+                });
+                new QRCode(qrContainer, {
+                    text: qrData,
+                    width: 200,
+                    height: 200,
+                    colorDark: '#09090b',
+                    colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.M
+                });
+            } catch (err) {
+                console.error('QR Code error:', err);
+                qrContainer.innerHTML = '<p style="color: #ef4444; padding: 2rem;">Could not generate QR code</p>';
+            }
+
+            // Download ticket button
+            document.getElementById('btn-download-ticket').addEventListener('click', () => {
+                downloadTicket(ticketId);
+            });
+
+            // Back to events button
+            document.getElementById('btn-go-events').addEventListener('click', () => {
+                window.location.href = `event-details.html?id=${eventId}`;
+            });
+        }
+
+        // Download Ticket as Image
+        function downloadTicket(ticketId) {
+            const canvas = document.querySelector('#ticket-qr-container canvas');
+            if (canvas) {
+                const link = document.createElement('a');
+                link.download = `athly-ticket-${ticketId}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            }
+        }
+
+        // Send Confirmation Email via EmailJS
+        async function sendConfirmationEmail(registrationData, ticketId) {
+            const emailStatusEl = document.getElementById('email-status');
+
+            // Check if EmailJS is configured
+            if (EMAILJS_PUBLIC_KEY === 'YOUR_EMAILJS_PUBLIC_KEY') {
+                emailStatusEl.textContent = '📧 Email service not configured yet. Configure EmailJS to enable emails.';
+                emailStatusEl.className = 'email-status';
+                return;
+            }
+
+            try {
+                // Format location
+                let location = 'TBD';
+                if (eventData) {
+                    let parts = [];
+                    if (eventData.location) parts.push(eventData.location);
+                    if (eventData.city) parts.push(eventData.city);
+                    if (eventData.state) parts.push(eventData.state);
+                    if (parts.length > 0) location = parts.join(', ');
+                }
+
+                const templateParams = {
+                    to_email: registrationData.email,
+                    to_name: registrationData.name,
+                    event_name: eventData?.name || eventData?.title || 'Event',
+                    ticket_id: ticketId,
+                    event_date: eventData?.date || 'TBD',
+                    event_location: location,
+                    payment_id: paymentId || 'Free Event'
+                };
+
+                await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
+                emailStatusEl.textContent = '✓ Confirmation email sent successfully!';
+                emailStatusEl.className = 'email-status sent';
+            } catch (err) {
+                console.error('Email error:', err);
+                emailStatusEl.textContent = '⚠ Could not send confirmation email. Your registration is still valid.';
+                emailStatusEl.className = 'email-status failed';
+            }
+        }
 
     </script>
 </body>
