@@ -25,11 +25,11 @@
             --colCardBg: #111111;
             --colBorder: #27272a;
             --colBorderLight: #3f3f46;
-            
+
             --colTextMain: #ffffff;
             --colTextSec: #a1a1aa;
             --colTextMuted: #71717a;
-            
+
             --colInputBg: #1a1a1a;
             --colAccent: #ffffff;
             --colGlow: #4f46e5;
@@ -153,7 +153,7 @@
         .btn-login:hover {
             color: white;
         }
-        
+
         .btn-signup {
             background-color: var(--colBorder);
             border: 0px solid var(--colBorderLight);
@@ -516,8 +516,7 @@
             color: #4ade80;
         }
 
-        .navItem_active
-        {
+        .navItem_active {
             color: white;
         }
 
@@ -555,13 +554,16 @@
 
             <div class="nav-links">
                 <a href="events.html">Discover</a>
-                <a href="community.html"><div class="navItem_active">Community</div></a>
+                <a href="community.html">
+                    <div class="navItem_active">Community</div>
+                </a>
                 <a href="dashboard.html">Organizers</a>
             </div>
 
             <div class="nav-actions">
                 <button class="btn-login" onclick="window.location.href='login.html'">Log in</button>
-                <button class="btn-signup" id="auth-btn" onclick="window.location.href='login.html?mode=signup'">SignUp</button>
+                <button class="btn-signup" id="auth-btn"
+                    onclick="window.location.href='login.html?mode=signup'">SignUp</button>
             </div>
         </div>
     </nav>
@@ -571,7 +573,7 @@
         <div class="header-section">
             <div>
                 <h1 class="page-title">Community Hub</h1>
-                <p class="page-subtitle">Connect, discuss, and recruit for your next niche event.</p>
+                <p class="page-subtitle">Connect, discuss, and recruit for your next Athly event.</p>
             </div>
             <div style="display:flex; gap:10px;">
                 <button class="btn-new-discussion" onclick="loadChatForThread('global', 'Global Live Chat')">

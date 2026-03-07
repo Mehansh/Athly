@@ -135,11 +135,11 @@ document.addEventListener('DOMContentLoaded', () => {
 // ==========================================
 window.trackEventClick = async function (eventId, isOrganizerEvent, redirectUrl) {
     if (isOrganizerEvent) {
-        let clickedEvents = JSON.parse(localStorage.getItem('nicheSportUserClicks') || '[]');
+        let clickedEvents = JSON.parse(localStorage.getItem('athlyUserClicks') || '[]');
 
         if (!clickedEvents.includes(eventId)) {
             clickedEvents.push(eventId);
-            localStorage.setItem('nicheSportUserClicks', JSON.stringify(clickedEvents));
+            localStorage.setItem('athlyUserClicks', JSON.stringify(clickedEvents));
 
             try {
                 const eventRef = doc(db, 'events', eventId);

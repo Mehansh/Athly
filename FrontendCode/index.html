@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NicheSport - Uncover the sports the world forgot</title>
+    <title>Athly - Uncover the sports the world forgot</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
@@ -758,7 +758,7 @@
 
         <section id="features" class="features-section">
             <div class="section-header">
-                <h2>Why NicheSport?</h2>
+                <h2>Why Athly?</h2>
                 <p>
                     We've stripped away the noise of mainstream platforms to focus on what matters for specialized
                     communities.
@@ -905,7 +905,7 @@
         </section>
 
         <footer>
-            &copy; 2024 NicheSport Inc. All rights reserved.
+            &copy; 2024 Athly Inc. All rights reserved.
         </footer>
     </main>
 
@@ -1108,7 +1108,7 @@
                         if (eventData.rawType === 'organizer') {
                             let clickedEvents = [];
                             try {
-                                clickedEvents = JSON.parse(localStorage.getItem('nicheSportUserClicks')) || [];
+                                clickedEvents = JSON.parse(localStorage.getItem('athlyUserClicks')) || [];
                             } catch (e) {
                                 clickedEvents = [];
                             }
@@ -1120,7 +1120,7 @@
                                         clicks: increment(1)
                                     });
                                     clickedEvents.push(eventData.id);
-                                    localStorage.setItem('nicheSportUserClicks', JSON.stringify(clickedEvents));
+                                    localStorage.setItem('athlyUserClicks', JSON.stringify(clickedEvents));
                                 } catch (error) {
                                     console.error("Error tracking click:", error);
                                 }

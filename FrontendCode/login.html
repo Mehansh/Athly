@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NicheSport | Access Portal</title>
+    <title>Athly | Access Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -115,9 +116,19 @@
             background: var(--accent-glow);
         }
 
-        .input-group { margin-bottom: 16px; }
-        label { display: block; font-size: 0.7rem; color: var(--text-dim); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
-        
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
         input {
             width: 100%;
             background: #000;
@@ -130,7 +141,10 @@
             transition: 0.3s;
         }
 
-        input:focus { border-color: var(--accent-purple); box-shadow: 0 0 10px var(--accent-glow); }
+        input:focus {
+            border-color: var(--accent-purple);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
 
         .btn-main {
             width: 100%;
@@ -145,9 +159,15 @@
             transition: 0.2s;
         }
 
-        .btn-main:hover { opacity: 0.9; transform: translateY(-1px); }
-        .hidden { display: none; }
-        
+        .btn-main:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .hidden {
+            display: none;
+        }
+
         #status {
             margin-top: 16px;
             text-align: center;
@@ -155,58 +175,71 @@
             padding: 10px;
             border-radius: 6px;
         }
-        .error { color: #ff4444; background: rgba(255, 68, 68, 0.1); border: 1px solid rgba(255, 68, 68, 0.2); }
-        .success { color: #a855f7; background: var(--accent-glow); border: 1px solid var(--accent-purple); }
+
+        .error {
+            color: #ff4444;
+            background: rgba(255, 68, 68, 0.1);
+            border: 1px solid rgba(255, 68, 68, 0.2);
+        }
+
+        .success {
+            color: #a855f7;
+            background: var(--accent-glow);
+            border: 1px solid var(--accent-purple);
+        }
     </style>
 </head>
+
 <body>
 
-<div class="auth-card">
-    <div class="logo-area">
-        <div class="logo-square"><div class="logo-dot"></div></div>
-        NicheSport
-    </div>
-
-    <div class="tabs">
-        <div class="tab active" id="loginTab" onclick="switchMode('login')">Log In</div>
-        <div class="tab" id="signupTab" onclick="switchMode('signup')">Sign Up</div>
-    </div>
-
-    <div id="roleGrid" class="role-selector hidden">
-        <div class="role-btn selected" id="roleAthlete" onclick="setRole('athlete')">Athlete</div>
-        <div class="role-btn" id="roleOrganizer" onclick="setRole('organizer')">Organizer</div>
-        <div class="role-btn" id="roleSponsor" onclick="setRole('sponsor')">Sponsor</div>
-    </div>
-
-    <form id="authForm">
-        <div class="input-group hidden" id="nameField">
-            <label>Full Name</label>
-            <input type="text" id="userName" placeholder="e.g. Alex Smith">
+    <div class="auth-card">
+        <div class="logo-area">
+            <div class="logo-square">
+                <div class="logo-dot"></div>
+            </div>
+            Athly
         </div>
 
-        <div class="input-group">
-            <label>Email Address</label>
-            <input type="email" id="userEmail" placeholder="name@domain.com" required>
+        <div class="tabs">
+            <div class="tab active" id="loginTab" onclick="switchMode('login')">Log In</div>
+            <div class="tab" id="signupTab" onclick="switchMode('signup')">Sign Up</div>
         </div>
 
-        <div class="input-group">
-            <label>Password</label>
-            <input type="password" id="userPass" placeholder="••••••••" required>
+        <div id="roleGrid" class="role-selector hidden">
+            <div class="role-btn selected" id="roleAthlete" onclick="setRole('athlete')">Athlete</div>
+            <div class="role-btn" id="roleOrganizer" onclick="setRole('organizer')">Organizer</div>
+            <div class="role-btn" id="roleSponsor" onclick="setRole('sponsor')">Sponsor</div>
         </div>
 
-        <button type="submit" class="btn-main" id="submitBtn">LOG IN</button>
-    </form>
+        <form id="authForm">
+            <div class="input-group hidden" id="nameField">
+                <label>Full Name</label>
+                <input type="text" id="userName" placeholder="e.g. Alex Smith">
+            </div>
 
-    <div id="status" class="hidden"></div>
-</div>
+            <div class="input-group">
+                <label>Email Address</label>
+                <input type="email" id="userEmail" placeholder="name@domain.com" required>
+            </div>
 
-<script type="module">
-    // Firebase Modular SDK via CDN
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="userPass" placeholder="••••••••" required>
+            </div>
 
-    // Use your verified NicheSport/ShopLink credentials
+            <button type="submit" class="btn-main" id="submitBtn">LOG IN</button>
+        </form>
+
+        <div id="status" class="hidden"></div>
+    </div>
+
+    <script type="module">
+        // Firebase Modular SDK via CDN
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // Use your verified Athly/ShopLink credentials
         const firebaseConfig = {
             apiKey: "AIzaSyCo8N5TfHzWq5PXELyTXoHb_SrzikweBwo",
             authDomain: "minor-project-a5077.firebaseapp.com",
@@ -214,79 +247,80 @@
             storageBucket: "minor-project-a5077.firebasestorage.app",
             messagingSenderId: "525600101149",
             appId: "1:525600101149:web:f98570a47b3e6e582047f4"
-            };
+        };
 
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-    let isLogin = true;
-    let currentRole = 'athlete';
+        let isLogin = true;
+        let currentRole = 'athlete';
 
-    // Switch between Login and Sign Up UI
-    window.switchMode = (mode) => {
-        isLogin = (mode === 'login');
-        document.getElementById('loginTab').classList.toggle('active', isLogin);
-        document.getElementById('signupTab').classList.toggle('active', !isLogin);
-        
-        document.getElementById('roleGrid').classList.toggle('hidden', isLogin);
-        document.getElementById('nameField').classList.toggle('hidden', isLogin);
-        document.getElementById('submitBtn').textContent = isLogin ? "LOG IN" : "CREATE ACCOUNT";
-        document.getElementById('status').classList.add('hidden');
-    };
+        // Switch between Login and Sign Up UI
+        window.switchMode = (mode) => {
+            isLogin = (mode === 'login');
+            document.getElementById('loginTab').classList.toggle('active', isLogin);
+            document.getElementById('signupTab').classList.toggle('active', !isLogin);
 
-    // Role selection logic
-    window.setRole = (role) => {
-        currentRole = role;
-        ['Athlete', 'Organizer', 'Sponsor'].forEach(r => {
-            document.getElementById('role' + r).classList.toggle('selected', r.toLowerCase() === role);
-        });
-    };
+            document.getElementById('roleGrid').classList.toggle('hidden', isLogin);
+            document.getElementById('nameField').classList.toggle('hidden', isLogin);
+            document.getElementById('submitBtn').textContent = isLogin ? "LOG IN" : "CREATE ACCOUNT";
+            document.getElementById('status').classList.add('hidden');
+        };
 
-    // Handle Auth Submission
-    document.getElementById('authForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const status = document.getElementById('status');
-        const email = document.getElementById('userEmail').value;
-        const password = document.getElementById('userPass').value;
-        const name = document.getElementById('userName').value;
+        // Role selection logic
+        window.setRole = (role) => {
+            currentRole = role;
+            ['Athlete', 'Organizer', 'Sponsor'].forEach(r => {
+                document.getElementById('role' + r).classList.toggle('selected', r.toLowerCase() === role);
+            });
+        };
 
-        status.className = 'hidden';
+        // Handle Auth Submission
+        document.getElementById('authForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const status = document.getElementById('status');
+            const email = document.getElementById('userEmail').value;
+            const password = document.getElementById('userPass').value;
+            const name = document.getElementById('userName').value;
 
-        try {
-            if (isLogin) {
-                // Log In Logic
-                await signInWithEmailAndPassword(auth, email, password);
-                showMsg('success', 'Logged in successfully! Redirecting...');
-                setTimeout(() => window.location.href = "index.html", 1500);
-            } else {
-                // Sign Up Logic
-                if (!name) throw new Error("Name is required for Sign Up.");
-                const cred = await createUserWithEmailAndPassword(auth, email, password);
-                
-                // Store Profile in Firestore
-                await setDoc(doc(db, "users", cred.user.uid), {
-                    displayName: name,
-                    email: email,
-                    role: currentRole,
-                    createdAt: new Date().toISOString()
-                });
+            status.className = 'hidden';
 
-                showMsg('success', 'Account created! Welcome to NicheSport.');
-                setTimeout(() => window.location.href = "index.html", 1500);
+            try {
+                if (isLogin) {
+                    // Log In Logic
+                    await signInWithEmailAndPassword(auth, email, password);
+                    showMsg('success', 'Logged in successfully! Redirecting...');
+                    setTimeout(() => window.location.href = "index.html", 1500);
+                } else {
+                    // Sign Up Logic
+                    if (!name) throw new Error("Name is required for Sign Up.");
+                    const cred = await createUserWithEmailAndPassword(auth, email, password);
+
+                    // Store Profile in Firestore
+                    await setDoc(doc(db, "users", cred.user.uid), {
+                        displayName: name,
+                        email: email,
+                        role: currentRole,
+                        createdAt: new Date().toISOString()
+                    });
+
+                    showMsg('success', 'Account created! Welcome to Athly.');
+                    setTimeout(() => window.location.href = "index.html", 1500);
+                }
+            } catch (err) {
+                showMsg('error', err.message);
             }
-        } catch (err) {
-            showMsg('error', err.message);
-        }
-    });
+        });
 
-    function showMsg(type, text) {
-        const el = document.getElementById('status');
-        el.textContent = text;
-        el.className = type;
-    }
-</script>
+        function showMsg(type, text) {
+            const el = document.getElementById('status');
+            el.textContent = text;
+            el.className = type;
+        }
+    </script>
 
 </body>
+
 </html>
