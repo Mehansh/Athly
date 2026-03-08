@@ -724,8 +724,10 @@
                 document.getElementById('ticket-event-date').textContent = 'TBD';
             }
 
-            // Generate QR Code
+            // Generate Branded QR Code
             const qrContainer = document.getElementById('ticket-qr-container');
+            qrContainer.innerHTML = ''; // clear any previous
+
             try {
                 const qrData = JSON.stringify({
                     ticketId: ticketId,
@@ -733,14 +735,66 @@
                     athleteName: registrationData.name,
                     paymentId: paymentId || 'free'
                 });
-                new QRCode(qrContainer, {
+
+                // Use qrcodejs to generate a temporary QR code
+                const tempDiv = document.createElement('div');
+                new QRCode(tempDiv, {
                     text: qrData,
                     width: 200,
                     height: 200,
                     colorDark: '#09090b',
                     colorLight: '#ffffff',
-                    correctLevel: QRCode.CorrectLevel.M
+                    correctLevel: QRCode.CorrectLevel.H // High error correction to allow center logo
                 });
+
+                // Wait for the img to be generated
+                setTimeout(() => {
+                    const qrImg = tempDiv.querySelector('img') || tempDiv.querySelector('canvas');
+                    if (!qrImg) return;
+
+                    // Create final canvas
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 200;
+                    canvas.height = 200;
+                    const ctx = canvas.getContext('2d');
+
+                    if (qrImg.tagName === 'IMG') {
+                        qrImg.onload = () => drawBrandedQR(ctx, qrImg, canvas);
+                        // If cached, might load instantly
+                        if (qrImg.complete) drawBrandedQR(ctx, qrImg, canvas);
+                    } else {
+                        drawBrandedQR(ctx, qrImg, canvas);
+                    }
+
+                    qrContainer.appendChild(canvas);
+                }, 50);
+
+                function drawBrandedQR(ctx, sourceImg, canvas) {
+                    ctx.drawImage(sourceImg, 0, 0, 200, 200);
+
+                    // Draw center white box
+                    const boxSize = 50;
+                    const x = (200 - boxSize) / 2;
+                    const y = (200 - boxSize) / 2;
+
+                    ctx.fillStyle = '#ffffff';
+                    ctx.beginPath();
+                    ctx.roundRect(x, y, boxSize, boxSize, 8);
+                    ctx.fill();
+
+                    // Draw box border
+                    ctx.strokeStyle = '#09090b';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+
+                    // Draw "Athly" text
+                    ctx.fillStyle = '#09090b';
+                    ctx.font = 'bold 12px Inter, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText('Athly', 100, 100);
+                }
+
             } catch (err) {
                 console.error('QR Code error:', err);
                 qrContainer.innerHTML = '<p style="color: #ef4444; padding: 2rem;">Could not generate QR code</p>';
