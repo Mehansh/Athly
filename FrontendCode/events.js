@@ -1,9 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, getDocs, doc, updateDoc, increment, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-// 1. ADD AUTH IMPORTS
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-// YOUR CONFIG
 const firebaseConfig = {
     apiKey: "AIzaSyCo8N5TfHzWq5PXELyTXoHb_SrzikweBwo",
     authDomain: "minor-project-a5077.firebaseapp.com",
@@ -15,7 +13,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const auth = getAuth(app); // 2. INITIALIZE AUTH
+const auth = getAuth(app);
 
 const EVENT_SOURCES = [
     { type: 'organizer', collectionPath: 'events', sourceName: 'Platform Organizers' },
@@ -33,9 +31,6 @@ const ICONS = {
 
 let allEvents = [];
 
-// ==========================================
-// AI CHATBOT LOGIC
-// ==========================================
 const chatRoot = document.getElementById('ai-chat');
 const bodyEl = document.getElementById('chat-body');
 const input = document.getElementById('chat-input');
@@ -66,6 +61,39 @@ function addMessageBox(text, sender) {
     bodyEl.appendChild(box);
     bodyEl.scrollTop = bodyEl.scrollHeight;
 }
+function renderChatEvents(events) {
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "chat-event-wrapper";
+
+    events.forEach(ev => {
+
+        const card = document.createElement("div");
+        card.className = "chat-event";
+
+        card.innerHTML = `
+            <div class="chat-event-title">${ev.title}</div>
+
+            <div class="chat-event-meta">
+                <span>📍 ${ev.location}</span>
+                <span>📅 ${ev.date}</span>
+            </div>
+
+            <div class="chat-event-distance">
+                🚴 ${ev.distance}
+            </div>
+
+            <a href="${ev.url}" target="_blank" class="chat-event-btn">
+                View Event
+            </a>
+        `;
+
+        wrapper.appendChild(card);
+    });
+
+    bodyEl.appendChild(wrapper);
+    bodyEl.scrollTop = bodyEl.scrollHeight;
+}
 
 async function handleSend() {
     const message = input.value.trim();
@@ -77,9 +105,14 @@ async function handleSend() {
     sendBtn.disabled = true;
     try {
         const res = await triggerModel(message);
+
         if (res.reply) {
             addMessageBox(res.reply.reasoning, 'bot');
             setFilters(res.reply.filters);
+        }
+
+        if (res.events) {
+            renderChatEvents(res.events);
         }
     } catch (e) {
         console.error(e);
@@ -120,19 +153,13 @@ function setFilters(filters) {
     applyFilters();
 }
 
-// ==========================================
-// INITIALIZATION
-// ==========================================
 
 document.addEventListener('DOMContentLoaded', () => {
     fetchAndRenderEvents();
     setupFilters();
-    setupAuth(); // 3. CALL AUTH SETUP
+    setupAuth();
 });
 
-// ==========================================
-// CLICK TRACKING
-// ==========================================
 window.trackEventClick = async function (eventId, isOrganizerEvent, redirectUrl) {
     if (isOrganizerEvent) {
         let clickedEvents = JSON.parse(localStorage.getItem('athlyUserClicks') || '[]');
@@ -143,7 +170,6 @@ window.trackEventClick = async function (eventId, isOrganizerEvent, redirectUrl)
 
             try {
                 const eventRef = doc(db, 'events', eventId);
-                // Wait for the write to complete, but cap at 500ms so UI doesn't hang
                 await Promise.race([
                     updateDoc(eventRef, { clicks: increment(1) }),
                     new Promise(resolve => setTimeout(resolve, 500))
@@ -154,22 +180,17 @@ window.trackEventClick = async function (eventId, isOrganizerEvent, redirectUrl)
         }
     }
 
-    // Navigate after the write has been sent
     if (redirectUrl && redirectUrl !== '#') {
         window.location.href = redirectUrl;
     }
 };
 
-// 4. AUTH FUNCTION
 function setupAuth() {
-    // Note: events.html uses 'btnLogin' class (no hyphen)
     const loginBtn = document.querySelector('.btnLogin');
     const signupBtn = document.querySelector('.btnSignup');
 
-    // Monitor Login State
     onAuthStateChanged(auth, async (user) => {
         if (user) {
-            // User is signed in
             const name = user.displayName ? user.displayName.split(' ')[0] : user.email.split('@')[0];
             if (loginBtn) loginBtn.textContent = `Hi, ${name}`;
             if (signupBtn) signupBtn.textContent = "Sign Out";
@@ -183,25 +204,21 @@ function setupAuth() {
                 }
             } catch (e) { console.error('Error fetching nav user data', e); }
 
-            // Optional: Disable login click if already logged in
             if (loginBtn) loginBtn.onclick = () => { window.location.href = 'profile.html'; };
         } else {
-            // User is signed out
             if (loginBtn) loginBtn.textContent = "Log in";
             if (signupBtn) signupBtn.textContent = "Sign Up";
 
-            // Reset clicks
             if (loginBtn) loginBtn.onclick = () => window.location.href = 'login.html';
         }
     });
 
-    // Handle Sign Out / Sign Up Click
     if (signupBtn) {
         signupBtn.addEventListener('click', () => {
             const user = auth.currentUser;
             if (user) {
                 signOut(auth).then(() => {
-                    window.location.reload(); // Refresh to update UI
+                    window.location.reload();
                 });
             } else {
                 window.location.href = 'login.html?mode=signup';
@@ -210,9 +227,6 @@ function setupAuth() {
     }
 }
 
-// ==========================================
-// DATA FETCHING
-// ==========================================
 
 async function fetchAndRenderEvents() {
     const container = document.getElementById('eventsContainer');
@@ -284,7 +298,6 @@ function normalizeEventData(data, sourceConfig, docId) {
 
     const views = Math.floor(Math.random() * (50000 - 1000 + 1)) + 1000;
 
-    // Cards only show City, State
     let locationStr = "Location TBD";
     if (sourceConfig.type === 'organizer') {
         let parts = [];
@@ -295,7 +308,6 @@ function normalizeEventData(data, sourceConfig, docId) {
         locationStr = data.location || "Online";
     }
 
-    // Use the actual Firestore document ID for organizer events
     const eventId = sourceConfig.type === 'organizer' ? docId : (data.url || docId || Math.random().toString(36));
 
     return {

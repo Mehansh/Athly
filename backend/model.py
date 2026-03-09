@@ -1,13 +1,12 @@
 from langchain_ollama.llms import OllamaLLM
 from langchain_core.prompts import ChatPromptTemplate
-from datamanager import get_db_filters # Import the new function
+from datamanager import get_db_filters
 import json
 import re
 
 # model = OllamaLLM(model = "phi3:mini")
 model = OllamaLLM(model="mistral")
 
-# 1. DEFINE STATIC FILTERS (Things that rarely change)
 static_filters = {
     "Relevance": ["Most Popular", "Newest", "Trending"],
     "Difficulty": ["Beginner", "Intermediate", "Pro / Elite"],
@@ -15,11 +14,9 @@ static_filters = {
     "Type": ["Marathon", "Triathlon", "Cycling", "Swimming", "Sports"]
 }
 
-# 2. FETCH DYNAMIC FILTERS ON STARTUP
 print("Loading AI: Fetching latest locations from Database...")
 db_data = get_db_filters()
 
-# 3. MERGE THEM
 site_filters = {**static_filters, **db_data}
 print(f"AI Loaded with {len(site_filters['Location'])} locations.")
 
@@ -52,13 +49,11 @@ prompt = ChatPromptTemplate.from_template(template)
 chain = prompt | model
 
 def run_model(prompt_query):
-    #Pass the DYNAMIC site_filters to AI
     result = chain.invoke({"filters": site_filters, "query": prompt_query})
 
     text = result
     text = re.sub(r"```json|```", "", text).strip()
     
-    #error handling if JSON fails
     try:
         return json.loads(text)
     except:

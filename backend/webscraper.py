@@ -5,6 +5,7 @@ from datamanager import getDatabase
 import re
 from urllib.parse import urljoin
 from math import ceil
+from vectordb import addEvents
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -15,6 +16,38 @@ db = getDatabase()
 HEADERS = {
     "User-Agent": "Mozilla/5.0"
 }
+
+def normalize_event(event):
+
+    title = event.get("club") or event.get("name") or "Unknown Event"
+    location = event.get("location") or event.get("city") or "Unknown"
+    date = event.get("date", "Unknown")
+    event_type = event.get("type", "sports_event")
+    distance = event.get("distance", "Not specified")
+
+    if isinstance(distance, list):
+        distance = ", ".join(distance)
+
+    text = (
+        f"{title}. "
+        f"Type: {event_type}. "
+        f"Location: {location}. "
+        f"Date: {date}. "
+        f"Distance: {distance}."
+    )
+
+    metadata = {
+        "title": title,
+        "location": location,
+        "date": date,
+        "type": event_type,
+        "distance": distance,
+        "url": event.get("url", "")
+    }
+    metadata["event_id"] = event.get("url", "")
+
+    return text, metadata
+
 
 def save_event(event, event_type = "cycle_event"):
     unique_string = f"{event['title']}{event['url']}"
@@ -40,6 +73,9 @@ def save_events_batch(events, website = "undefined", batch_size=100):
             event_id = f"{ev.get('type','')}/{website}/{unique_id}"
             doc_ref = db.collection("scraped_events").document(event_id)
             batch.set(doc_ref, ev)
+
+            text, metadata = normalize_event(ev)
+            addEvents(text, metadata)
         batch.commit()
         idx += batch_size
 
