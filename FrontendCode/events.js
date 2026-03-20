@@ -29,6 +29,14 @@ const ICONS = {
     default: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>`
 };
 
+const ORGANIZER_DIFFICULTY = {
+    "Audax India": "Pro / Elite",
+    "Champ Endurance": "Pro / Elite",
+    "HCL Cyclothon": "Intermediate",
+    "BookMyShow": "Beginner",
+    "Platform Organizers": "Intermediate"
+};
+
 let allEvents = [];
 
 const chatRoot = document.getElementById('ai-chat');
@@ -212,7 +220,7 @@ function setupAuth() {
             if (loginBtn) loginBtn.onclick = () => window.location.href = 'login.html';
         }
     });
-
+    
     if (signupBtn) {
         signupBtn.addEventListener('click', () => {
             const user = auth.currentUser;
@@ -226,7 +234,6 @@ function setupAuth() {
         });
     }
 }
-
 
 async function fetchAndRenderEvents() {
     const container = document.getElementById('eventsContainer');
@@ -278,13 +285,6 @@ function normalizeEventData(data, sourceConfig, docId) {
         title = title.split(' ').slice(0, 4).join(' ');
     }
 
-    let difficulty = "Medium";
-    if (dist.includes('km')) {
-        const distVal = parseInt(dist);
-        if (distVal > 100) difficulty = "Difficult";
-        else if (distVal < 20) difficulty = "Easy";
-    }
-
     let displayType = "Sports";
     if (sourceConfig.type === 'organizer') {
         displayType = data.sport || "Sports";
@@ -295,6 +295,13 @@ function normalizeEventData(data, sourceConfig, docId) {
     } else if (sourceConfig.type === 'sports_event') {
         displayType = "Sports";
     }
+
+    // Determine exact organizer name
+    const organizerName = sourceConfig.type === 'organizer' ? (data.organizerName || 'Local Organizer') : sourceConfig.sourceName;
+
+    // --- NEW: Assign Difficulty based on Organizer ---
+    // Looks for the organizer in our dictionary. If not found, defaults to "Intermediate".
+    let difficulty = ORGANIZER_DIFFICULTY[organizerName] || ORGANIZER_DIFFICULTY[sourceConfig.sourceName] || "Intermediate";
 
     const views = Math.floor(Math.random() * (50000 - 1000 + 1)) + 1000;
 
@@ -313,7 +320,7 @@ function normalizeEventData(data, sourceConfig, docId) {
     return {
         id: eventId,
         title: title,
-        organizer: sourceConfig.type === 'organizer' ? (data.organizerName || 'Local Organizer') : sourceConfig.sourceName,
+        organizer: organizerName,
         date: data.date || "Date TBA",
         location: locationStr,
         type: sourceConfig.type,
@@ -366,6 +373,18 @@ function fillSelect(id, items) {
     });
 }
 
+// ==========================================
+// 1. AUTO-INJECT DELETE ZONE
+// ==========================================
+if (!document.getElementById('delete-zone')) {
+    const dropZone = document.createElement('div');
+    dropZone.id = 'delete-zone';
+    document.body.appendChild(dropZone);
+}
+
+// ==========================================
+// 2. UPDATED RENDER FUNCTIONS
+// ==========================================
 function renderEvents(eventsToRender) {
     const container = document.getElementById('eventsContainer');
     if (!container) return;
@@ -378,8 +397,15 @@ function renderEvents(eventsToRender) {
     }
 
     eventsToRender.forEach((event, index) => {
+        // Generate HTML WITHOUT the inline onclick
         const cardHTML = createCardHTML(event, index);
         container.insertAdjacentHTML('beforeend', cardHTML);
+        
+        // Grab the newly inserted card
+        const addedCard = container.lastElementChild;
+        
+        // Attach drag and click logic safely
+        makeCardDraggable(addedCard, event);
     });
 }
 
@@ -387,9 +413,17 @@ function createCardHTML(event, index) {
     let slideImage = 'Assets/CycleSlideIn.png';
     let iconSvg = ICONS.cycle;
 
+    // --- NEW: Difficulty colors & Matching Text Colors ---
     let difficultyClass = 'diff-med';
-    if (event.difficulty === "Pro / Elite") difficultyClass = 'diff-hard';
-    else if (event.difficulty === "Beginner") difficultyClass = 'diff-easy';
+    let textClass = 'text-diff-med'; // Default yellow text
+    
+    if (event.difficulty === "Pro / Elite") {
+        difficultyClass = 'diff-hard';
+        textClass = 'text-diff-hard'; // Red text
+    } else if (event.difficulty === "Beginner") {
+        difficultyClass = 'diff-easy';
+        textClass = 'text-diff-easy'; // Green text
+    }
 
     if (event.type === 'run_event') {
         slideImage = 'Assets/RunningSlideIn.png';
@@ -402,7 +436,7 @@ function createCardHTML(event, index) {
     const animationDelay = index * 0.05;
 
     return `
-    <div class="card" style="animation-delay: ${animationDelay}s; cursor: pointer;" onclick="trackEventClick('${event.id}', ${event.type === 'organizer'}, '${event.url}')">
+    <div class="card" style="animation-delay: ${animationDelay}s; cursor: grab;">
         <img src="${slideImage}" alt="" class="cardBgIcon">
         <div class="cardLeftCol">
             <div class="cardIcon">${iconSvg}</div>
@@ -416,7 +450,8 @@ function createCardHTML(event, index) {
         <div class="cardContent">
             <div class="cardHeader">
                 <span class="cardTitle" style="font-size: 1.125rem; font-weight: 600;">${event.title}</span>
-                <span class="cardAuthor">by <span style="color: #a1a1aa;">${event.organizer}</span></span>
+                
+                <span class="cardAuthor">by <span class="${textClass}" style="font-weight: 600;">${event.organizer}</span></span>
             </div>
             <p class="cardDesc">${event.location} • ${event.date}</p>
             <div class="cardTags">
@@ -436,6 +471,128 @@ function createCardHTML(event, index) {
         </div>
     </div>
     `;
+}
+
+// ==========================================
+// 3. BULLETPROOF DRAG LOGIC
+// ==========================================
+function makeCardDraggable(card, eventData) {
+    let isDragging = false;
+    let hasMoved = false;
+    let startX = 0, startY = 0;
+    const deleteZone = document.getElementById('delete-zone');
+
+    const onStart = (e) => {
+        // Don't drag if clicking a button
+        if (e.target.closest('button') || e.target.closest('a')) return;
+
+        isDragging = true;
+        hasMoved = false; // Reset move tracker
+        
+        startX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+        startY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+        
+        // Break the entrance animation lock instantly
+        card.style.animation = 'none';
+        card.style.transition = 'none';
+        
+        document.addEventListener('mousemove', onMove, { passive: false });
+        document.addEventListener('touchmove', onMove, { passive: false });
+        document.addEventListener('mouseup', onEnd);
+        document.addEventListener('touchend', onEnd);
+    };
+
+    const onMove = (e) => {
+        if (!isDragging) return;
+        
+        const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+        const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+        
+        const dx = clientX - startX;
+        const dy = clientY - startY;
+
+        // If moved more than 5px, it's an intentional drag, not a sloppy click
+        if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+            hasMoved = true;
+            e.preventDefault(); // Stop page scrolling
+            
+            card.classList.add('is-dragging');
+            deleteZone.classList.add('active');
+            
+            // Add a tilt effect
+            const rotation = dx * 0.05; 
+            card.style.transform = `translate(${dx}px, ${dy}px) rotate(${rotation}deg) scale(1.05)`;
+
+            // Check if hovering over the red zone
+            if (clientX < 150) {
+                deleteZone.classList.add('drag-over');
+                card.style.opacity = '0.5';
+            } else {
+                deleteZone.classList.remove('drag-over');
+                card.style.opacity = '1';
+            }
+        }
+    };
+
+    const onEnd = (e) => {
+        if (!isDragging) return;
+        isDragging = false;
+        
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('touchmove', onMove);
+        document.removeEventListener('mouseup', onEnd);
+        document.removeEventListener('touchend', onEnd);
+
+        deleteZone.classList.remove('active');
+        deleteZone.classList.remove('drag-over');
+        card.classList.remove('is-dragging');
+
+        const clientX = e.type.includes('touch') ? e.changedTouches[0].clientX : e.clientX;
+
+        // Turn CSS transitions back on for smooth snap/delete animations
+        card.style.transition = 'all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)';
+
+        if (hasMoved && clientX < 150) {
+            // SUCKED INTO DELETE ZONE
+            card.style.transform = `translate(-100vw, 0px) scale(0.5) rotate(-20deg)`;
+            card.style.opacity = '0';
+            
+            // Collapse gap
+            setTimeout(() => {
+                card.style.height = '0px';
+                card.style.padding = '0px';
+                card.style.margin = '0px';
+                card.style.border = 'none';
+                setTimeout(() => card.remove(), 400);
+            }, 300);
+            
+        } else if (hasMoved) {
+            // SNAP BACK
+            card.style.transform = 'translate(0px, 0px) rotate(0deg) scale(1)';
+            card.style.opacity = '1';
+            
+            // Cleanup inline styles
+            setTimeout(() => {
+                card.style.transform = '';
+                card.style.transition = '';
+            }, 400);
+        }
+    };
+
+    // Safely handle clicks (Only fires trackEventClick if you DID NOT drag)
+    card.addEventListener('click', (e) => {
+        if (hasMoved) {
+            e.preventDefault();
+            e.stopPropagation();
+        } else {
+            // Trigger your original click tracking logic
+            trackEventClick(eventData.id, eventData.type === 'organizer', eventData.url);
+        }
+    });
+
+    // Attach drag listeners
+    card.addEventListener('mousedown', onStart);
+    card.addEventListener('touchstart', onStart, { passive: false });
 }
 
 function setupFilters() {
