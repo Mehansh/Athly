@@ -1,0 +1,9 @@
+User-agent: *
+Disallow: /dashboard.html
+Disallow: /login.html
+Disallow: /register.html
+Disallow: /profile.html
+Disallow: /organizer-profile.html
+Disallow: /add_event.html
+
+Sitemap: https://minor-project-a5077.web.app/sitemap.xml
