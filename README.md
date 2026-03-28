@@ -339,4 +339,3 @@ The API will be available at `http://localhost:5000`.
 Open `FrontendCode/index.html` in your browser, or serve the `FrontendCode/` directory with any static file server.
 
 > **Note:** The Firebase configuration embedded in `events.js` points to the project's own Firebase instance. To use your own Firebase project, replace the `firebaseConfig` object in `events.js` and update `firestore.rules`.
-
