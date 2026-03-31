@@ -20,8 +20,9 @@ const EVENT_SOURCES = [
     { type: 'cycle_event', collectionPath: 'scraped_events/cycle_event/audaxindia', sourceName: 'Audax India' },
     { type: 'cycle_event', collectionPath: 'scraped_events/cycle_event/hclcyclothon', sourceName: 'HCL Cyclothon' },
     { type: 'run_event', collectionPath: 'scraped_events/run_event/champendurance', sourceName: 'Champ Endurance' },
-    { type: 'sports_event', collectionPath: 'scraped_events/sports_event/bookmyshow', sourceName: 'BookMyShow' }
-];
+    { type: 'sports_event', collectionPath: 'scraped_events/sports_event/bookmyshow', sourceName: 'BookMyShow' },
+    { type: 'tabletennis_event', collectionPath: 'scraped_events/tabletennis_event/ttfi', sourceName: 'TTFI' }
+];  
 
 const ICONS = {
     cycle: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12h18M3 6h18M3 18h18"/></svg>`,
@@ -272,12 +273,13 @@ function normalizeEventData(data, sourceConfig, docId) {
         dist = Object.values(data.distance).join(', ');
     }
 
-    let title = data.club;
+    let title = data.club || data.club;
     if (sourceConfig.type === 'organizer') {
         title = data.name || data.title;
     } else if (!title || title === "Not Available") {
         if (sourceConfig.type === 'cycle_event') title = "Cycling Event";
         else if (sourceConfig.type === 'run_event') title = "Running Event";
+        else if (sourceConfig.type === 'tabletennis_event') title = "Table Tennis Event";
         else title = "Sports Event";
     }
 
@@ -294,6 +296,8 @@ function normalizeEventData(data, sourceConfig, docId) {
         displayType = "Marathon";
     } else if (sourceConfig.type === 'sports_event') {
         displayType = "Sports";
+    } else if (sourceConfig.type === 'tabletennis_event') {
+        displayType = "Table Tennis";
     }
 
     // Determine exact organizer name
