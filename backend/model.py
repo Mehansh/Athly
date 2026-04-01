@@ -11,7 +11,7 @@ static_filters = {
     "Relevance": ["Most Popular", "Newest", "Trending"],
     "Difficulty": ["Beginner", "Intermediate", "Pro / Elite"],
     "Distance": ["< 5 Miles", "< 20 Miles", "< 50 Miles", "Anywhere"],
-    "Type": ["Marathon", "Triathlon", "Cycling", "Swimming", "Sports"]
+    "Type": ["Marathon", "Triathlon", "Cycling", "Swimming", "Sports", "Table Tennis"]
 }
 
 print("Loading AI: Fetching latest locations from Database...")
