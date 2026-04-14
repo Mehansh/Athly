@@ -744,7 +744,9 @@
             let filteredText = text;
             // Filter exact bad words with case-insensitivity
             badWords.forEach(word => {
-                const regex = new RegExp(`\\b${word}\\b`, 'gi');
+                // Escape special characters so words like f**k don't break the regex
+                const escapedWord = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const regex = new RegExp(`\\b${escapedWord}\\b`, 'gi');
                 filteredText = filteredText.replace(regex, match => '*'.repeat(match.length));
             });
             return filteredText;
