@@ -717,6 +717,38 @@
         let unsubscribeChat = null; // To stop listening to previous thread's chat
         let unsubscribeThreads = null;
         let activeDisplayName = null; // Store user's preferred name
+        let lastMessageTime = 0; // For rate limiting
+
+        // Bad words filter list (Expanded)
+        const badWords = [
+            // Standard English profanity
+            "anal", "anus", "arse", "ass", "asshole", "assfucker", "asslicker", "asswipe",
+            "bastard", "bitch", "bitchy", "bitches", "blowjob", "bollocks", "boner", "boob", "boobs", "bullshit", "butt", "buttplug",
+            "clit", "cock", "cocksucker", "coon", "crap", "cunt", "damn", "dick", "dildo", "douche", "douchebag", "dumbass", "dyke",
+            "fag", "faggot", "feck", "felching", "fellate", "fellatio", "flange", "fuck", "fucked", "fucker", "fuckface", "fuckhead", "fucking", "fuckwad", "fuckwit", "fudgepacker",
+            "goddamn", "hell", "hoe", "homo", "hooker", "jizz", "knobend", "labia", "muff",
+            "nigga", "nigger", "niggas", "niggers", "penis", "piss", "pissed", "prick", "pube", "pussy", "queer",
+            "scrotum", "sex", "sh1t", "shit", "shite", "shitty", "slut", "sluts", "smegma", "spunk", "tits", "titties", "tosser", "turd", "twat", "vagina", "wank", "wanker", "whore", 
+            "xxx", "kill yourself", "kys", "nazi",
+            // Common variations
+            "f*ck", "f**k", "s**t", "sh*t", "b*tch", "b!tch", "p0rn", "porn", "porno", "dickhead", "shithead",
+            // Hindi / Indian context profanity
+            "bc", "bhenchod", "behenchod", "bchod", "bhosdike", "bhosdi", "bsdk",
+            "mc", "madarchod", "mchod", "chutiya", "chutiye", "chut",
+            "gandu", "gand", "gaand", "randi", "rand", "kamina", "kaminey",
+            "haramkhor", "harami", "mutthal", "tatte", "loda", "lund", "lauda",
+            "bhadwa", "dalal", "raand", "suar", "ullu ke patthe", "jhaatu"
+        ];
+        
+        function filterText(text) {
+            let filteredText = text;
+            // Filter exact bad words with case-insensitivity
+            badWords.forEach(word => {
+                const regex = new RegExp(`\\b${word}\\b`, 'gi');
+                filteredText = filteredText.replace(regex, match => '*'.repeat(match.length));
+            });
+            return filteredText;
+        }
 
         // 4. Auth Management
         const authBtn = document.getElementById('auth-btn');
@@ -1065,11 +1097,21 @@
         }
 
         async function sendChatMessage() {
-            const text = chatInput.value.trim();
+            let text = chatInput.value.trim();
             if (!text) return;
 
             if (!checkAuth()) return;
             if (!activeThreadId) return alert("Select a discussion thread first!");
+
+            // Rate Limit Check (2 seconds delay)
+            const now = Date.now();
+            if (now - lastMessageTime < 2000) {
+                alert("Please wait 2 seconds before sending another message to prevent spam.");
+                return;
+            }
+
+            // Filter bad words
+            text = filterText(text);
 
             try {
                 await addDoc(collection(db, "messages"), {
@@ -1080,6 +1122,7 @@
                     createdAt: serverTimestamp()
                 });
                 chatInput.value = '';
+                lastMessageTime = Date.now(); // Update last message time after successful send
             } catch (err) {
                 console.error("Send Error:", err);
             }
