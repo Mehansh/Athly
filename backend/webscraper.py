@@ -9,15 +9,10 @@ from vectordb import addEvents
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-<<<<<<< HEAD
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
-=======
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
->>>>>>> 9ae4b279e160d5e983202239c8d32633e4751a32
 import time
 import re
 db = getDatabase()
@@ -65,6 +60,7 @@ def save_event(event, event_type = "cycle_event"):
     db.collection("scraped_events").document(event_id).set(event)
 
 def save_events_batch(events, website = "undefined", batch_size=100):
+    #firestore batch limit is 500
     if not events:
         return
 
@@ -105,6 +101,7 @@ def clear_events_for_website(event_type="default", website="default"):
         batch.delete(doc.reference)
         count += 1
 
+        #Firestore batch safety (max 500)
         if count % 400 == 0:
             batch.commit()
             batch = db.batch()
@@ -215,63 +212,6 @@ def scrape_audax_india(session=None, headers=None):
     clear_events_for_website("cycle_event", "audaxindia")
     save_events_batch(events[:10], "audaxindia")
 
-def scrape_ttfi(session=None, headers=None):
-    BASE_URL = "https://www.ttfi.org/events"
-    WEBSITE = "ttfi"
-    EVENT_TYPE = "tabletennis_event"
-
-    if session is None:
-        session = requests.Session()
-    if headers:
-        session.headers.update(headers)
-
-    try:
-        resp = session.get(BASE_URL, timeout=15)
-        resp.raise_for_status()
-    except Exception as e:
-        print(f"Error fetching TTFI: {e}")
-        return
-
-    soup = BeautifulSoup(resp.text, "html.parser")
-    event_items = soup.find_all("div", class_="carousel-item")
-    
-    events = []
-    for item in event_items:
-        title_tag = item.find("h2")
-        if not title_tag:
-            continue
-        title = title_tag.get_text(strip=True)
-
-        organizer = ""
-        org_tag = item.find("p")
-        if org_tag and org_tag.small:
-            organizer = org_tag.small.get_text(strip=True).replace("Organized by:", "").strip()
-
-        date = "Unknown"
-        date_tag = item.find("h4")
-        if date_tag:
-            date = date_tag.get_text(strip=True).replace("Date:", "").strip()
-
-        location = "India"
-        venue_tag = item.find("span", class_="vanue")
-        if venue_tag:
-            location = venue_tag.get_text(strip=True).replace("Venue:", "").strip()
-
-        events.append({
-            "club": organizer if organizer else "TTFI",
-            "name": title,
-            "location": location,
-            "date": date,
-            "url": BASE_URL,
-            "type": EVENT_TYPE,
-            "distance": "N/A"
-        })
-
-    if events:
-        save_events_batch(events, website=WEBSITE)
-        print(f"Successfully scraped {len(events)} events from TTFI.")
-
-
 def scrape_district():
     print("Scraping District...")
 
@@ -353,6 +293,9 @@ def scrape_HCL_cyclothon():
         soup = BeautifulSoup(driver.page_source, "html.parser")
         full_text = soup.get_text(" ", strip=True)
 
+        # --------------------
+        # Extract Date
+        # --------------------
         date = "Not Available"
         date_match = re.search(
             r"(January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s+\d{4}",
@@ -361,6 +304,9 @@ def scrape_HCL_cyclothon():
         if date_match:
             date = date_match.group(0)
 
+        # --------------------
+        # Extract Categories
+        # --------------------
         cards = soup.find_all("div")
 
         for card in cards:
@@ -387,9 +333,11 @@ def scrape_HCL_cyclothon():
             if category_name == "Not Available":
                 continue
 
+            # Extract distance
             distance_matches = re.findall(r"\d+\s?km", text.lower())
             distances = list(set(distance_matches)) if distance_matches else ["Not Available"]
 
+            # Extract bicycle type
             bicycle_type = "Not Available"
             if "Road Cycles" in text:
                 bicycle_type = "Road"
@@ -400,6 +348,7 @@ def scrape_HCL_cyclothon():
             elif "Any cycle" in text:
                 bicycle_type = "Any"
 
+            # Extract registration fee
             fee_match = re.search(r"₹\d+", text)
             registration_fee = fee_match.group(0) if fee_match else "Not Available"
 
@@ -451,15 +400,22 @@ def scrape_champ_endurance():
         if not event_name:
             continue
 
+        # Open event page
         driver.get(event_url)
         time.sleep(4)
 
         detail_soup = BeautifulSoup(driver.page_source, "html.parser")
         full_text = detail_soup.get_text(" ", strip=True)
 
+        # ---------------------
+        # Extract Distances
+        # ---------------------
         distances = re.findall(r"\d+\s?km", full_text.lower())
         distances = list(set(distances)) if distances else ["Not Available"]
 
+        # ---------------------
+        # Extract Participants
+        # ---------------------
         participants = "Not Available"
         part_match = re.search(r"(\d{2,6})\s*(Participants|Runners)", full_text, re.IGNORECASE)
         if part_match:
@@ -1211,18 +1167,79 @@ def scrape_ttfi(session=None, headers=None):
         save_events_batch(events, website=WEBSITE)
         print(f"Successfully scraped {len(events)} events from TTFI.")
 
+def scrape_chess_events():
+    print("[Chess] Scraping started...")
+
+    url = "https://aicf.in/all-events/"
+
+    try:
+        response = requests.get(url)
+        soup = BeautifulSoup(response.text, "html.parser")
+
+        events = []
+
+        tables = soup.find_all("table")
+
+        for table in tables:
+            rows = table.find_all("tr")[1:]  # skip header
+
+            for row in rows:
+                cols = row.find_all("td")
+
+                if len(cols) < 5:
+                    continue
+
+                # ✅ KEEP SAME FORMAT AS BEFORE
+                name = cols[0].text.strip()
+                event_code = cols[1].text.strip()
+                start_date = cols[2].text.strip()
+                end_date = cols[3].text.strip()
+                place = cols[4].text.strip()
+
+                if not name or name.lower() == "event":
+                    continue
+
+                event = {
+                    "name": name,
+                    "event_code": event_code,
+                    "start_date": start_date,
+                    "end_date": end_date,
+                    "place": place,
+                    "sport": "chess",
+                    "type": "chess_event",
+                    "source": "All India Chess Federation",
+                    "url": url
+                }
+
+                events.append(event)
+
+        print(f"[Chess] Scraped {len(events)} events")
+
+        # ✅ ONLY CHANGE: STORAGE PATH
+        for event in events:
+            db.collection("scraped_events") \
+              .document("chess_event") \
+              .collection("aicf") \
+              .add(event)
+
+        print(f"[Chess] Successfully saved {len(events)} events")
+
+    except Exception as e:
+        print(f"[Chess Scraper Error]: {e}")
 
 
 def run_all():
-<<<<<<< HEAD
     # scrape_audax_india()
-    # scrape_district()
+    #scrape_district()
     # scrape_HCL_cyclothon()
     # scrape_champ_endurance()
     # scrape_ifinish()
     # scrape_townscript()  
-    scrape_meraevents()
+    # scrape_meraevents()
     # scrape_ttfi()
+    scrape_chess_events()
+    
+
 
 # ============ MAIN EXECUTION ============
 if __name__ == "__main__":
@@ -1259,7 +1276,3 @@ if __name__ == "__main__":
         run_all()
     
     print("\nAll scraping complete!")
-=======
-    scrape_ttfi()
-run_all()
->>>>>>> 9ae4b279e160d5e983202239c8d32633e4751a32
