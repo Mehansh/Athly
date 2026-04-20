@@ -1214,7 +1214,7 @@ def scrape_chess_events():
 
         print(f"[Chess] Scraped {len(events)} events")
 
-        # ✅ ONLY CHANGE: STORAGE PATH
+        
         for event in events:
             db.collection("scraped_events") \
               .document("chess_event") \
@@ -1246,36 +1246,36 @@ def scrape_tennis_events():
     soup = BeautifulSoup(driver.page_source, "html.parser")
     events = []
 
-    # 🎯 Each event card
+    
     cards = soup.find_all("div")
 
     for card in cards:
 
-        # ✅ Extract NAME (clean title from heading)
+        
         title_tag = card.find(["h2", "h3", "h4"])
         if not title_tag:
             continue
 
         name = title_tag.get_text(strip=True)
 
-        # skip junk titles
+        
         if len(name) < 5:
             continue
 
-        # ✅ Extract FULL TEXT for description
+        
         full_text = card.get_text(" ", strip=True)
 
-        # ✅ Extract VENUE (from pattern like "Jaipur, Rajasthan")
+        
         venue_match = re.search(
             r"[A-Za-z]+\s*,\s*[A-Za-z]+",
             full_text
         )
         venue = venue_match.group(0) if venue_match else "Not Available"
 
-        # ✅ Clean DESCRIPTION (remove name from it)
+        
         description = full_text.replace(name, "").strip()
 
-        # avoid duplicates
+        
         if any(e["name"] == name for e in events):
             continue
 
@@ -1294,7 +1294,7 @@ def scrape_tennis_events():
 
     print(f"[Tennis] Scraped {len(events)} events")
 
-    # save to firestore
+    
     for event in events:
         db.collection("scraped_events") \
           .document("tennis_event") \
@@ -1312,29 +1312,29 @@ def scrape_athletics_events():
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
     driver.get(URL)
 
-    time.sleep(6)  # let page load fully
+    time.sleep(6)  
 
     events = []
 
-    # 🎯 FIND ALL TEXT BLOCKS THAT LOOK LIKE ROWS
+    
     rows = driver.find_elements(By.XPATH, "//div[p or span]")
 
     for row in rows:
         text = row.text.strip()
 
-        # skip garbage
+        
         if len(text) < 20:
             continue
 
         lines = text.split("\n")
 
-        # 🧠 We expect 3 parts: Date / Event / Venue
+        
         if len(lines) >= 3:
             date = lines[0].strip()
             event_name = lines[1].strip()
             venue = lines[2].strip()
 
-            # filter invalid
+        
             if len(event_name) < 5:
                 continue
 
@@ -1353,7 +1353,7 @@ def scrape_athletics_events():
 
     print(f"[Athletics] Scraped {len(events)} events")
 
-    # SAVE
+    
     for event in events:
         db.collection("scraped_events") \
           .document("athletic_event") \
