@@ -1189,7 +1189,6 @@ def scrape_chess_events():
                 if len(cols) < 5:
                     continue
 
-                # ✅ KEEP SAME FORMAT AS BEFORE
                 name = cols[0].text.strip()
                 event_code = cols[1].text.strip()
                 start_date = cols[2].text.strip()
@@ -1227,6 +1226,141 @@ def scrape_chess_events():
     except Exception as e:
         print(f"[Chess Scraper Error]: {e}")
 
+def scrape_tennis_events():
+    print("[Tennis] Scraping started...")
+
+    EVENT_TYPE = "tennis_event"
+    WEBSITE = "tenniskhelo"
+    URL = "https://tenniskhelo.com/tournaments/list"
+
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+    driver.get(URL)
+
+    time.sleep(6)
+
+    # scroll to load all cards
+    for _ in range(3):
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(3)
+
+    soup = BeautifulSoup(driver.page_source, "html.parser")
+    events = []
+
+    # 🎯 Each event card
+    cards = soup.find_all("div")
+
+    for card in cards:
+
+        # ✅ Extract NAME (clean title from heading)
+        title_tag = card.find(["h2", "h3", "h4"])
+        if not title_tag:
+            continue
+
+        name = title_tag.get_text(strip=True)
+
+        # skip junk titles
+        if len(name) < 5:
+            continue
+
+        # ✅ Extract FULL TEXT for description
+        full_text = card.get_text(" ", strip=True)
+
+        # ✅ Extract VENUE (from pattern like "Jaipur, Rajasthan")
+        venue_match = re.search(
+            r"[A-Za-z]+\s*,\s*[A-Za-z]+",
+            full_text
+        )
+        venue = venue_match.group(0) if venue_match else "Not Available"
+
+        # ✅ Clean DESCRIPTION (remove name from it)
+        description = full_text.replace(name, "").strip()
+
+        # avoid duplicates
+        if any(e["name"] == name for e in events):
+            continue
+
+        event = {
+            "name": name,
+            "venue": venue,
+            "event_description": description,
+            "type": EVENT_TYPE,
+            "url": URL
+        }
+
+        events.append(event)
+        print(f"✓ {name} | {venue}")
+
+    driver.quit()
+
+    print(f"[Tennis] Scraped {len(events)} events")
+
+    # save to firestore
+    for event in events:
+        db.collection("scraped_events") \
+          .document("tennis_event") \
+          .collection(WEBSITE) \
+          .add(event)
+
+    print(f"[Tennis] Successfully saved {len(events)} events")
+
+def scrape_athletics_events():
+    print("[Athletics] Scraping started...")
+
+    URL = "https://www.olympics.com/en/news/indian-athletics-calendar-2026-schedule"
+    WEBSITE = "olympics"
+
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+    driver.get(URL)
+
+    time.sleep(6)  # let page load fully
+
+    events = []
+
+    # 🎯 FIND ALL TEXT BLOCKS THAT LOOK LIKE ROWS
+    rows = driver.find_elements(By.XPATH, "//div[p or span]")
+
+    for row in rows:
+        text = row.text.strip()
+
+        # skip garbage
+        if len(text) < 20:
+            continue
+
+        lines = text.split("\n")
+
+        # 🧠 We expect 3 parts: Date / Event / Venue
+        if len(lines) >= 3:
+            date = lines[0].strip()
+            event_name = lines[1].strip()
+            venue = lines[2].strip()
+
+            # filter invalid
+            if len(event_name) < 5:
+                continue
+
+            event = {
+                "date": date,
+                "event": event_name,
+                "venue": venue,
+                "source": URL,
+                "type": "athletic"
+            }
+
+            events.append(event)
+            print(f"✓ {date} | {event_name} | {venue}")
+
+    driver.quit()
+
+    print(f"[Athletics] Scraped {len(events)} events")
+
+    # SAVE
+    for event in events:
+        db.collection("scraped_events") \
+          .document("athletic_event") \
+          .collection(WEBSITE) \
+          .add(event)
+
+    print(f"[Athletics] Successfully saved {len(events)} events")
 
 def run_all():
     # scrape_audax_india()
@@ -1237,7 +1371,9 @@ def run_all():
     # scrape_townscript()  
     # scrape_meraevents()
     # scrape_ttfi()
-    scrape_chess_events()
+    # scrape_chess_events()
+    # scrape_tennis_events()
+    scrape_athletics_events()
     
 
 
