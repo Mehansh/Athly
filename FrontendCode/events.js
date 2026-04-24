@@ -39,8 +39,11 @@ const EVENT_SOURCES = [
     { type: 'cycle_event', collectionPath: 'scraped_events/cycle_event/hclcyclothon', sourceName: 'HCL Cyclothon' },
     { type: 'run_event', collectionPath: 'scraped_events/run_event/champendurance', sourceName: 'Champ Endurance' },
     { type: 'sports_event', collectionPath: 'scraped_events/sports_event/bookmyshow', sourceName: 'BookMyShow' },
-    { type: 'tabletennis_event', collectionPath: 'scraped_events/tabletennis_event/ttfi', sourceName: 'TTFI' }
-];
+    { type: 'tabletennis_event', collectionPath: 'scraped_events/tabletennis_event/ttfi', sourceName: 'TTFI' },
+    { type: 'chess_event', collectionPath: 'scraped_events/chess_event/aicf', sourceName: 'AICF' },
+    { type: 'chess_event', collectionPath: 'scraped_events/chess_event/events', sourceName: 'AICF' },
+    { type: 'tennis_event', collectionPath: 'scraped_events/tennis_event/tenniskhelo', sourceName: 'TennisKhelo' }
+];  
 
 const ICONS = {
     cycle: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12h18M3 6h18M3 18h18"/></svg>`,
@@ -283,6 +286,7 @@ function normalizeEventData(data, sourceConfig, docId) {
         else if (sourceConfig.type === 'run_event') title = "Running Event";
         else if (sourceConfig.type === 'tabletennis_event') title = "Table Tennis Event";
         else if (sourceConfig.type === 'chess_event') title = "Chess Event";
+        else if (sourceConfig.type === 'tennis_event') title = "Tennis Event";
         else title = "Sports Event";
     }
 
@@ -303,7 +307,9 @@ function normalizeEventData(data, sourceConfig, docId) {
         displayType = "Table Tennis";
     } else if (sourceConfig.type === 'chess_event') {
         displayType = "Chess";
-    }
+    } else if (sourceConfig.type === 'tennis_event') {
+        displayType = "Tennis";
+    } 
 
 
     const organizerName = sourceConfig.type === 'organizer' ? (data.organizerName || 'Local Organizer') : sourceConfig.sourceName;
@@ -335,6 +341,7 @@ function normalizeEventData(data, sourceConfig, docId) {
         price: data.registration_fee || "Check Link",
         url: sourceConfig.type === 'organizer' ? `event-details.html?id=${docId}` : (data.url || "#"),
         views: views,
+        isPlatformEvent: sourceConfig.type === 'organizer'
     };
 }
 
@@ -427,6 +434,10 @@ function createCardHTML(event, index) {
     }
     else if (event.type === 'chess_event') {
         slideImage = 'Assets/chess.png';
+        iconSvg = ICONS.default; 
+    } 
+    else if (event.type === 'tennis_event') {
+        slideImage = 'Assets/tennis.png';
         iconSvg = ICONS.default;
     }
 
@@ -582,7 +593,7 @@ function makeCardDraggable(card, eventData) {
             e.preventDefault();
             e.stopPropagation();
         } else {
-            trackEventClick(eventData.id, eventData.type === 'organizer', eventData.url);
+            trackEventClick(eventData.id, eventData.isPlatformEvent, eventData.url);
         }
     });
 
