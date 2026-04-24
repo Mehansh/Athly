@@ -521,7 +521,7 @@ body {
 
 .cardBgIcon {
     position: absolute;
-    left: 350px;
+    left: 400px;
     bottom: -3px;
     height: 100%;
     width: auto;
@@ -904,9 +904,8 @@ body {
     position: fixed;
     top: 0;
     left: 0;
-    width: 765px; /* Much wider to allow a smooth fade */
+    width: 765px;
     height: 100vh;
-    /* 3-step gradient for a buttery smooth fade out */
     background: linear-gradient(90deg, rgba(239, 68, 68, 0.25) 0%, rgba(239, 68, 68, 0.05) 40%, transparent 100%);
     box-shadow: inset 40px 0 100px -20px rgba(239, 68, 68, 0.15);
     z-index: 9998;
@@ -924,16 +923,12 @@ body {
     box-shadow: inset 80px 0 120px -20px rgba(239, 68, 68, 0.3);
 }
 
-/* ==========================================
-   SWIPE TO SUBSCRIBE ZONE (RIGHT - BLUE)
-   ========================================== */
 #subscribe-zone {
     position: fixed;
     top: 0;
     right: 0;
-    width: 765px; /* Much wider to allow a smooth fade */
+    width: 765px;
     height: 100vh;
-    /* 3-step gradient for a buttery smooth fade out using Blue */
     background: linear-gradient(-90deg, rgba(59, 130, 246, 0.25) 0%, rgba(59, 130, 246, 0.05) 40%, transparent 100%);
     box-shadow: inset -40px 0 100px -20px rgba(59, 130, 246, 0.15);
     z-index: 9998;
@@ -949,12 +944,9 @@ body {
 #subscribe-zone.drag-over {
     background: linear-gradient(-90deg, rgba(59, 130, 246, 0.4) 0%, rgba(59, 130, 246, 0.1) 50%, transparent 100%);
     box-shadow: inset -80px 0 120px -20px rgba(59, 130, 246, 0.3);
-    /* Removed the dashed border for a cleaner look */
+    
 }
 
-/* ==========================================
-   DRAGGING CARD STATE
-   ========================================== */
 .card.is-dragging {
     z-index: 99999 !important;
     cursor: grabbing !important;
