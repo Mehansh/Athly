@@ -334,7 +334,7 @@ function normalizeEventData(data, sourceConfig, docId) {
         organizer: organizerName,
         date: data.date || "Date TBA",
         location: locationStr,
-        type: sourceConfig.type,
+        type: data.type || sourceConfig.type,
         displayType: displayType,
         distance: dist,
         difficulty: difficulty,

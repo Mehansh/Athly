@@ -678,10 +678,16 @@
                 // 1. Save Registration Data
                 await setDoc(doc(db, 'registrations', regDocId), payload);
 
-                // 2. Increment participant count on the source event
-                await updateDoc(doc(db, 'events', eventId), {
+                // 2. Update Event Stats (Participants & Revenue)
+                const eventUpdate = {
                     participants: increment(1)
-                });
+                };
+                
+                if (paymentId && eventData && eventData.price) {
+                    eventUpdate.revenue = increment(eventData.price);
+                }
+
+                await updateDoc(doc(db, 'events', eventId), eventUpdate);
 
                 // 3. Show ticket
                 showTicket(ticketId, payload);
@@ -768,16 +774,22 @@
                     canvas.height = 200;
                     const ctx = canvas.getContext('2d');
 
-                    if (qrImg.tagName === 'IMG') {
-                        qrImg.onload = () => drawBrandedQR(ctx, qrImg, canvas);
-                        // If cached, might load instantly
-                        if (qrImg.complete) drawBrandedQR(ctx, qrImg, canvas);
-                    } else {
+                    let isDrawn = false;
+                    const drawOnce = () => {
+                        if (isDrawn) return;
+                        isDrawn = true;
                         drawBrandedQR(ctx, qrImg, canvas);
+                    };
+
+                    if (qrImg.tagName === 'IMG') {
+                        qrImg.onload = drawOnce;
+                        if (qrImg.complete) drawOnce();
+                    } else {
+                        drawOnce();
                     }
 
                     qrContainer.appendChild(canvas);
-                }, 50);
+                }, 300);
 
                 function drawBrandedQR(ctx, sourceImg, canvas) {
                     ctx.drawImage(sourceImg, 0, 0, 200, 200);
@@ -789,7 +801,11 @@
 
                     ctx.fillStyle = '#ffffff';
                     ctx.beginPath();
-                    ctx.roundRect(x, y, boxSize, boxSize, 8);
+                    if (ctx.roundRect) {
+                        ctx.roundRect(x, y, boxSize, boxSize, 8);
+                    } else {
+                        ctx.rect(x, y, boxSize, boxSize);
+                    }
                     ctx.fill();
 
                     // Draw box border
@@ -854,6 +870,13 @@
                     if (parts.size > 0) location = Array.from(parts).join(', ');
                 }
 
+                const qrData = JSON.stringify({
+                    ticketId: ticketId,
+                    eventId: eventId,
+                    athleteName: registrationData.name,
+                    paymentId: paymentId || 'free'
+                });
+
                 const templateParams = {
                     to_email: registrationData.email,
                     to_name: registrationData.name,
@@ -861,7 +884,8 @@
                     ticket_id: ticketId,
                     event_date: eventData?.date || 'TBD',
                     event_location: location,
-                    payment_id: paymentId || 'Free Event'
+                    payment_id: paymentId || 'Free Event',
+                    qr_code_url: `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrData)}`
                 };
 
                 await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);

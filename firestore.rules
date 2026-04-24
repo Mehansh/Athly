@@ -48,7 +48,7 @@ service cloud.firestore {
                     || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['clicks'])
                         && request.resource.data.clicks == resource.data.clicks + 1)
                     || (isSignedIn()
-                        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['participants'])
+                        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['participants', 'revenue'])
                         && request.resource.data.participants == resource.data.participants + 1);
       allow delete: if isSignedIn() && request.auth.uid == resource.data.organizerId;
     }
