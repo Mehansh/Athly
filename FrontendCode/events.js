@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, getDocs, doc, updateDoc, increment, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs, doc, updateDoc, increment, getDoc, query, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const firebaseConfig = {
@@ -251,7 +251,8 @@ async function fetchAndRenderEvents() {
     try {
         const promises = EVENT_SOURCES.map(async (source) => {
             const colRef = collection(db, source.collectionPath);
-            const snapshot = await getDocs(colRef);
+            const q = query(colRef, limit(20)); // Limit reads to 20 docs per collection to avoid quota overrun
+            const snapshot = await getDocs(q);
             return snapshot.docs.map(docSnap => {
                 const data = docSnap.data();
                 return normalizeEventData(data, source, docSnap.id);
