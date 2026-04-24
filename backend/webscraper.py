@@ -210,7 +210,7 @@ def scrape_audax_india(session=None, headers=None):
                     "type": "cycle_event"
                 })
     clear_events_for_website("cycle_event", "audaxindia")
-    save_events_batch(events[:10], "audaxindia")
+    save_events_batch(events[:5], "audaxindia")
 
 def scrape_district():
     print("Scraping District...")
@@ -218,7 +218,7 @@ def scrape_district():
     URL = "https://www.district.in/activities/"
     EVENT_TYPE = "activity_event"
     WEBSITE = "district"
-    MAX_EVENTS = 10
+    MAX_EVENTS = 5
 
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
     driver.get(URL)
@@ -274,7 +274,7 @@ def scrape_HCL_cyclothon():
 
     EVENT_TYPE = "cycle_event"
     WEBSITE = "hclcyclothon"
-    MAX_EVENTS = 10
+    MAX_EVENTS = 5
 
     EDITION_URLS = {
         "Noida": "https://hclcyclothon.com/noida",
@@ -375,7 +375,7 @@ def scrape_champ_endurance():
 
     EVENT_TYPE = "run_event"
     WEBSITE = "champendurance"
-    MAX_EVENTS = 10
+    MAX_EVENTS = 5
     BASE_URL = "https://www.champendurance.com/all-events"
 
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
@@ -448,7 +448,7 @@ def scrape_ifinish():
     
     EVENT_TYPE = "run_event"
     WEBSITE = "ifinish"
-    MAX_EVENTS = 20
+    MAX_EVENTS = 5
     URL = "https://ifinish.in/"
     
     # Initialize driver with proper setup
@@ -622,7 +622,7 @@ def scrape_ifinish():
     # Remove duplicates based on name
     unique_events = []
     seen_names = set()
-    for event in events:
+    for event in events[:5]:
         if event["name"] not in seen_names and event["name"] != "Unknown":
             seen_names.add(event["name"])
             unique_events.append(event)
@@ -657,7 +657,7 @@ def scrape_townscript():
     
     EVENT_TYPE = "run_event"
     WEBSITE = "townscript"
-    MAX_EVENTS = 50
+    MAX_EVENTS = 5
     URL = "https://www.townscript.com/in/online/sports-fitness"
     
     # Initialize driver
@@ -855,7 +855,7 @@ def scrape_townscript():
     # Remove duplicates
     unique_events = []
     seen_names = set()
-    for event in events:
+    for event in events[:5]:
         if event["name"] not in seen_names and event["name"] != "Unknown" and not any(skip in event["name"].lower() for skip in ["showing", "results"]):
             seen_names.add(event["name"])
             unique_events.append(event)
@@ -897,7 +897,7 @@ def scrape_meraevents():
     
     EVENT_TYPE = "sports_event"  # Can be updated based on category
     WEBSITE = "meraevents"
-    MAX_EVENTS = 50
+    MAX_EVENTS = 5
     URL = "https://www.meraevents.com/search"
     
     # Initialize driver
@@ -1077,7 +1077,7 @@ def scrape_meraevents():
     # Remove duplicates
     unique_events = []
     seen_names = set()
-    for event in events:
+    for event in events[:5]:
         if event["name"] not in seen_names and event["name"] != "Unknown" and len(event["name"]) > 3:
             seen_names.add(event["name"])
             unique_events.append(event)
@@ -1164,7 +1164,7 @@ def scrape_ttfi(session=None, headers=None):
         })
 
     if events:
-        save_events_batch(events, website=WEBSITE)
+        save_events_batch(events[:5], website=WEBSITE)
         print(f"Successfully scraped {len(events)} events from TTFI.")
 
 def scrape_chess_events():
@@ -1215,7 +1215,7 @@ def scrape_chess_events():
         print(f"[Chess] Scraped {len(events)} events")
 
         
-        for event in events:
+        for event in events[:5]:
             db.collection("scraped_events") \
               .document("chess_event") \
               .collection("aicf") \
@@ -1295,7 +1295,7 @@ def scrape_tennis_events():
     print(f"[Tennis] Scraped {len(events)} events")
 
     
-    for event in events:
+    for event in events[:5]:
         db.collection("scraped_events") \
           .document("tennis_event") \
           .collection(WEBSITE) \
@@ -1354,7 +1354,7 @@ def scrape_athletics_events():
     print(f"[Athletics] Scraped {len(events)} events")
 
     
-    for event in events:
+    for event in events[:5]:
         db.collection("scraped_events") \
           .document("athletic_event") \
           .collection(WEBSITE) \
@@ -1363,16 +1363,16 @@ def scrape_athletics_events():
     print(f"[Athletics] Successfully saved {len(events)} events")
 
 def run_all():
-    # scrape_audax_india()
-    #scrape_district()
-    # scrape_HCL_cyclothon()
-    # scrape_champ_endurance()
-    # scrape_ifinish()
-    # scrape_townscript()  
-    # scrape_meraevents()
-    # scrape_ttfi()
-    # scrape_chess_events()
-    # scrape_tennis_events()
+    scrape_audax_india()
+    scrape_district()
+    scrape_HCL_cyclothon()
+    scrape_champ_endurance()
+    scrape_ifinish()
+    scrape_townscript()  
+    scrape_meraevents()
+    scrape_ttfi()
+    scrape_chess_events()
+    scrape_tennis_events()
     scrape_athletics_events()
     
 
