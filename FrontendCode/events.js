@@ -39,7 +39,10 @@ const EVENT_SOURCES = [
     { type: 'cycle_event', collectionPath: 'scraped_events/cycle_event/hclcyclothon', sourceName: 'HCL Cyclothon' },
     { type: 'run_event', collectionPath: 'scraped_events/run_event/champendurance', sourceName: 'Champ Endurance' },
     { type: 'sports_event', collectionPath: 'scraped_events/sports_event/bookmyshow', sourceName: 'BookMyShow' },
-    { type: 'tabletennis_event', collectionPath: 'scraped_events/tabletennis_event/ttfi', sourceName: 'TTFI' }
+    { type: 'tabletennis_event', collectionPath: 'scraped_events/tabletennis_event/ttfi', sourceName: 'TTFI' },
+    { type: 'chess_event', collectionPath: 'scraped_events/chess_event/aicf', sourceName: 'AICF' },
+    { type: 'chess_event', collectionPath: 'scraped_events/chess_event/events', sourceName: 'AICF' },
+    { type: 'tennis_event', collectionPath: 'scraped_events/tennis_event/tenniskhelo', sourceName: 'TennisKhelo' }
 ];  
 
 const ICONS = {
@@ -283,6 +286,7 @@ function normalizeEventData(data, sourceConfig, docId) {
         else if (sourceConfig.type === 'run_event') title = "Running Event";
         else if (sourceConfig.type === 'tabletennis_event') title = "Table Tennis Event";
         else if (sourceConfig.type === 'chess_event') title = "Chess Event";
+        else if (sourceConfig.type === 'tennis_event') title = "Tennis Event";
         else title = "Sports Event";
     }
 
@@ -303,7 +307,9 @@ function normalizeEventData(data, sourceConfig, docId) {
         displayType = "Table Tennis";
     } else if (sourceConfig.type === 'chess_event') {
         displayType = "Chess";
-    }
+    } else if (sourceConfig.type === 'tennis_event') {
+        displayType = "Tennis";
+    } 
 
 
     const organizerName = sourceConfig.type === 'organizer' ? (data.organizerName || 'Local Organizer') : sourceConfig.sourceName;
@@ -428,6 +434,10 @@ function createCardHTML(event, index) {
     else if (event.type === 'chess_event') {
         slideImage = 'Assets/chess.png';
         iconSvg = ICONS.default; 
+    } 
+    else if (event.type === 'tennis_event') {
+        slideImage = 'Assets/tennis.png';
+        iconSvg = ICONS.default;
     }
 
     const viewString = event.views > 1000 ? (event.views / 1000).toFixed(1) + 'k' : event.views;
