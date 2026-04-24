@@ -15,6 +15,9 @@ from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 import time
 import re
+
+import requests
+import pdfplumber
 db = getDatabase()
 
 HEADERS = {
@@ -59,8 +62,7 @@ def save_event(event, event_type = "cycle_event"):
 
     db.collection("scraped_events").document(event_id).set(event)
 
-def save_events_batch(events, website = "undefined", batch_size=100):
-    #firestore batch limit is 500
+def save_events_batch(events, website="undefined", batch_size=100):
     if not events:
         return
 
@@ -68,18 +70,35 @@ def save_events_batch(events, website = "undefined", batch_size=100):
     chunks = ceil(total / batch_size)
     idx = 0
 
-    for c in range(chunks):
+    for _ in range(chunks):
         batch = db.batch()
         chunk = events[idx: idx + batch_size]
+
         for ev in chunk:
-            unique_string = f"{ev.get('city','')}/{ev.get('club','')}/{ev.get('date','')}/{ev.get('href','')}"
-            unique_id = hashlib.md5(unique_string.encode('utf-8')).hexdigest()
-            event_id = f"{ev.get('type','')}/{website}/{unique_id}"
-            doc_ref = db.collection("scraped_events").document(event_id)
+            # Universal safe unique fields
+            name = ev.get("name") or ev.get("club") or ev.get("event") or "unknown"
+            date = ev.get("date") or ev.get("start_date") or "unknown"
+            location = ev.get("location") or ev.get("venue") or ev.get("city") or "unknown"
+            url = ev.get("url", "")
+
+            unique_string = f"{name}_{date}_{location}_{url}"
+            unique_id = hashlib.md5(unique_string.encode("utf-8")).hexdigest()
+
+            event_type = ev.get("type", "default")
+
+            doc_ref = (
+                db.collection("scraped_events")
+                  .document(event_type)          # tennis_event
+                  .collection(website)           # buzzato
+                  .document(unique_id)           # actual event
+            )
+
             batch.set(doc_ref, ev)
 
+            # keep your vector DB logic
             text, metadata = normalize_event(ev)
             addEvents(text, metadata)
+
         batch.commit()
         idx += batch_size
 
@@ -101,7 +120,7 @@ def clear_events_for_website(event_type="default", website="default"):
         batch.delete(doc.reference)
         count += 1
 
-        #Firestore batch safety (max 500)
+        
         if count % 400 == 0:
             batch.commit()
             batch = db.batch()
@@ -128,18 +147,9 @@ date is in (day/month) format.
 def scrape_audax_india(session=None, headers=None):
     BASE_URL = "https://www.audaxindia.in/events.php"
     days = {
-        "jan":"01",
-        "feb":"02",
-        "mar":"03",
-        "apr":"04",
-        "may":"05",
-        "jun":"06",
-        "jul":"07",
-        "aug":"08",
-        "sep":"09",
-        "oct":"10",
-        "nov":"11",
-        "dec":"12"
+        "jan": "01", "feb": "02", "mar": "03", "apr": "04",
+        "may": "05", "jun": "06", "jul": "07", "aug": "08",
+        "sep": "09", "oct": "10", "nov": "11", "dec": "12"
     }
 
     if session is None:
@@ -153,17 +163,15 @@ def scrape_audax_india(session=None, headers=None):
 
     header = soup.select_one("table.top-head thead.header")
     if not header:
-        raise RuntimeError("Could not find header table (table.top-head thead.header)")
+        raise RuntimeError("Header table not found")
 
     ths = header.find_all("th")
     months = [th.get_text(strip=True) for th in ths]
     months = months[1:13]
 
-    table = soup.find("table", id="mytable")
+    table = soup.find("table", id="mytable") or soup.select_one("table.innertable")
     if table is None:
-        table = soup.select_one("table.innertable")
-        if table is None:
-            raise RuntimeError("Could not find events table (id=mytable or table.innertable)")
+        raise RuntimeError("Events table not found")
 
     events = []
     day_re = re.compile(r"\b(\d{1,2})\b")
@@ -176,6 +184,7 @@ def scrape_audax_india(session=None, headers=None):
         first = tds[0]
         strong = first.find("strong")
         city = strong.get_text(strip=True) if strong else first.get_text(strip=True).splitlines()[0]
+
         club_lines = []
         for content in first.contents:
             if getattr(content, "name", None) == "strong":
@@ -183,12 +192,14 @@ def scrape_audax_india(session=None, headers=None):
             text = (content.get_text(strip=True) if getattr(content, "get_text", None) else (str(content).strip()))
             if text:
                 club_lines.append(text)
+
         club = " ".join(club_lines).replace("\n", " ").strip()
 
         for col_index, month in enumerate(months, start=1):
             if col_index >= len(tds):
                 break
             cell = tds[col_index]
+
             for a in cell.find_all("a"):
                 href = a.get("href", "")
                 if "event-e-" not in href:
@@ -198,10 +209,11 @@ def scrape_audax_india(session=None, headers=None):
                 m = day_re.search(text)
                 if not m:
                     continue
-                day = m.group(1)
 
+                day = m.group(1)
                 full_url = urljoin(BASE_URL, href)
                 date = f"{day}/{days.get(month.lower(), '??')}"
+
                 events.append({
                     "location": city,
                     "club": club,
@@ -211,63 +223,6 @@ def scrape_audax_india(session=None, headers=None):
                 })
     clear_events_for_website("cycle_event", "audaxindia")
     save_events_batch(events[:5], "audaxindia")
-
-def scrape_district():
-    print("Scraping District...")
-
-    URL = "https://www.district.in/activities/"
-    EVENT_TYPE = "activity_event"
-    WEBSITE = "district"
-    MAX_EVENTS = 5
-
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
-    driver.get(URL)
-    time.sleep(6)
-
-    for _ in range(2):
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        time.sleep(5)
-
-    links = driver.find_elements(
-        By.XPATH, "//a[contains(@href, '/events/') and string-length(normalize-space()) > 20]"
-    )
-
-    events = []
-
-    for link in links:
-        href = link.get_attribute("href")
-        raw_text = link.text.strip()
-
-        if not raw_text or href.endswith("/events/"):
-            continue
-
-        if any(w in raw_text.lower() for w in ["off","free","discount","sale","offer"]):
-            continue
-
-        lines = [l.strip() for l in raw_text.split("\n") if l.strip()]
-        event_name, date, city = "Unknown Event", "Not Available", "Not Available"
-
-        for line in lines:
-            if "₹" in line:
-                continue
-            elif any(d in line for d in ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]):
-                date = line
-            elif any(c in line for c in ["Mumbai","Delhi","Gurgaon","Noida","Pune","Bangalore"]):
-                city = line
-            elif event_name == "Unknown Event":
-                event_name = line
-
-        events.append({
-            "location": city,
-            "club": event_name,
-            "date": date,
-            "url": href,
-            "type": EVENT_TYPE
-        })
-
-    driver.quit()
-    clear_events_for_website(EVENT_TYPE, WEBSITE)
-    save_events_batch(events[:MAX_EVENTS], WEBSITE)
 
 def scrape_HCL_cyclothon():
     print("Scraping HCL Cyclothon...")
@@ -333,11 +288,11 @@ def scrape_HCL_cyclothon():
             if category_name == "Not Available":
                 continue
 
-            # Extract distance
+            #distance
             distance_matches = re.findall(r"\d+\s?km", text.lower())
             distances = list(set(distance_matches)) if distance_matches else ["Not Available"]
 
-            # Extract bicycle type
+            #bicycle type
             bicycle_type = "Not Available"
             if "Road Cycles" in text:
                 bicycle_type = "Road"
@@ -348,7 +303,7 @@ def scrape_HCL_cyclothon():
             elif "Any cycle" in text:
                 bicycle_type = "Any"
 
-            # Extract registration fee
+            #registration fee
             fee_match = re.search(r"₹\d+", text)
             registration_fee = fee_match.group(0) if fee_match else "Not Available"
 
@@ -400,22 +355,17 @@ def scrape_champ_endurance():
         if not event_name:
             continue
 
-        # Open event page
+        
         driver.get(event_url)
         time.sleep(4)
 
         detail_soup = BeautifulSoup(driver.page_source, "html.parser")
         full_text = detail_soup.get_text(" ", strip=True)
 
-        # ---------------------
-        # Extract Distances
-        # ---------------------
         distances = re.findall(r"\d+\s?km", full_text.lower())
         distances = list(set(distances)) if distances else ["Not Available"]
 
-        # ---------------------
-        # Extract Participants
-        # ---------------------
+ 
         participants = "Not Available"
         part_match = re.search(r"(\d{2,6})\s*(Participants|Runners)", full_text, re.IGNORECASE)
         if part_match:
@@ -451,83 +401,80 @@ def scrape_ifinish():
     MAX_EVENTS = 5
     URL = "https://ifinish.in/"
     
-    # Initialize driver with proper setup
+    
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
     driver.get(URL)
     
-    # Wait for page to load properly
+    
     wait = WebDriverWait(driver, 10)
     wait.until(EC.presence_of_element_located((By.TAG_NAME, "body")))
-    time.sleep(5)  # Additional wait for JavaScript
+    time.sleep(5)  
     
     events = []
     
-    # Get page source and parse with BeautifulSoup
     page_text = driver.page_source
     soup = BeautifulSoup(page_text, "html.parser")
     
-    # Save page source for debugging
+    
     with open("ifinish_debug.html", "w", encoding="utf-8") as f:
         f.write(page_text)
-    print("📄 Page source saved to ifinish_debug.html for debugging")
+    print("Page source saved to ifinish_debug.html for debugging")
     
-    # Find all event containers - look for divs that contain dates
-    date_pattern = re.compile(r"\d{2}-\d{2}-\d{4}")  # Matches dates like 25-03-2026
     
-    # Method 1: Find all elements that contain dates and get their parent containers
+    date_pattern = re.compile(r"\d{2}-\d{2}-\d{4}") 
+    
+    
     date_elements = soup.find_all(string=date_pattern)
     print(f"Found {len(date_elements)} date elements")
     
     for date_elem in date_elements:
-        # Get the parent container (go up several levels to find the event card)
         container = date_elem
-        for _ in range(5):  # Go up to 5 levels to find the event container
+        for _ in range(5):  
             container = container.parent
             if not container:
                 break
         
         if container:
-            # Get all text in this container
             container_text = container.get_text(separator="\n", strip=True)
             
-            # Try to find event name - look for text that's not a date or location
+            
             lines = [line.strip() for line in container_text.split("\n") if line.strip()]
             
             event_name = "Unknown"
             location = "Unknown"
             event_date = date_elem.strip()
             
-            # Common location keywords
+            
             location_keywords = ["KBR", "Dwarka", "Nagole", "Banjara", "Hyderabad", "Delhi", "Mumbai", "Bangalore", "Park", "Road"]
             
-            # Common organizer keywords
+            
             organizer_keywords = ["Society", "Tribe", "Marathon", "Club", "Runners", "TechieRide", "Universal", "High Five"]
             
-            # Analyze each line to find event name, location, and organizer
+            
             for line in lines:
-                # Skip lines that are just dates
+                
                 if date_pattern.search(line):
                     continue
                 
-                # Check if this line contains location
+                
                 if any(keyword in line for keyword in location_keywords):
                     location = line
                     continue
                 
-                # Check if this line contains organizer
+                
                 if any(keyword in line for keyword in organizer_keywords):
-                    if event_name == "Unknown":  # If we haven't found name yet, use this
+                    if event_name == "Unknown":  
                         event_name = line
                     continue
                 
-                # If line has reasonable length (not too short, not too long), it might be event name
+                
                 if 5 < len(line) < 100 and not any(c.isdigit() for c in line[:10]):
-                    # Check if it's not just a location
+                    
                     if not any(keyword in line for keyword in location_keywords):
                         if event_name == "Unknown" or len(line) > len(event_name):
                             event_name = line
             
-            # Try to find event name from headings in the container
+            
             if event_name == "Unknown":
                 headings = container.find_all(["h1", "h2", "h3", "h4", "strong", "b"])
                 for heading in headings:
@@ -536,7 +483,7 @@ def scrape_ifinish():
                         event_name = heading_text
                         break
             
-            # Try to find organizer
+            
             organizer = "iFINISH Event"
             for keyword in organizer_keywords:
                 for elem in container.find_all(string=re.compile(keyword, re.IGNORECASE)):
@@ -544,7 +491,7 @@ def scrape_ifinish():
                         organizer = elem.strip()
                         break
             
-            # Clean up event name - remove extra whitespace and common prefixes
+            
             event_name = re.sub(r'\s+', ' ', event_name).strip()
             if event_name and event_name != "Unknown":
                 events.append({
@@ -557,22 +504,22 @@ def scrape_ifinish():
                 })
                 print(f"✓ Found: {event_name} | {event_date} | {location}")
     
-    # Method 2: If still no events, try looking for event cards directly
+    
     if len(events) < 5:
         print("\nTrying alternative extraction method...")
         
-        # Look for any div that contains both a date and event-related text
+        
         all_divs = soup.find_all("div")
         for div in all_divs:
             div_text = div.get_text(strip=True)
             
-            # Check if this div contains a date
+            
             date_match = date_pattern.search(div_text)
             if date_match:
-                # Check if it contains event-related keywords
+                
                 event_keywords = ["RUN", "MARATHON", "RACE", "TRIBE", "MILE", "DERMATHON", "SKIN", "EDUCATION", "FUNDRAISING"]
                 if any(keyword in div_text.upper() for keyword in event_keywords):
-                    # Extract event name - look for text before the date or in headings
+                    
                     lines = [line.strip() for line in div_text.split("\n") if line.strip()]
                     
                     event_name = "Unknown"
@@ -593,7 +540,7 @@ def scrape_ifinish():
                         })
                         print(f"✓ Found (alt): {event_name} | {date_match.group(0)}")
     
-    # Method 3: Look for specific event titles from your screenshot
+    
     if len(events) < 5:
         print("\nUsing predefined event patterns from screenshot...")
         
@@ -607,7 +554,7 @@ def scrape_ifinish():
         ]
         
         for known in known_events:
-            # Check if this event is already in our list
+            
             if not any(e["name"] == known["name"] for e in events):
                 events.append({
                     "location": known["location"],
@@ -619,7 +566,7 @@ def scrape_ifinish():
                 })
                 print(f"✓ Added from preset: {known['name']}")
     
-    # Remove duplicates based on name
+    
     unique_events = []
     seen_names = set()
     for event in events[:5]:
@@ -629,8 +576,8 @@ def scrape_ifinish():
     
     driver.quit()
     
-    # Print found events
-    print(f"\n📋 Found {len(unique_events)} events:")
+    
+    print(f"\nFound {len(unique_events)} events:")
     if unique_events:
         for i, event in enumerate(unique_events, 1):
             print(f"  {i}. {event['name']}")
@@ -642,296 +589,57 @@ def scrape_ifinish():
         print("  No events were found on the page")
         print("  Check ifinish_debug.html to see the actual page structure")
     
-    # Save to Firestore if events found
+    
     if unique_events:
         clear_events_for_website(EVENT_TYPE, WEBSITE)
         save_events_batch(unique_events[:MAX_EVENTS], WEBSITE)
-        print(f"✅ Saved {min(len(unique_events), MAX_EVENTS)} events to Firestore")
+        print(f"Saved {min(len(unique_events), MAX_EVENTS)} events to Firestore")
     else:
-        print("⚠️ No events found to save")
+        print("No events found to save")
     
     return unique_events
 
-def scrape_townscript():
-    print("Scraping Townscript...")
-    
-    EVENT_TYPE = "run_event"
-    WEBSITE = "townscript"
-    MAX_EVENTS = 5
-    URL = "https://www.townscript.com/in/online/sports-fitness"
-    
-    # Initialize driver
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
-    driver.get(URL)
-    
-    # Wait for page to load
-    wait = WebDriverWait(driver, 10)
-    wait.until(EC.presence_of_element_located((By.TAG_NAME, "body")))
-    time.sleep(5)
-    
-    # Scroll multiple times to load all events
-    print("Scrolling to load more events...")
-    for i in range(5):
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        time.sleep(3)
-        print(f"  Scroll {i+1}/5 complete")
-    
-    # Get page source and parse
-    soup = BeautifulSoup(driver.page_source, "html.parser")
-    
-    # Save debug file
-    with open("townscript_debug.html", "w", encoding="utf-8") as f:
-        f.write(driver.page_source)
-    print("📄 Page source saved to townscript_debug.html")
-    
-    events = []
-    
-    # Method 1: Find event cards by looking for links to /event/
-    print("\nLooking for event links...")
-    event_links = soup.find_all("a", href=re.compile(r"/event/"))
-    print(f"Found {len(event_links)} event links")
-    
-    for link in event_links:
-        # Get the parent container (event card)
-        container = link
-        for _ in range(5):
-            container = container.parent
-            if not container:
-                break
-        
-        if container:
-            container_text = container.get_text(separator="\n", strip=True)
-            
-            # Extract Event Name - try different methods
-            name = None
-            
-            # Try to find name in headings within container
-            headings = container.find_all(["h2", "h3", "h4", "strong", "b"])
-            for heading in headings:
-                heading_text = heading.get_text(strip=True)
-                if len(heading_text) > 5 and len(heading_text) < 100:
-                    if not any(skip in heading_text.lower() for skip in ["showing", "results", "price", "date"]):
-                        name = heading_text
-                        break
-            
-            # If no heading found, try the link text itself
-            if not name and link.get_text(strip=True):
-                link_text = link.get_text(strip=True)
-                if len(link_text) > 5 and len(link_text) < 100:
-                    name = link_text
-            
-            # If still no name, try first meaningful line
-            if not name:
-                lines = [l.strip() for l in container_text.split("\n") if l.strip()]
-                for line in lines:
-                    if len(line) > 10 and len(line) < 100 and "₹" not in line and not re.search(r'\d{2}-\d{2}', line):
-                        if not any(skip in line.lower() for skip in ["showing", "results"]):
-                            name = line
-                            break
-            
-            if not name:
-                continue
-            
-            # Extract Price
-            price = "Free"
-            price_match = re.search(r'[₹]\s*\d+(?:\.\d+)?(?:\s*onwards)?', container_text)
-            if price_match:
-                price = price_match.group(0)
-            elif re.search(r'\bFree\b', container_text, re.IGNORECASE):
-                price = "Free"
-            
-            # Extract Date - look for date patterns
-            date_text = "Date Unknown"
-            date_patterns = [
-                r'(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2}\s*[-–]\s*(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)?\s*\d{1,2}',  # Mar 08 - Apr 07
-                r'(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2}(?:st|nd|rd|th)?',  # Apr 7th
-                r'\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{4}',  # 07 Apr 2026
-                r'\d{2}[-/]\d{2}[-/]\d{4}',  # 08-03-2026
-                r'\d{1,2}\s*[-–]\s*\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)',  # 08 - 15 Mar
-            ]
-            
-            for pattern in date_patterns:
-                date_match = re.search(pattern, container_text, re.IGNORECASE)
-                if date_match:
-                    date_text = date_match.group(0)
-                    break
-            
-            # Extract Location
-            location = "Online"
-            location_match = re.search(r'\b(Online|Virtual)\b', container_text, re.IGNORECASE)
-            if location_match:
-                location = location_match.group(0)
-            
-            # Get event URL
-            event_url = urljoin(URL, link.get("href")) if link.get("href") else URL
-            
-            # Clean up name
-            name = re.sub(r'\s+', ' ', name).strip()
-            
-            # Skip duplicates
-            if not any(e["name"] == name for e in events):
-                events.append({
-                    "location": location,
-                    "club": "Townscript",
-                    "date": date_text,
-                    "name": name,
-                    "price": price,
-                    "url": event_url,
-                    "type": EVENT_TYPE
-                })
-                print(f"  ✓ Found: {name}")
-                print(f"       Date: {date_text}")
-                print(f"       Price: {price}")
-    
-    # Method 2: Look for specific event cards using CSS selectors
-    if len(events) < 10:
-        print("\nTrying alternative method with specific selectors...")
-        
-        # Try different selectors based on common Townscript patterns
-        selectors = [
-            "div[class*='EventCard']",
-            "div[class*='event-card']",
-            "div[class*='card']",
-            "div[data-testid*='event']"
-        ]
-        
-        for selector in selectors:
-            cards = soup.select(selector)
-            if cards:
-                print(f"Found {len(cards)} cards with selector: {selector}")
-                
-                for card in cards:
-                    card_text = card.get_text(separator="\n", strip=True)
-                    
-                    # Extract name from headings
-                    name = None
-                    headings = card.find_all(["h2", "h3", "h4"])
-                    for heading in headings:
-                        heading_text = heading.get_text(strip=True)
-                        if len(heading_text) > 5 and len(heading_text) < 100:
-                            name = heading_text
-                            break
-                    
-                    if not name:
-                        continue
-                    
-                    # Extract price
-                    price = "Free"
-                    price_match = re.search(r'[₹]\s*\d+(?:\.\d+)?', card_text)
-                    if price_match:
-                        price = price_match.group(0)
-                    elif "Free" in card_text:
-                        price = "Free"
-                    
-                    # Extract date
-                    date_text = "Date Unknown"
-                    date_match = re.search(r'(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2}\s*[-–]\s*(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)?\s*\d{1,2}', card_text, re.IGNORECASE)
-                    if date_match:
-                        date_text = date_match.group(0)
-                    
-                    # Get URL
-                    link = card.find("a", href=re.compile(r"/event/"))
-                    event_url = urljoin(URL, link.get("href")) if link else URL
-                    
-                    name = re.sub(r'\s+', ' ', name).strip()
-                    
-                    if not any(e["name"] == name for e in events):
-                        events.append({
-                            "location": "Online",
-                            "club": "Townscript",
-                            "date": date_text,
-                            "name": name,
-                            "price": price,
-                            "url": event_url,
-                            "type": EVENT_TYPE
-                        })
-                        print(f"  ✓ Found (alt): {name} | {date_text} | {price}")
-                
-                if len(events) >= 10:
-                    break
-    
-    driver.quit()
-    
-    # Remove duplicates
-    unique_events = []
-    seen_names = set()
-    for event in events[:5]:
-        if event["name"] not in seen_names and event["name"] != "Unknown" and not any(skip in event["name"].lower() for skip in ["showing", "results"]):
-            seen_names.add(event["name"])
-            unique_events.append(event)
-    
-    # Print summary
-    print("\n" + "=" * 50)
-    print(f"📊 TOTAL EVENTS FOUND: {len(unique_events)}")
-    print("=" * 50)
-    
-    if unique_events:
-        for i, event in enumerate(unique_events[:15], 1):
-            print(f"{i}. {event['name']}")
-            print(f"   📅 Date: {event['date']}")
-            print(f"   💰 Price: {event['price']}")
-            print(f"   📍 Location: {event['location']}")
-            print()
-        
-        if len(unique_events) > 15:
-            print(f"... and {len(unique_events) - 15} more events")
-    else:
-        print("⚠️ No events found. Check townscript_debug.html for page structure")
-        print("\n💡 Suggestion: Open townscript_debug.html in a browser and look for:")
-        print("   - What HTML tags contain event names?")
-        print("   - What CSS classes are used for event cards?")
-        print("   - Share a snippet and I'll help you fix it")
-    
-    # Save to Firestore
-    if unique_events:
-        clear_events_for_website(EVENT_TYPE, WEBSITE)
-        save_events_batch(unique_events[:MAX_EVENTS], WEBSITE)
-        print(f"✅ Saved {min(len(unique_events), MAX_EVENTS)} events to Firestore")
-    else:
-        print("⚠️ No events found to save")
-    
-    return unique_events
 
 def scrape_meraevents():
     print("Scraping MeraEvents...")
     
-    EVENT_TYPE = "sports_event"  # Can be updated based on category
+    EVENT_TYPE = "sports_event"  
     WEBSITE = "meraevents"
     MAX_EVENTS = 5
     URL = "https://www.meraevents.com/search"
     
-    # Initialize driver
+    
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
     driver.get(URL)
     
-    # Wait for page to load
+    
     wait = WebDriverWait(driver, 10)
     wait.until(EC.presence_of_element_located((By.TAG_NAME, "body")))
     time.sleep(5)
     
-    # Scroll to load more events
+    
     print("Scrolling to load more events...")
     for i in range(4):
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         time.sleep(3)
         print(f"  Scroll {i+1}/4 complete")
     
-    # Get page source
+    
     soup = BeautifulSoup(driver.page_source, "html.parser")
     
-    # Save debug file
+    
     with open("meraevents_debug.html", "w", encoding="utf-8") as f:
         f.write(driver.page_source)
-    print("📄 Page source saved to meraevents_debug.html")
+    print(" Page source saved to meraevents_debug.html")
     
     events = []
     
-    # Find event cards - from the structure, events are in divs with event info
-    # Look for event title links first
+    
+    
     event_titles = soup.find_all("a", class_=lambda x: x and ("title" in x.lower() if x else False))
     
     if not event_titles:
-        # Try finding any link with event title patterns
+        
         event_titles = soup.find_all("a", href=re.compile(r"/event/"))
     
     print(f"Found {len(event_titles)} potential event links")
@@ -939,11 +647,11 @@ def scrape_meraevents():
     for title_elem in event_titles:
         title_text = title_elem.get_text(strip=True)
         
-        # Skip if too short or looks like navigation
+        
         if len(title_text) < 5 or any(skip in title_text.lower() for skip in ["click here", "view more", "register", "more"]):
             continue
         
-        # Find the parent container for this event
+        
         container = title_elem
         for _ in range(5):
             container = container.parent
@@ -953,12 +661,12 @@ def scrape_meraevents():
         if container:
             container_text = container.get_text(separator="\n", strip=True)
             
-            # Extract Event Name
+            
             name = title_text
             
-            # Extract Date
+            
             date_text = "Date Unknown"
-            # Look for date patterns like "April 19, 2026" or "Mar 31, 2026"
+            
             date_patterns = [
                 r'(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2},\s+\d{4}',  # April 19, 2026
                 r'\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{4}',   # 19 April 2026
@@ -972,16 +680,16 @@ def scrape_meraevents():
                     date_text = date_match.group(0)
                     break
             
-            # Extract Location/City
+            
             location = "Unknown"
-            # Look for city names in the container
+            
             cities = ["Mumbai", "Delhi", "Bengaluru", "Bangalore", "Hyderabad", "Chennai", "Pune", "Kolkata", "Ahmedabad", "Jaipur", "Goa", "Guwahati", "Indore", "Varanasi", "New Delhi", "Online"]
             for city in cities:
                 if re.search(r'\b' + city + r'\b', container_text, re.IGNORECASE):
                     location = city
                     break
             
-            # Extract Category
+            
             category = "Sports"
             categories = ["Sports", "Professional", "College & Campus", "Entertainment", "Exhibitions", "Training", "Workshops", "Spiritual", "Wellness", "Activities", "Donations"]
             for cat in categories:
@@ -989,7 +697,7 @@ def scrape_meraevents():
                     category = cat
                     break
             
-            # Extract Price (if available)
+            
             price = "Not Specified"
             price_match = re.search(r'[₹]\s*\d+(?:\.\d+)?', container_text)
             if price_match:
@@ -997,10 +705,10 @@ def scrape_meraevents():
             elif "Free" in container_text:
                 price = "Free"
             
-            # Get event URL
+            
             event_url = urljoin(URL, title_elem.get("href")) if title_elem.get("href") else URL
             
-            # Determine event type based on category
+            
             event_type = EVENT_TYPE
             if "Sports" in category:
                 event_type = "sports_event"
@@ -1009,7 +717,7 @@ def scrape_meraevents():
             elif "College" in category:
                 event_type = "college_event"
             
-            # Clean up name
+            
             name = re.sub(r'\s+', ' ', name).strip()
             
             events.append({
@@ -1027,19 +735,19 @@ def scrape_meraevents():
             print(f"       Category: {category}")
             print()
     
-    # Method 2: Look for event cards using structure from the page
+    
     if len(events) < 10:
         print("\nTrying alternative extraction method...")
         
-        # Look for event entries in the results list
+        
         all_divs = soup.find_all("div")
         for div in all_divs:
             div_text = div.get_text(separator="\n", strip=True)
             
-            # Check if this div contains event-like content (has date pattern)
+            
             has_date = re.search(r'(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2},\s+\d{4}', div_text, re.IGNORECASE)
             if has_date and len(div_text) > 50:
-                # Try to find event name
+                
                 name = "Unknown"
                 headings = div.find_all(["h2", "h3", "strong", "b", "a"])
                 for heading in headings:
@@ -1050,11 +758,11 @@ def scrape_meraevents():
                             break
                 
                 if name != "Unknown":
-                    # Extract date
+                    
                     date_match = re.search(r'(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2},\s+\d{4}', div_text, re.IGNORECASE)
                     date_text = date_match.group(0) if date_match else "Date Unknown"
                     
-                    # Extract location
+                    
                     location = "Unknown"
                     for city in ["Mumbai", "Delhi", "Bengaluru", "Hyderabad", "Chennai", "Pune", "Kolkata", "Online"]:
                         if city in div_text:
@@ -1074,7 +782,7 @@ def scrape_meraevents():
     
     driver.quit()
     
-    # Remove duplicates
+    
     unique_events = []
     seen_names = set()
     for event in events[:5]:
@@ -1082,7 +790,7 @@ def scrape_meraevents():
             seen_names.add(event["name"])
             unique_events.append(event)
     
-    # Print summary
+    
     print("\n" + "=" * 50)
     print(f"TOTAL EVENTS FOUND: {len(unique_events)}")
     print("=" * 50)
@@ -1101,7 +809,7 @@ def scrape_meraevents():
     else:
         print("No events found. Check meraevents_debug.html for page structure")
     
-    # Save to Firestore
+    
     if unique_events:
         clear_events_for_website(EVENT_TYPE, WEBSITE)
         save_events_batch(unique_events[:MAX_EVENTS], WEBSITE)
@@ -1112,9 +820,12 @@ def scrape_meraevents():
     return unique_events
 
 def scrape_ttfi(session=None, headers=None):
+    print("[TTFI] Scraping started...")
+
     BASE_URL = "https://www.ttfi.org/events"
     WEBSITE = "ttfi"
     EVENT_TYPE = "tabletennis_event"
+    MAX_EVENTS = 5
 
     if session is None:
         session = requests.Session()
@@ -1129,32 +840,40 @@ def scrape_ttfi(session=None, headers=None):
         return
 
     soup = BeautifulSoup(resp.text, "html.parser")
-    event_items = soup.find_all("div", class_="carousel-item")
-    
+
     events = []
+
+    event_items = soup.find_all("div", class_=lambda x: x and "carousel-item" in x)
+
+    print(f"Found {len(event_items)} raw items")
+
     for item in event_items:
+
         title_tag = item.find("h2")
         if not title_tag:
             continue
         title = title_tag.get_text(strip=True)
 
-        organizer = ""
+        # Organizer
+        organizer = "TTFI"
         org_tag = item.find("p")
         if org_tag and org_tag.small:
             organizer = org_tag.small.get_text(strip=True).replace("Organized by:", "").strip()
 
+        # Date
         date = "Unknown"
         date_tag = item.find("h4")
         if date_tag:
             date = date_tag.get_text(strip=True).replace("Date:", "").strip()
 
+        # Venue
         location = "India"
         venue_tag = item.find("span", class_="vanue")
         if venue_tag:
             location = venue_tag.get_text(strip=True).replace("Venue:", "").strip()
 
         events.append({
-            "club": organizer if organizer else "TTFI",
+            "club": organizer,
             "name": title,
             "location": location,
             "date": date,
@@ -1163,9 +882,27 @@ def scrape_ttfi(session=None, headers=None):
             "distance": "N/A"
         })
 
-    if events:
-        save_events_batch(events[:5], website=WEBSITE)
-        print(f"Successfully scraped {len(events)} events from TTFI.")
+    unique_events = []
+    seen = set()
+
+    for ev in events:
+        key = ev["name"]
+        if key not in seen:
+            seen.add(key)
+            unique_events.append(ev)
+
+    print(f"Unique events found: {len(unique_events)}")
+
+    final_events = unique_events[:MAX_EVENTS]
+
+    if final_events:
+        clear_events_for_website(EVENT_TYPE, WEBSITE)
+        save_events_batch(final_events, website=WEBSITE)
+        print(f"Successfully saved {len(final_events)} events from TTFI.")
+    else:
+        print("No events found.")
+
+    return final_events
 
 def scrape_chess_events():
     print("[Chess] Scraping started...")
@@ -1201,9 +938,8 @@ def scrape_chess_events():
                 event = {
                     "name": name,
                     "event_code": event_code,
-                    "start_date": start_date,
-                    "end_date": end_date,
-                    "place": place,
+                    "date":start_date,
+                    "location": place,
                     "sport": "chess",
                     "type": "chess_event",
                     "source": "All India Chess Federation",
@@ -1226,154 +962,162 @@ def scrape_chess_events():
     except Exception as e:
         print(f"[Chess Scraper Error]: {e}")
 
-def scrape_tennis_events():
-    print("[Tennis] Scraping started...")
-
-    EVENT_TYPE = "tennis_event"
-    WEBSITE = "tenniskhelo"
-    URL = "https://tenniskhelo.com/tournaments/list"
-
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
-    driver.get(URL)
-
-    time.sleep(6)
-
-    # scroll to load all cards
-    for _ in range(3):
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        time.sleep(3)
-
-    soup = BeautifulSoup(driver.page_source, "html.parser")
-    events = []
-
-    
-    cards = soup.find_all("div")
-
-    for card in cards:
-
-        
-        title_tag = card.find(["h2", "h3", "h4"])
-        if not title_tag:
-            continue
-
-        name = title_tag.get_text(strip=True)
-
-        
-        if len(name) < 5:
-            continue
-
-        
-        full_text = card.get_text(" ", strip=True)
-
-        
-        venue_match = re.search(
-            r"[A-Za-z]+\s*,\s*[A-Za-z]+",
-            full_text
-        )
-        venue = venue_match.group(0) if venue_match else "Not Available"
-
-        
-        description = full_text.replace(name, "").strip()
-
-        
-        if any(e["name"] == name for e in events):
-            continue
-
-        event = {
-            "name": name,
-            "venue": venue,
-            "event_description": description,
-            "type": EVENT_TYPE,
-            "url": URL
-        }
-
-        events.append(event)
-        print(f"✓ {name} | {venue}")
-
-    driver.quit()
-
-    print(f"[Tennis] Scraped {len(events)} events")
-
-    
-    for event in events[:5]:
-        db.collection("scraped_events") \
-          .document("tennis_event") \
-          .collection(WEBSITE) \
-          .add(event)
-
-    print(f"[Tennis] Successfully saved {len(events)} events")
 
 def scrape_athletics_events():
     print("[Athletics] Scraping started...")
 
-    URL = "https://www.olympics.com/en/news/indian-athletics-calendar-2026-schedule"
-    WEBSITE = "olympics"
+    URL = "https://indianathletics.in/wp-content/uploads/2026/02/COMPETITION-CALENDAR-2026.pdf"
+    WEBSITE = "indianathletics"
+    EVENT_TYPE = "athletic_event"
+    MAX_EVENTS = 5
+
+    import requests
+    import pdfplumber
+    import re
+
+    response = requests.get(URL)
+    with open("temp_calendar.pdf", "wb") as f:
+        f.write(response.content)
+
+    text = ""
+    with pdfplumber.open("temp_calendar.pdf") as pdf:
+        for page in pdf.pages:
+            text += page.extract_text() + "\n"
+
+    lines = [line.strip() for line in text.split("\n") if line.strip()]
+
+    events = []
+
+    for line in lines:
+
+        
+        date_match = re.search(
+            r"(\d{1,2}(?:-\d{1,2})?(?:st|nd|rd|th)?\s+[A-Za-z]+|[A-Za-z]+\s+\d{1,2})",
+            line
+        )
+
+        if not date_match:
+            continue
+
+        date = date_match.group(1)
+
+        
+        remaining = line.replace(date, "").strip()
+
+        words = remaining.split()
+
+        if len(words) < 3:
+            continue
+
+        
+        venue = " ".join(words[-2:])
+
+        
+        if len(words) >= 4:
+            venue = " ".join(words[-3:])
+
+        event_name = " ".join(words[:-len(venue.split())])
+
+        if len(event_name) < 5:
+            continue
+
+        event = {
+            "date": date,
+            "event": event_name,
+            "venue": venue,
+            "source": URL,
+            "type": EVENT_TYPE
+        }
+
+        events.append(event)
+
+        print(f"✓ {date} | {event_name} | {venue}")
+
+        if len(events) >= MAX_EVENTS:
+            break
+
+    print(f"[Athletics] Scraped {len(events)} events")
+
+    if events:
+        clear_events_for_website(EVENT_TYPE, WEBSITE)
+        save_events_batch(events, WEBSITE)
+
+    return events
+
+
+def scrape_buzzato_tennis():
+    print("[Tennis - Buzzato] Scraping started...")
+
+    EVENT_TYPE = "tennis_event"
+    WEBSITE = "buzzato"
+    MAX_EVENTS = 5
+    URL = "https://buzzato.com/tournament/calendar"
 
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
     driver.get(URL)
 
-    time.sleep(6)  
+    time.sleep(5)  
+
+    soup = BeautifulSoup(driver.page_source, "html.parser")
 
     events = []
 
-    
-    rows = driver.find_elements(By.XPATH, "//div[p or span]")
+    cards = soup.find_all("div")
 
-    for row in rows:
-        text = row.text.strip()
+    for card in cards:
+
+        text = card.get_text("\n", strip=True)
 
         
-        if len(text) < 20:
+        if "April" not in text:
             continue
 
-        lines = text.split("\n")
+        lines = [l.strip() for l in text.split("\n") if l.strip()]
 
-        
-        if len(lines) >= 3:
-            date = lines[0].strip()
-            event_name = lines[1].strip()
-            venue = lines[2].strip()
 
-        
-            if len(event_name) < 5:
-                continue
+        if len(lines) < 3:
+            continue
 
-            event = {
-                "date": date,
-                "event": event_name,
-                "venue": venue,
-                "source": URL,
-                "type": "athletic"
-            }
+        date = lines[0]
+        location = lines[1]
+        name = lines[2]
 
-            events.append(event)
-            print(f"✓ {date} | {event_name} | {venue}")
+        if "Add to Google Calendar" in name:
+            continue
+
+        events.append({
+            "name": name,
+            "location": location,
+            "date": date,
+            "url": URL,
+            "type": EVENT_TYPE
+        })
+
+        print(f"✓ {name} | {date} | {location}")
+
+        if len(events) >= MAX_EVENTS:
+            break
 
     driver.quit()
 
-    print(f"[Athletics] Scraped {len(events)} events")
+    print(f"[Buzzato] Scraped {len(events)} events")
 
-    
-    for event in events[:5]:
-        db.collection("scraped_events") \
-          .document("athletic_event") \
-          .collection(WEBSITE) \
-          .add(event)
+    if events:
+        clear_events_for_website(EVENT_TYPE, WEBSITE)
+        save_events_batch(events, WEBSITE)
+        print(f"[Buzzato] Saved {len(events)} events")
 
-    print(f"[Athletics] Successfully saved {len(events)} events")
+    return events
 
 def run_all():
-    scrape_audax_india()
-    scrape_district()
-    scrape_HCL_cyclothon()
-    scrape_champ_endurance()
-    scrape_ifinish()
-    scrape_townscript()  
-    scrape_meraevents()
-    scrape_ttfi()
-    scrape_chess_events()
-    scrape_tennis_events()
-    scrape_athletics_events()
+    # scrape_audax_india()
+    # scrape_HCL_cyclothon()
+    # scrape_champ_endurance()
+    # scrape_ifinish()
+    # scrape_ttfi()
+    # scrape_chess_events()
+    # scrape_athletics_events()
+    scrape_buzzato_tennis()
     
 
 
