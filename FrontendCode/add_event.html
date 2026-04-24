@@ -542,10 +542,19 @@
             alertSuccess.style.display = 'none';
             alertError.style.display = 'none';
 
+            const sportVal = document.getElementById('event-sport').value.trim();
+            let eventType = "sports_event";
+            if (sportVal === "Chess") eventType = "chess_event";
+            else if (sportVal === "Cycling") eventType = "cycle_event";
+            else if (sportVal === "Marathon") eventType = "run_event";
+            else if (sportVal === "Table Tennis") eventType = "tabletennis_event";
+            else if (sportVal === "Tennis") eventType = "tennis_event";
+
             // Gather data
             const eventData = {
                 name: document.getElementById('event-title').value.trim(),
-                sport: document.getElementById('event-sport').value.trim(),
+                sport: sportVal,
+                type: eventType,
                 date: document.getElementById('event-date').value,
                 distance: document.getElementById('event-distance').value.trim() || 'N/A',
                 location: document.getElementById('event-location').value.trim() || '',
