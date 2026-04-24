@@ -15,9 +15,9 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-const EMAILJS_PUBLIC_KEY = 'nYA2vge7ruDgWhodg';   
+const EMAILJS_PUBLIC_KEY = 'nYA2vge7ruDgWhodg';
 const EMAILJS_SERVICE_ID = 'service_kzajpvr';
-const EMAILJS_TEMPLATE_ID = 'template_4xl1gsg'; 
+const EMAILJS_TEMPLATE_ID = 'template_4xl1gsg';
 
 try { emailjs.init(EMAILJS_PUBLIC_KEY); } catch (e) { console.warn('EmailJS not initialized'); }
 
@@ -40,7 +40,7 @@ const EVENT_SOURCES = [
     { type: 'run_event', collectionPath: 'scraped_events/run_event/champendurance', sourceName: 'Champ Endurance' },
     { type: 'sports_event', collectionPath: 'scraped_events/sports_event/bookmyshow', sourceName: 'BookMyShow' },
     { type: 'tabletennis_event', collectionPath: 'scraped_events/tabletennis_event/ttfi', sourceName: 'TTFI' }
-];  
+];
 
 const ICONS = {
     cycle: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12h18M3 6h18M3 18h18"/></svg>`,
@@ -223,7 +223,7 @@ function setupAuth() {
             if (loginBtn) loginBtn.onclick = () => window.location.href = 'login.html';
         }
     });
-    
+
     if (signupBtn) {
         signupBtn.addEventListener('click', () => {
             const user = auth.currentUser;
@@ -392,7 +392,7 @@ function renderEvents(eventsToRender) {
     eventsToRender.forEach((event, index) => {
         const cardHTML = createCardHTML(event, index);
         container.insertAdjacentHTML('beforeend', cardHTML);
-        
+
         const addedCard = container.lastElementChild;
         makeCardDraggable(addedCard, event);
     });
@@ -403,14 +403,14 @@ function createCardHTML(event, index) {
     let iconSvg = ICONS.cycle;
 
     let difficultyClass = 'diff-med';
-    let textClass = 'text-diff-med'; 
-    
+    let textClass = 'text-diff-med';
+
     if (event.difficulty === "Pro / Elite") {
         difficultyClass = 'diff-hard';
-        textClass = 'text-diff-hard'; 
+        textClass = 'text-diff-hard';
     } else if (event.difficulty === "Beginner") {
         difficultyClass = 'diff-easy';
-        textClass = 'text-diff-easy'; 
+        textClass = 'text-diff-easy';
     }
 
     if (event.type === 'run_event') {
@@ -423,11 +423,11 @@ function createCardHTML(event, index) {
     }
     else if (event.type === 'tabletennis_event') {
         slideImage = 'Assets/tabletennis.png';
-        iconSvg = ICONS.default; 
+        iconSvg = ICONS.default;
     }
     else if (event.type === 'chess_event') {
         slideImage = 'Assets/chess.png';
-        iconSvg = ICONS.default; 
+        iconSvg = ICONS.default;
     }
 
     const viewString = event.views > 1000 ? (event.views / 1000).toFixed(1) + 'k' : event.views;
@@ -474,7 +474,7 @@ function makeCardDraggable(card, eventData) {
     let isDragging = false;
     let hasMoved = false;
     let startX = 0, startY = 0;
-    
+
     const deleteZone = document.getElementById('delete-zone');
     const subscribeZone = document.getElementById('subscribe-zone');
     const windowWidth = window.innerWidth;
@@ -483,14 +483,14 @@ function makeCardDraggable(card, eventData) {
         if (e.target.closest('button') || e.target.closest('a')) return;
 
         isDragging = true;
-        hasMoved = false; 
-        
+        hasMoved = false;
+
         startX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
         startY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-        
+
         card.style.animation = 'none';
         card.style.transition = 'none';
-        
+
         document.addEventListener('mousemove', onMove, { passive: false });
         document.addEventListener('touchmove', onMove, { passive: false });
         document.addEventListener('mouseup', onEnd);
@@ -499,36 +499,36 @@ function makeCardDraggable(card, eventData) {
 
     const onMove = (e) => {
         if (!isDragging) return;
-        
+
         const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
         const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-        
+
         const dx = clientX - startX;
         const dy = clientY - startY;
 
         if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
             hasMoved = true;
-            e.preventDefault(); 
-            
+            e.preventDefault();
+
             card.classList.add('is-dragging');
-            
+
 
             deleteZone.classList.add('active');
             subscribeZone.classList.add('active');
-            
-            const rotation = dx * 0.05; 
+
+            const rotation = dx * 0.05;
             card.style.transform = `translate(${dx}px, ${dy}px) rotate(${rotation}deg) scale(1.05)`;
 
             if (clientX < 150) {
                 deleteZone.classList.add('drag-over');
                 subscribeZone.classList.remove('drag-over');
                 card.style.opacity = '0.5';
-            } 
+            }
             else if (clientX > windowWidth - 150) {
                 subscribeZone.classList.add('drag-over');
                 deleteZone.classList.remove('drag-over');
                 card.style.opacity = '0.5';
-            } 
+            }
             else {
                 deleteZone.classList.remove('drag-over');
                 subscribeZone.classList.remove('drag-over');
@@ -540,7 +540,7 @@ function makeCardDraggable(card, eventData) {
     const onEnd = (e) => {
         if (!isDragging) return;
         isDragging = false;
-        
+
         document.removeEventListener('mousemove', onMove);
         document.removeEventListener('touchmove', onMove);
         document.removeEventListener('mouseup', onEnd);
@@ -553,21 +553,21 @@ function makeCardDraggable(card, eventData) {
         const clientX = e.type.includes('touch') ? e.changedTouches[0].clientX : e.clientX;
         card.style.transition = 'all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)';
 
-        if(hasMoved && clientX < 150) {
+        if (hasMoved && clientX < 150) {
             card.style.transform = `translate(-100vw, 0px) scale(0.5) rotate(-20deg)`;
             card.style.opacity = '0';
             collapseCard(card);
-            
+
         }
-        else if(hasMoved && clientX > windowWidth - 150) {
+        else if (hasMoved && clientX > windowWidth - 150) {
             card.style.transform = `translate(100vw, 0px) scale(0.5) rotate(20deg)`;
             card.style.opacity = '0';
             collapseCard(card);
-            
+
             handleSubscription(eventData);
 
         }
-        else if(hasMoved) {
+        else if (hasMoved) {
             card.style.transform = 'translate(0px, 0px) rotate(0deg) scale(1)';
             card.style.opacity = '1';
             setTimeout(() => {
@@ -604,7 +604,7 @@ async function handleSubscription(eventData) {
     const currentUser = auth.currentUser;
     if (!currentUser) {
         alert("Please log in to subscribe to events!");
-        applyFilters(); 
+        applyFilters();
         return;
     }
 
@@ -614,7 +614,7 @@ async function handleSubscription(eventData) {
         event_name: eventData.title,
         event_date: eventData.date,
         event_location: eventData.location,
-        event_link: eventData.url 
+        event_link: eventData.url
     };
 
     try {
