@@ -1,6 +1,3 @@
-// ==========================================
-// 1. IMPORTS & CONFIGURATION
-// ==========================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, getDocs, doc, updateDoc, increment, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -18,32 +15,24 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// ==========================================
-// 2. EMAILJS INIT & SWIPE ZONES INJECTION
-// ==========================================
 const EMAILJS_PUBLIC_KEY = 'nYA2vge7ruDgWhodg';   
 const EMAILJS_SERVICE_ID = 'service_kzajpvr';
 const EMAILJS_TEMPLATE_ID = 'template_4xl1gsg'; 
 
 try { emailjs.init(EMAILJS_PUBLIC_KEY); } catch (e) { console.warn('EmailJS not initialized'); }
 
-// Auto-Inject Red Delete Zone (Left)
 if (!document.getElementById('delete-zone')) {
     const dropZone = document.createElement('div');
     dropZone.id = 'delete-zone';
     document.body.appendChild(dropZone);
 }
 
-// Auto-Inject Green Subscribe Zone (Right)
 if (!document.getElementById('subscribe-zone')) {
     const subZone = document.createElement('div');
     subZone.id = 'subscribe-zone';
     document.body.appendChild(subZone);
 }
 
-// ==========================================
-// 3. CONSTANTS & GLOBAL STATE
-// ==========================================
 const EVENT_SOURCES = [
     { type: 'organizer', collectionPath: 'events', sourceName: 'Platform Organizers' },
     { type: 'cycle_event', collectionPath: 'scraped_events/cycle_event/audaxindia', sourceName: 'Audax India' },
@@ -69,9 +58,6 @@ const ORGANIZER_DIFFICULTY = {
 
 let allEvents = [];
 
-// ==========================================
-// 4. AI CHATBOT LOGIC
-// ==========================================
 const chatRoot = document.getElementById('ai-chat');
 const bodyEl = document.getElementById('chat-body');
 const input = document.getElementById('chat-input');
@@ -181,9 +167,6 @@ function setFilters(filters) {
     applyFilters();
 }
 
-// ==========================================
-// 5. INITIALIZATION & AUTHENTICATION
-// ==========================================
 document.addEventListener('DOMContentLoaded', () => {
     fetchAndRenderEvents();
     setupFilters();
@@ -255,9 +238,6 @@ function setupAuth() {
     }
 }
 
-// ==========================================
-// 6. DATA FETCHING & NORMALIZATION
-// ==========================================
 async function fetchAndRenderEvents() {
     const container = document.getElementById('eventsContainer');
     if (!container) return;
@@ -302,6 +282,7 @@ function normalizeEventData(data, sourceConfig, docId) {
         if (sourceConfig.type === 'cycle_event') title = "Cycling Event";
         else if (sourceConfig.type === 'run_event') title = "Running Event";
         else if (sourceConfig.type === 'tabletennis_event') title = "Table Tennis Event";
+        else if (sourceConfig.type === 'chess_event') title = "Chess Event";
         else title = "Sports Event";
     }
 
@@ -315,12 +296,15 @@ function normalizeEventData(data, sourceConfig, docId) {
     } else if (sourceConfig.type === 'cycle_event') {
         displayType = "Cycling";
     } else if (sourceConfig.type === 'run_event') {
-        displayType = "Marathon";
+        displayType = "Running";
     } else if (sourceConfig.type === 'sports_event') {
-        displayType = "Sports";
+        displayType = "Running";
     } else if (sourceConfig.type === 'tabletennis_event') {
         displayType = "Table Tennis";
+    } else if (sourceConfig.type === 'chess_event') {
+        displayType = "Chess";
     }
+
 
     const organizerName = sourceConfig.type === 'organizer' ? (data.organizerName || 'Local Organizer') : sourceConfig.sourceName;
     let difficulty = ORGANIZER_DIFFICULTY[organizerName] || ORGANIZER_DIFFICULTY[sourceConfig.sourceName] || "Intermediate";
@@ -394,9 +378,6 @@ function fillSelect(id, items) {
     });
 }
 
-// ==========================================
-// 7. CARD RENDERING
-// ==========================================
 function renderEvents(eventsToRender) {
     const container = document.getElementById('eventsContainer');
     if (!container) return;
@@ -435,9 +416,17 @@ function createCardHTML(event, index) {
     if (event.type === 'run_event') {
         slideImage = 'Assets/RunningSlideIn.png';
         iconSvg = ICONS.run;
-    } else if (event.type === 'sports_event') {
-        iconSvg = ICONS.default;
-    } else if (event.type === 'tabletennis_event') {
+    }
+    else if (event.type === 'sports_event') {
+        slideImage = 'Assets/RunningSlideIn.png';
+        iconSvg = ICONS.run;
+    }
+    else if (event.type === 'tabletennis_event') {
+        slideImage = 'Assets/tabletennis.png';
+        iconSvg = ICONS.default; 
+    }
+    else if (event.type === 'chess_event') {
+        slideImage = 'Assets/chess.png';
         iconSvg = ICONS.default; 
     }
 
@@ -481,9 +470,6 @@ function createCardHTML(event, index) {
     `;
 }
 
-// ==========================================
-// 8. SWIPE PHYSICS & SUBSCRIPTION LOGIC
-// ==========================================
 function makeCardDraggable(card, eventData) {
     let isDragging = false;
     let hasMoved = false;
@@ -526,26 +512,23 @@ function makeCardDraggable(card, eventData) {
             
             card.classList.add('is-dragging');
             
-            // Turn on both zones faintly
+
             deleteZone.classList.add('active');
             subscribeZone.classList.add('active');
             
             const rotation = dx * 0.05; 
             card.style.transform = `translate(${dx}px, ${dy}px) rotate(${rotation}deg) scale(1.05)`;
 
-            // LEFT: Delete Zone
             if (clientX < 150) {
                 deleteZone.classList.add('drag-over');
                 subscribeZone.classList.remove('drag-over');
                 card.style.opacity = '0.5';
             } 
-            // RIGHT: Subscribe Zone
             else if (clientX > windowWidth - 150) {
                 subscribeZone.classList.add('drag-over');
                 deleteZone.classList.remove('drag-over');
                 card.style.opacity = '0.5';
             } 
-            // MIDDLE: Safe Zone
             else {
                 deleteZone.classList.remove('drag-over');
                 subscribeZone.classList.remove('drag-over');
@@ -570,23 +553,21 @@ function makeCardDraggable(card, eventData) {
         const clientX = e.type.includes('touch') ? e.changedTouches[0].clientX : e.clientX;
         card.style.transition = 'all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)';
 
-        if (hasMoved && clientX < 150) {
-            // SUCKED INTO DELETE ZONE (Left)
+        if(hasMoved && clientX < 150) {
             card.style.transform = `translate(-100vw, 0px) scale(0.5) rotate(-20deg)`;
             card.style.opacity = '0';
             collapseCard(card);
             
-        } else if (hasMoved && clientX > windowWidth - 150) {
-            // SUCKED INTO SUBSCRIBE ZONE (Right)
+        }
+        else if(hasMoved && clientX > windowWidth - 150) {
             card.style.transform = `translate(100vw, 0px) scale(0.5) rotate(20deg)`;
             card.style.opacity = '0';
             collapseCard(card);
             
-            // Trigger Subscription Logic
             handleSubscription(eventData);
 
-        } else if (hasMoved) {
-            // SNAP BACK TO CENTER
+        }
+        else if(hasMoved) {
             card.style.transform = 'translate(0px, 0px) rotate(0deg) scale(1)';
             card.style.opacity = '1';
             setTimeout(() => {
@@ -639,16 +620,12 @@ async function handleSubscription(eventData) {
     try {
         await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
         console.log("Subscription email sent successfully!");
-        // Optional: showToast("Subscribed! Check your email.", "success"); 
     } catch (err) {
         console.error('Failed to send subscription email:', err);
         alert("We couldn't send the subscription email right now. Please try again later.");
     }
 }
 
-// ==========================================
-// 9. FILTERS
-// ==========================================
 function setupFilters() {
     const relevanceDropdown = document.getElementById('Relevance');
     if (relevanceDropdown) {
