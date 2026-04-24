@@ -1,3 +1,6 @@
+// ==========================================
+// 1. IMPORTS & CONFIGURATION
+// ==========================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, getDocs, doc, updateDoc, increment, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -15,6 +18,32 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
+// ==========================================
+// 2. EMAILJS INIT & SWIPE ZONES INJECTION
+// ==========================================
+const EMAILJS_PUBLIC_KEY = 'nYA2vge7ruDgWhodg';   
+const EMAILJS_SERVICE_ID = 'service_kzajpvr';
+const EMAILJS_TEMPLATE_ID = 'template_4xl1gsg'; 
+
+try { emailjs.init(EMAILJS_PUBLIC_KEY); } catch (e) { console.warn('EmailJS not initialized'); }
+
+// Auto-Inject Red Delete Zone (Left)
+if (!document.getElementById('delete-zone')) {
+    const dropZone = document.createElement('div');
+    dropZone.id = 'delete-zone';
+    document.body.appendChild(dropZone);
+}
+
+// Auto-Inject Green Subscribe Zone (Right)
+if (!document.getElementById('subscribe-zone')) {
+    const subZone = document.createElement('div');
+    subZone.id = 'subscribe-zone';
+    document.body.appendChild(subZone);
+}
+
+// ==========================================
+// 3. CONSTANTS & GLOBAL STATE
+// ==========================================
 const EVENT_SOURCES = [
     { type: 'organizer', collectionPath: 'events', sourceName: 'Platform Organizers' },
     { type: 'cycle_event', collectionPath: 'scraped_events/cycle_event/audaxindia', sourceName: 'Audax India' },
@@ -40,6 +69,9 @@ const ORGANIZER_DIFFICULTY = {
 
 let allEvents = [];
 
+// ==========================================
+// 4. AI CHATBOT LOGIC
+// ==========================================
 const chatRoot = document.getElementById('ai-chat');
 const bodyEl = document.getElementById('chat-body');
 const input = document.getElementById('chat-input');
@@ -70,33 +102,23 @@ function addMessageBox(text, sender) {
     bodyEl.appendChild(box);
     bodyEl.scrollTop = bodyEl.scrollHeight;
 }
-function renderChatEvents(events) {
 
+function renderChatEvents(events) {
     const wrapper = document.createElement("div");
     wrapper.className = "chat-event-wrapper";
 
     events.forEach(ev => {
-
         const card = document.createElement("div");
         card.className = "chat-event";
-
         card.innerHTML = `
             <div class="chat-event-title">${ev.title}</div>
-
             <div class="chat-event-meta">
                 <span>📍 ${ev.location}</span>
                 <span>📅 ${ev.date}</span>
             </div>
-
-            <div class="chat-event-distance">
-                🚴 ${ev.distance}
-            </div>
-
-            <a href="${ev.url}" target="_blank" class="chat-event-btn">
-                View Event
-            </a>
+            <div class="chat-event-distance">⚡ ${ev.distance}</div>
+            <a href="${ev.url}" target="_blank" class="chat-event-btn">View Event</a>
         `;
-
         wrapper.appendChild(card);
     });
 
@@ -110,16 +132,14 @@ async function handleSend() {
 
     addMessageBox(message, 'user');
     input.value = '';
-
     sendBtn.disabled = true;
+
     try {
         const res = await triggerModel(message);
-
         if (res.reply) {
             addMessageBox(res.reply.reasoning, 'bot');
             setFilters(res.reply.filters);
         }
-
         if (res.events) {
             renderChatEvents(res.events);
         }
@@ -150,7 +170,6 @@ function setFilters(filters) {
         if (!select) continue;
 
         const cleanValue = value.toString().trim().toLowerCase();
-
         for (let i = 0; i < select.options.length; i++) {
             const optionVal = select.options[i].value;
             if (optionVal.toLowerCase() === cleanValue) {
@@ -162,7 +181,9 @@ function setFilters(filters) {
     applyFilters();
 }
 
-
+// ==========================================
+// 5. INITIALIZATION & AUTHENTICATION
+// ==========================================
 document.addEventListener('DOMContentLoaded', () => {
     fetchAndRenderEvents();
     setupFilters();
@@ -172,7 +193,6 @@ document.addEventListener('DOMContentLoaded', () => {
 window.trackEventClick = async function (eventId, isOrganizerEvent, redirectUrl) {
     if (isOrganizerEvent) {
         let clickedEvents = JSON.parse(localStorage.getItem('athlyUserClicks') || '[]');
-
         if (!clickedEvents.includes(eventId)) {
             clickedEvents.push(eventId);
             localStorage.setItem('athlyUserClicks', JSON.stringify(clickedEvents));
@@ -217,7 +237,6 @@ function setupAuth() {
         } else {
             if (loginBtn) loginBtn.textContent = "Log in";
             if (signupBtn) signupBtn.textContent = "Sign Up";
-
             if (loginBtn) loginBtn.onclick = () => window.location.href = 'login.html';
         }
     });
@@ -236,6 +255,9 @@ function setupAuth() {
     }
 }
 
+// ==========================================
+// 6. DATA FETCHING & NORMALIZATION
+// ==========================================
 async function fetchAndRenderEvents() {
     const container = document.getElementById('eventsContainer');
     if (!container) return;
@@ -300,13 +322,8 @@ function normalizeEventData(data, sourceConfig, docId) {
         displayType = "Table Tennis";
     }
 
-    // Determine exact organizer name
     const organizerName = sourceConfig.type === 'organizer' ? (data.organizerName || 'Local Organizer') : sourceConfig.sourceName;
-
-    // --- NEW: Assign Difficulty based on Organizer ---
-    // Looks for the organizer in our dictionary. If not found, defaults to "Intermediate".
     let difficulty = ORGANIZER_DIFFICULTY[organizerName] || ORGANIZER_DIFFICULTY[sourceConfig.sourceName] || "Intermediate";
-
     const views = Math.floor(Math.random() * (50000 - 1000 + 1)) + 1000;
 
     let locationStr = "Location TBD";
@@ -378,16 +395,7 @@ function fillSelect(id, items) {
 }
 
 // ==========================================
-// 1. AUTO-INJECT DELETE ZONE
-// ==========================================
-if (!document.getElementById('delete-zone')) {
-    const dropZone = document.createElement('div');
-    dropZone.id = 'delete-zone';
-    document.body.appendChild(dropZone);
-}
-
-// ==========================================
-// 2. UPDATED RENDER FUNCTIONS
+// 7. CARD RENDERING
 // ==========================================
 function renderEvents(eventsToRender) {
     const container = document.getElementById('eventsContainer');
@@ -401,14 +409,10 @@ function renderEvents(eventsToRender) {
     }
 
     eventsToRender.forEach((event, index) => {
-        // Generate HTML WITHOUT the inline onclick
         const cardHTML = createCardHTML(event, index);
         container.insertAdjacentHTML('beforeend', cardHTML);
         
-        // Grab the newly inserted card
         const addedCard = container.lastElementChild;
-        
-        // Attach drag and click logic safely
         makeCardDraggable(addedCard, event);
     });
 }
@@ -417,16 +421,15 @@ function createCardHTML(event, index) {
     let slideImage = 'Assets/CycleSlideIn.png';
     let iconSvg = ICONS.cycle;
 
-    // --- NEW: Difficulty colors & Matching Text Colors ---
     let difficultyClass = 'diff-med';
-    let textClass = 'text-diff-med'; // Default yellow text
+    let textClass = 'text-diff-med'; 
     
     if (event.difficulty === "Pro / Elite") {
         difficultyClass = 'diff-hard';
-        textClass = 'text-diff-hard'; // Red text
+        textClass = 'text-diff-hard'; 
     } else if (event.difficulty === "Beginner") {
         difficultyClass = 'diff-easy';
-        textClass = 'text-diff-easy'; // Green text
+        textClass = 'text-diff-easy'; 
     }
 
     if (event.type === 'run_event') {
@@ -434,6 +437,8 @@ function createCardHTML(event, index) {
         iconSvg = ICONS.run;
     } else if (event.type === 'sports_event') {
         iconSvg = ICONS.default;
+    } else if (event.type === 'tabletennis_event') {
+        iconSvg = ICONS.default; 
     }
 
     const viewString = event.views > 1000 ? (event.views / 1000).toFixed(1) + 'k' : event.views;
@@ -454,7 +459,6 @@ function createCardHTML(event, index) {
         <div class="cardContent">
             <div class="cardHeader">
                 <span class="cardTitle" style="font-size: 1.125rem; font-weight: 600;">${event.title}</span>
-                
                 <span class="cardAuthor">by <span class="${textClass}" style="font-weight: 600;">${event.organizer}</span></span>
             </div>
             <p class="cardDesc">${event.location} • ${event.date}</p>
@@ -478,25 +482,26 @@ function createCardHTML(event, index) {
 }
 
 // ==========================================
-// 3. BULLETPROOF DRAG LOGIC
+// 8. SWIPE PHYSICS & SUBSCRIPTION LOGIC
 // ==========================================
 function makeCardDraggable(card, eventData) {
     let isDragging = false;
     let hasMoved = false;
     let startX = 0, startY = 0;
+    
     const deleteZone = document.getElementById('delete-zone');
+    const subscribeZone = document.getElementById('subscribe-zone');
+    const windowWidth = window.innerWidth;
 
     const onStart = (e) => {
-        // Don't drag if clicking a button
         if (e.target.closest('button') || e.target.closest('a')) return;
 
         isDragging = true;
-        hasMoved = false; // Reset move tracker
+        hasMoved = false; 
         
         startX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
         startY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
         
-        // Break the entrance animation lock instantly
         card.style.animation = 'none';
         card.style.transition = 'none';
         
@@ -515,24 +520,35 @@ function makeCardDraggable(card, eventData) {
         const dx = clientX - startX;
         const dy = clientY - startY;
 
-        // If moved more than 5px, it's an intentional drag, not a sloppy click
         if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
             hasMoved = true;
-            e.preventDefault(); // Stop page scrolling
+            e.preventDefault(); 
             
             card.classList.add('is-dragging');
-            deleteZone.classList.add('active');
             
-            // Add a tilt effect
+            // Turn on both zones faintly
+            deleteZone.classList.add('active');
+            subscribeZone.classList.add('active');
+            
             const rotation = dx * 0.05; 
             card.style.transform = `translate(${dx}px, ${dy}px) rotate(${rotation}deg) scale(1.05)`;
 
-            // Check if hovering over the red zone
+            // LEFT: Delete Zone
             if (clientX < 150) {
                 deleteZone.classList.add('drag-over');
+                subscribeZone.classList.remove('drag-over');
                 card.style.opacity = '0.5';
-            } else {
+            } 
+            // RIGHT: Subscribe Zone
+            else if (clientX > windowWidth - 150) {
+                subscribeZone.classList.add('drag-over');
                 deleteZone.classList.remove('drag-over');
+                card.style.opacity = '0.5';
+            } 
+            // MIDDLE: Safe Zone
+            else {
+                deleteZone.classList.remove('drag-over');
+                subscribeZone.classList.remove('drag-over');
                 card.style.opacity = '1';
             }
         }
@@ -547,35 +563,32 @@ function makeCardDraggable(card, eventData) {
         document.removeEventListener('mouseup', onEnd);
         document.removeEventListener('touchend', onEnd);
 
-        deleteZone.classList.remove('active');
-        deleteZone.classList.remove('drag-over');
+        deleteZone.classList.remove('active', 'drag-over');
+        subscribeZone.classList.remove('active', 'drag-over');
         card.classList.remove('is-dragging');
 
         const clientX = e.type.includes('touch') ? e.changedTouches[0].clientX : e.clientX;
-
-        // Turn CSS transitions back on for smooth snap/delete animations
         card.style.transition = 'all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)';
 
         if (hasMoved && clientX < 150) {
-            // SUCKED INTO DELETE ZONE
+            // SUCKED INTO DELETE ZONE (Left)
             card.style.transform = `translate(-100vw, 0px) scale(0.5) rotate(-20deg)`;
             card.style.opacity = '0';
+            collapseCard(card);
             
-            // Collapse gap
-            setTimeout(() => {
-                card.style.height = '0px';
-                card.style.padding = '0px';
-                card.style.margin = '0px';
-                card.style.border = 'none';
-                setTimeout(() => card.remove(), 400);
-            }, 300);
+        } else if (hasMoved && clientX > windowWidth - 150) {
+            // SUCKED INTO SUBSCRIBE ZONE (Right)
+            card.style.transform = `translate(100vw, 0px) scale(0.5) rotate(20deg)`;
+            card.style.opacity = '0';
+            collapseCard(card);
             
+            // Trigger Subscription Logic
+            handleSubscription(eventData);
+
         } else if (hasMoved) {
-            // SNAP BACK
+            // SNAP BACK TO CENTER
             card.style.transform = 'translate(0px, 0px) rotate(0deg) scale(1)';
             card.style.opacity = '1';
-            
-            // Cleanup inline styles
             setTimeout(() => {
                 card.style.transform = '';
                 card.style.transition = '';
@@ -583,22 +596,59 @@ function makeCardDraggable(card, eventData) {
         }
     };
 
-    // Safely handle clicks (Only fires trackEventClick if you DID NOT drag)
     card.addEventListener('click', (e) => {
         if (hasMoved) {
             e.preventDefault();
             e.stopPropagation();
         } else {
-            // Trigger your original click tracking logic
             trackEventClick(eventData.id, eventData.type === 'organizer', eventData.url);
         }
     });
 
-    // Attach drag listeners
     card.addEventListener('mousedown', onStart);
     card.addEventListener('touchstart', onStart, { passive: false });
 }
 
+function collapseCard(card) {
+    setTimeout(() => {
+        card.style.height = '0px';
+        card.style.padding = '0px';
+        card.style.margin = '0px';
+        card.style.border = 'none';
+        setTimeout(() => card.remove(), 400);
+    }, 300);
+}
+
+async function handleSubscription(eventData) {
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+        alert("Please log in to subscribe to events!");
+        applyFilters(); 
+        return;
+    }
+
+    const templateParams = {
+        to_email: currentUser.email,
+        to_name: currentUser.displayName || "Athlete",
+        event_name: eventData.title,
+        event_date: eventData.date,
+        event_location: eventData.location,
+        event_link: eventData.url 
+    };
+
+    try {
+        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
+        console.log("Subscription email sent successfully!");
+        // Optional: showToast("Subscribed! Check your email.", "success"); 
+    } catch (err) {
+        console.error('Failed to send subscription email:', err);
+        alert("We couldn't send the subscription email right now. Please try again later.");
+    }
+}
+
+// ==========================================
+// 9. FILTERS
+// ==========================================
 function setupFilters() {
     const relevanceDropdown = document.getElementById('Relevance');
     if (relevanceDropdown) {

@@ -900,19 +900,19 @@ body {
     box-shadow: 0 0 0 2px var(--colGlow);
 }
 
-/* --- SWIPE TO DELETE ZONE --- */
 #delete-zone {
     position: fixed;
     top: 0;
     left: 0;
-    width: 150px;
+    width: 765px; /* Much wider to allow a smooth fade */
     height: 100vh;
-    background: linear-gradient(90deg, rgba(239, 68, 68, 0.3) 0%, rgba(239, 68, 68, 0) 100%);
-    box-shadow: inset 20px 0 50px rgba(239, 68, 68, 0.2);
+    /* 3-step gradient for a buttery smooth fade out */
+    background: linear-gradient(90deg, rgba(239, 68, 68, 0.25) 0%, rgba(239, 68, 68, 0.05) 40%, transparent 100%);
+    box-shadow: inset 40px 0 100px -20px rgba(239, 68, 68, 0.15);
     z-index: 9998;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.3s ease, background 0.3s;
+    transition: opacity 0.3s ease, background 0.3s, box-shadow 0.3s;
 }
 
 #delete-zone.active {
@@ -920,9 +920,41 @@ body {
 }
 
 #delete-zone.drag-over {
-    background: linear-gradient(90deg, rgba(239, 68, 68, 0.6) 0%, rgba(239, 68, 68, 0) 100%);
+    background: linear-gradient(90deg, rgba(239, 68, 68, 0.4) 0%, rgba(239, 68, 68, 0.1) 50%, transparent 100%);
+    box-shadow: inset 80px 0 120px -20px rgba(239, 68, 68, 0.3);
 }
 
+/* ==========================================
+   SWIPE TO SUBSCRIBE ZONE (RIGHT - BLUE)
+   ========================================== */
+#subscribe-zone {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 765px; /* Much wider to allow a smooth fade */
+    height: 100vh;
+    /* 3-step gradient for a buttery smooth fade out using Blue */
+    background: linear-gradient(-90deg, rgba(59, 130, 246, 0.25) 0%, rgba(59, 130, 246, 0.05) 40%, transparent 100%);
+    box-shadow: inset -40px 0 100px -20px rgba(59, 130, 246, 0.15);
+    z-index: 9998;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease, background 0.3s, box-shadow 0.3s;
+}
+
+#subscribe-zone.active { 
+    opacity: 1; 
+}
+
+#subscribe-zone.drag-over {
+    background: linear-gradient(-90deg, rgba(59, 130, 246, 0.4) 0%, rgba(59, 130, 246, 0.1) 50%, transparent 100%);
+    box-shadow: inset -80px 0 120px -20px rgba(59, 130, 246, 0.3);
+    /* Removed the dashed border for a cleaner look */
+}
+
+/* ==========================================
+   DRAGGING CARD STATE
+   ========================================== */
 .card.is-dragging {
     z-index: 99999 !important;
     cursor: grabbing !important;

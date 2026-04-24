@@ -13,7 +13,7 @@
     <style>
         :root {
             --bg-body: #09090b;
-            --bg-card: #0c0c0e;
+            --bg-card: #1a1a1a;
             --bg-card-hover: #18181b;
             --border-color: #27272a;
             --border-light: #3f3f46;
@@ -226,14 +226,14 @@
             display: inline-block;
             margin-top: 8px;
             padding: 3px 10px;
-            border-radius: 9999px;
+            border-radius: 5px;
             font-size: 0.7rem;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             background: var(--glow-purple);
             color: var(--accent-purple);
-            border: 1px solid rgba(168, 85, 247, 0.3);
+            border: 0px solid rgba(168, 85, 247, 0.3);
         }
 
         /* --- Section Title --- */
@@ -268,34 +268,17 @@
 
         .metric-card {
             background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
+            border: 0px solid var(--border-color); /* Real border instead of 0px */
+            border-radius: 8px;
             padding: 20px;
-            transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
             position: relative;
-            overflow: hidden;
-        }
-
-        .metric-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--accent-purple), transparent);
-            opacity: 0;
-            transition: opacity 0.3s;
+            cursor: pointer;
+            transition: all 0.3s ease-out;
+            /* OVERFLOW: HIDDEN IS DELETED - This was clipping your shadow! */
         }
 
         .metric-card:hover {
-            border-color: var(--border-light);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-        }
-
-        .metric-card:hover::before {
-            opacity: 1;
+            box-shadow: 0 0 0 2px #4f46e5, 0 0 15px #4f46e54d;
         }
 
         .metric-label {
@@ -324,7 +307,7 @@
             top: 16px;
             right: 16px;
             font-size: 1.25rem;
-            opacity: 0.5;
+            opacity: 1;
         }
 
         /* Engagement level color coding */
@@ -436,8 +419,7 @@
         .form-input:focus:not(:disabled):not([readonly]),
         .form-select:focus,
         .form-textarea:focus {
-            border-color: var(--accent-purple);
-            box-shadow: 0 0 0 3px var(--glow-purple);
+            box-shadow: 0 0 0 2px #4f46e5, 0 0 15px #4f46e54d;
         }
 
         .form-select {
