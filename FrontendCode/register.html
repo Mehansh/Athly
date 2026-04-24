@@ -523,15 +523,15 @@
         const auth = getAuth(app);
 
         // ============================================
-        //  EmailJS Config (Replace with your own keys)
+        //  EmailJS Config
         // ============================================
-        const EMAILJS_PUBLIC_KEY = 'nYA2vge7ruDgWhodg';   // TODO: Replace
-        const EMAILJS_SERVICE_ID = 'service_kzajpvr';   // TODO: Replace
-        const EMAILJS_TEMPLATE_ID = 'template_9x4ycjo'; // TODO: Replace
+        const EMAILJS_PUBLIC_KEY = 'nYA2vge7ruDgWhodg';
+        const EMAILJS_SERVICE_ID = 'service_kzajpvr';
+        const EMAILJS_TEMPLATE_ID = 'template_4xl1gsg';
 
         // Initialize EmailJS
         try {
-            emailjs.init(EMAILJS_PUBLIC_KEY);
+            emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
         } catch (e) {
             console.warn('EmailJS not initialized:', e);
         }
@@ -664,8 +664,18 @@
             };
 
             try {
-                // 1. Save Registration Data
+                // 0. Check if already registered
                 const regDocId = `${eventId}_${currentUser.uid}`;
+                const regSnap = await getDoc(doc(db, 'registrations', regDocId));
+                if (regSnap.exists()) {
+                    alertError.textContent = "You are already registered for this event.";
+                    alertError.style.display = 'block';
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Complete Registration';
+                    return;
+                }
+
+                // 1. Save Registration Data
                 await setDoc(doc(db, 'registrations', regDocId), payload);
 
                 // 2. Increment participant count on the source event
@@ -837,11 +847,11 @@
                 // Format location
                 let location = 'TBD';
                 if (eventData) {
-                    let parts = [];
-                    if (eventData.location) parts.push(eventData.location);
-                    if (eventData.city) parts.push(eventData.city);
-                    if (eventData.state) parts.push(eventData.state);
-                    if (parts.length > 0) location = parts.join(', ');
+                    let parts = new Set();
+                    if (eventData.location) parts.add(eventData.location);
+                    if (eventData.city) parts.add(eventData.city);
+                    if (eventData.state) parts.add(eventData.state);
+                    if (parts.size > 0) location = Array.from(parts).join(', ');
                 }
 
                 const templateParams = {
