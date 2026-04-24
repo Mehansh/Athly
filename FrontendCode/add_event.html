@@ -396,7 +396,14 @@
 
                     <div class="form-group">
                         <label class="form-label">Sport *</label>
-                        <input type="text" id="event-sport" placeholder="e.g. Drone Racing" class="form-input" required>
+                        <select id="event-sport" class="form-input" required>
+                            <option value="" disabled selected>Select a sport</option>
+                            <option value="Cycling">Cycling</option>
+                            <option value="Marathon">Marathon</option>
+                            <option value="Table Tennis">Table Tennis</option>
+                            <option value="Tennis">Tennis</option>
+                            <option value="Chess">Chess</option>
+                        </select>
                     </div>
 
                     <div style="display: flex; gap: 1rem; grid-column: 1 / -1;">
