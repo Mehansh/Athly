@@ -464,7 +464,7 @@ function createCardHTML(event, index) {
             </div>
             <p class="cardDesc">${event.location} • ${event.date}</p>
             <div class="cardTags">
-                 <button class="btnCardLink" style="font-family: inherit;">${event.type === 'organizer' ? 'Register' : 'Link'}</button>
+                 <button class="btnCardLink" style="font-family: inherit;">${event.isPlatformEvent ? 'Register' : 'Link'}</button>
             </div>
         </div>
 
