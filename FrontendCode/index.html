@@ -1000,11 +1000,15 @@
         }
 
         const EVENT_SOURCES = [
-            { type: 'organizer', collectionPath: 'events', sourceName: 'Organizer' },
+            { type: 'organizer', collectionPath: 'events', sourceName: 'Platform Organizers' },
             { type: 'cycle_event', collectionPath: 'scraped_events/cycle_event/audaxindia', sourceName: 'Audax India' },
             { type: 'cycle_event', collectionPath: 'scraped_events/cycle_event/hclcyclothon', sourceName: 'HCL Cyclothon' },
             { type: 'run_event', collectionPath: 'scraped_events/run_event/champendurance', sourceName: 'Champ Endurance' },
-            { type: 'sports_event', collectionPath: 'scraped_events/sports_event/bookmyshow', sourceName: 'BookMyShow' }
+            { type: 'sports_event', collectionPath: 'scraped_events/sports_event/bookmyshow', sourceName: 'BookMyShow' },
+            { type: 'tabletennis_event', collectionPath: 'scraped_events/tabletennis_event/ttfi', sourceName: 'TTFI' },
+            { type: 'chess_event', collectionPath: 'scraped_events/chess_event/aicf', sourceName: 'AICF' },
+            { type: 'chess_event', collectionPath: 'scraped_events/chess_event/events', sourceName: 'AICF' },
+            { type: 'tennis_event', collectionPath: 'scraped_events/tennis_event/tenniskhelo', sourceName: 'TennisKhelo' }
         ];
 
         let cachedEvents = null;
@@ -1024,26 +1028,47 @@
                 const promises = EVENT_SOURCES.map(async (source) => {
                     const colRef = collection(db, source.collectionPath);
                     const snapshot = await getDocs(colRef);
-                    return snapshot.docs.map(doc => {
-                        const data = doc.data();
+                    return snapshot.docs.map(docSnap => {
+                        const data = docSnap.data();
 
+                        // --- Title extraction (mirrors normalizeEventData in events.js) ---
                         let title = "";
                         if (source.type === 'organizer') {
-                            title = data.name || "Untitled Event";
+                            title = data.name || data.title || "Untitled Event";
                         } else {
-                            let rawTitle = data.club;
+                            let rawTitle = data.club || data.name || data.title;
                             if (!rawTitle || rawTitle === "Not Available") {
                                 if (source.type === 'cycle_event') title = "Cycling Event";
                                 else if (source.type === 'run_event') title = "Running Event";
+                                else if (source.type === 'tabletennis_event') title = "Table Tennis Event";
+                                else if (source.type === 'chess_event') title = "Chess Event";
+                                else if (source.type === 'tennis_event') title = "Tennis Event";
                                 else title = "Sports Event";
                             } else {
-                                title = rawTitle.split(' ').slice(0, 4).join(' '); // Fix "17 Dec" bugs
+                                title = rawTitle.split(' ').slice(0, 4).join(' ');
                             }
                         }
 
-                        let sport = source.type === 'organizer' ? data.sport : source.sourceName;
-                        let locationStr = "Location TBD";
+                        // --- Sport / display type label ---
+                        let sport;
+                        if (source.type === 'organizer') {
+                            sport = data.sport || "Sports";
+                        } else if (source.type === 'cycle_event') {
+                            sport = "Cycling";
+                        } else if (source.type === 'run_event' || source.type === 'sports_event') {
+                            sport = "Running";
+                        } else if (source.type === 'tabletennis_event') {
+                            sport = "Table Tennis";
+                        } else if (source.type === 'chess_event') {
+                            sport = "Chess";
+                        } else if (source.type === 'tennis_event') {
+                            sport = "Tennis";
+                        } else {
+                            sport = source.sourceName;
+                        }
 
+                        // --- Location ---
+                        let locationStr = "Location TBD";
                         if (source.type === 'organizer') {
                             let parts = [];
                             if (data.city) parts.push(data.city);
@@ -1053,13 +1078,16 @@
                             locationStr = data.location || "Location TBD";
                         }
 
+                        // Use docSnap.id (never data.url) as the Firestore doc ID for organizers
+                        const eventId = source.type === 'organizer' ? docSnap.id : (data.url || docSnap.id);
+
                         return {
-                            id: data.url || doc.id,
+                            id: eventId,
                             title: title,
                             sport: sport,
                             location: locationStr,
                             rawType: source.type,
-                            url: source.type !== 'organizer' ? data.url : `event-details.html?id=${doc.id}`
+                            url: source.type === 'organizer' ? `event-details.html?id=${docSnap.id}` : (data.url || '#')
                         };
                     });
                 });
