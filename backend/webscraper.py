@@ -1137,9 +1137,6 @@ if __name__ == "__main__":
         elif sys.argv[1] == "audax":
             print("Running only Audax India scraper...\n")
             scrape_audax_india()
-        elif sys.argv[1] == "district":
-            print("Running only District scraper...\n")
-            scrape_district()
         elif sys.argv[1] == "hcl":
             print("Running only HCL Cyclothon scraper...\n")
             scrape_HCL_cyclothon()
