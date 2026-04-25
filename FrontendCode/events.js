@@ -154,11 +154,22 @@ async function triggerModel(message) {
 }
 
 function setFilters(filters) {
+    // Reset all filter dropdowns to their default ("All / None") before applying new values
+    // so stale selections from a previous query don't bleed through.
+    ['Relevance', 'Type', 'Location', 'Organizer', 'Difficulty', 'Distance'].forEach(id => {
+        const sel = document.getElementById(id);
+        if (sel) sel.selectedIndex = 0;
+    });
+
     for (const [key, value] of Object.entries(filters)) {
         const select = document.getElementById(key);
         if (!select) continue;
 
         const cleanValue = value.toString().trim().toLowerCase();
+
+        // Skip if the AI returned "None" — don't accidentally match an option
+        if (cleanValue === 'none') continue;
+
         for (let i = 0; i < select.options.length; i++) {
             const optionVal = select.options[i].value;
             if (optionVal.toLowerCase() === cleanValue) {

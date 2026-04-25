@@ -11,7 +11,7 @@ static_filters = {
     "Relevance": ["Most Popular", "Newest", "Trending"],
     "Difficulty": ["Beginner", "Intermediate", "Pro / Elite"],
     "Distance": ["< 5 Miles", "< 20 Miles", "< 50 Miles", "Anywhere"],
-    "Type": ["Marathon", "Triathlon", "Cycling", "Swimming", "Sports", "Table Tennis"]
+    "Type": ["Marathon", "Triathlon", "Cycling", "Swimming", "Running", "Sports", "Table Tennis", "Tennis", "Chess"]
 }
 
 print("Loading AI: Fetching latest locations from Database...")
@@ -22,27 +22,33 @@ print(f"AI Loaded with {len(site_filters['Location'])} locations.")
 
 template = """
 You are an assistant for a website called "Athly", which helps users find a sports event.
-You will be given a query and a list of possible filters. Your job is to select the appropriate filters solely from the provided list.
-The filters should be only from the list below.
+You will be given a query and a list of possible filters. Your job is to select the appropriate filters SOLELY from the provided list.
+The filters must be copied EXACTLY as they appear in the list — do not rephrase, shorten, or paraphrase.
+
+CRITICAL DISAMBIGUATION RULES (follow strictly):
+- "Table Tennis" and "Tennis" are TWO DIFFERENT sport types. Never confuse them.
+  * If the user mentions "table tennis", "ping pong", or "TT", set Type to exactly "Table Tennis".
+  * If the user mentions "tennis" (but NOT table tennis or ping pong), set Type to exactly "Tennis".
+- "Running" covers jogging, road running, sprinting. "Marathon" is only for marathon-distance races.
+- If no filter in the list matches the query, use "None" for that key.
+
 Here are the possible filters: {filters}
 
 Here is the user query: {query}
 
 Reply format:
-The reply should be in a JSON format ONLY. Anything else WILL BE REJECTED.
-Here is the json format:
+The reply must be VALID JSON ONLY — no markdown, no extra text, nothing else.
 {{
     "filters": {{
-        "Relevance" : <filter from the list>,
-        "Organizer" : <filter from the list>,
-        "Difficulty" : <filter from the list>,
-        "Distance" : <filter from the list>,
-        "Location" : <filter from the list>,
-        "Type" : <filter from the list>
+        "Relevance" : <value from list or "None">,
+        "Organizer" : <value from list or "None">,
+        "Difficulty" : <value from list or "None">,
+        "Distance" : <value from list or "None">,
+        "Location" : <value from list or "None">,
+        "Type" : <value from list or "None">
     }},
-    "reasoning": "A short message to the user."
+    "reasoning": "A short, friendly message explaining what filters were applied."
 }}
-If filters are not applicable, reply with "None" for that filter key.
 """
 
 prompt = ChatPromptTemplate.from_template(template)
