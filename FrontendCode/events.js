@@ -42,7 +42,7 @@ const EVENT_SOURCES = [
     { type: 'tabletennis_event', collectionPath: 'scraped_events/tabletennis_event/ttfi', sourceName: 'TTFI' },
     { type: 'chess_event', collectionPath: 'scraped_events/chess_event/aicf', sourceName: 'AICF' },
     { type: 'chess_event', collectionPath: 'scraped_events/chess_event/events', sourceName: 'AICF' },
-    { type: 'tennis_event', collectionPath: 'scraped_events/tennis_event/tenniskhelo', sourceName: 'TennisKhelo' }
+    { type: 'tennis_event', collectionPath: 'scraped_events/tennis_event/buzzato', sourceName: 'Buzzato' }
 ];  
 
 const ICONS = {
